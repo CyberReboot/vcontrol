@@ -1,0 +1,192 @@
+#!/usr/bin/env python
+
+import argparse
+
+def daemon_mode(args):
+    return True
+
+def create_instance(args):
+    return True
+
+def delete_instance(args):
+    return True
+
+def start_instance(args):
+    return True
+
+def stop_instance(args):
+    return True
+
+def command_build(args):
+    return True
+
+def command_reboot(args):
+    return True
+
+def command_ssh(args):
+    return True
+
+def command_start(args):
+    return True
+
+def command_stop(args):
+    return True
+
+def get_heartbeat(args):
+    return True
+
+def list_instances(args):
+    return True
+
+def list_providers(args):
+    return True
+
+def get_stats(args):
+    return True
+
+def get_info(args):
+    return True
+
+def deploy_template(args):
+    return True
+
+def register_instance(args):
+    return True
+
+def deregister_instance(args):
+    return True
+
+def main():
+    # generate cli and parse args
+    with open('VERSION', 'r') as f: version = f.read().strip()
+    parser = argparse.ArgumentParser(description='vent-control: a command line interface for managing vent instances')
+    subparsers = parser.add_subparsers()
+    command_parser = subparsers.add_parser('command')
+    command_subparsers = command_parser.add_subparsers()
+    cmd_build_parser = command_subparsers.add_parser('build')
+    cmd_build_parser.set_defaults(which='cmd_build_parser')
+    cmd_build_parser.add_argument('machine',
+                                  help='machine name to build containers on')
+    cmd_build_parser.add_argument('--no-cache',
+                                  action='store_true',
+                                  default=False,
+                                  help='machine name to build containers on')
+    cmd_reboot_parser = command_subparsers.add_parser('reboot')
+    cmd_reboot_parser.set_defaults(which='cmd_reboot_parser')
+    cmd_reboot_parser.add_argument('machine',
+                                   help='machine name to reboot')
+    cmd_ssh_parser = command_subparsers.add_parser('ssh')
+    cmd_ssh_parser.set_defaults(which='cmd_ssh_parser')
+    cmd_ssh_parser.add_argument('machine',
+                                help='machine name to ssh into')
+    cmd_start_parser = command_subparsers.add_parser('start')
+    cmd_start_parser.set_defaults(which='cmd_start_parser')
+    cmd_start_parser.add_argument('machine',
+                                  help='machine name to start containers on')
+    cmd_start_parser.add_argument('containers',
+                                  choices=['collectors',
+                                           'visualization',
+                                           'active',
+                                           'passive'],
+                                  help='category of containers to start')
+    cmd_stop_parser = command_subparsers.add_parser('stop')
+    cmd_stop_parser.set_defaults(which='cmd_stop_parser')
+    cmd_stop_parser.add_argument('machine',
+                                 help='machine name to stop containers on')
+    cmd_stop_parser.add_argument('containers',
+                                 choices=['collectors',
+                                          'visualization',
+                                          'active',
+                                          'passive'],
+                                 help='category of containers to stop')
+    create_parser = subparsers.add_parser('create')
+    create_parser.set_defaults(which='create_parser')
+    create_parser.add_argument('machine',
+                               help='machine name to create')
+    create_parser.add_argument('provider',
+                               help='provider to create machine on')
+    create_parser.add_argument('--cpus', '-c', default=1, type=int,
+                               help='number of cpus to create the machine with (default: 1)')
+    create_parser.add_argument('--disk-size', '-d', default=20000, type=int,
+                               help='disk space in MBs to create the machine with (default: 20000)')
+    create_parser.add_argument('--memory', '-m', default=1024, type=int,
+                               help='memory in MBs to create the machine with (default: 1024)')
+
+    # ! TODO
+    daemon_parser = subparsers.add_parser('daemon')
+    daemon_parser.set_defaults(which='daemon_parser')
+
+    delete_parser = subparsers.add_parser('delete')
+    delete_parser.set_defaults(which='delete_parser')
+    delete_parser.add_argument('machine',
+                               help='machine name to delete')
+
+    # !! TODO
+    deploy_parser = subparsers.add_parser('deploy')
+    deploy_parser.set_defaults(which='deploy_parser')
+
+    deregister_parser = subparsers.add_parser('deregister')
+    deregister_parser.set_defaults(which='deregister_parser')
+    deregister_parser.add_argument('machine',
+                                   help='machine name to deregister')
+
+    # !! TODO
+    heartbeat_parser = subparsers.add_parser('heartbeat')
+    heartbeat_parser.set_defaults(which='heartbeat_parser')
+
+    info_parser = subparsers.add_parser('info')
+    info_parser.set_defaults(which='info_parser')
+    info_parser.add_argument('machine',
+                             help='machine name to get info from')
+    list_parser = subparsers.add_parser('list')
+    list_subparsers = list_parser.add_subparsers()
+    ls_instances_parser = list_subparsers.add_parser('instances')
+    ls_instances_parser.set_defaults(which='ls_instances_parser')
+    ls_providers_parser = list_subparsers.add_parser('providers')
+    ls_providers_parser.set_defaults(which='ls_providers_parser')
+
+    # !! TODO
+    register_parser = subparsers.add_parser('register')
+    register_parser.set_defaults(which='register_parser')
+    register_parser.add_argument('machine',
+                                 help='machine name to register')
+
+    start_parser = subparsers.add_parser('start')
+    start_parser.set_defaults(which='start_parser')
+    start_parser.add_argument('machine',
+                              help='machine name to start')
+    stats_parser = subparsers.add_parser('stats')
+    stats_parser.set_defaults(which='stats_parser')
+    stats_parser.add_argument('machine',
+                              help='machine name to get stats from')
+    stop_parser = subparsers.add_parser('stop')
+    stop_parser.set_defaults(which='stop_parser')
+    stop_parser.add_argument('machine',
+                             help='machine name to stop')
+
+    args = parser.parse_args()
+    if args.which == "cmd_build_parser": command_build(args)
+    elif args.which == "cmd_reboot_parser": command_reboot(args)
+    elif args.which == "cmd_ssh_parser": command_ssh(args)
+    elif args.which == "cmd_start_parser": command_start(args)
+    elif args.which == "cmd_stop_parser": command_stop(args)
+    elif args.which == "create_parser": create_instance(args)
+    elif args.which == "daemon_parser": daemon_mode(args)
+    elif args.which == "delete_parser": delete_instance(args)
+    elif args.which == "deploy_parser": deploy_template(args)
+    elif args.which == "deregister_parser": deregister_instance(args)
+    elif args.which == "heartbeat_parser": get_heartbeat(args)
+    elif args.which == "info_parser": get_info(args)
+    elif args.which == "ls_instances_parser": list_instances(args)
+    elif args.which == "ls_providers_parser": list_providers(args)
+    elif args.which == "register_parser": register_instance(args)
+    elif args.which == "start_parser": start_instance(args)
+    elif args.which == "stats_parser": get_stats(args)
+    elif args.which == "stop_parser": stop_instance(args)
+    else: pass # should never get here
+    print args
+
+    return
+
+if __name__ == '__main__':
+    main()
