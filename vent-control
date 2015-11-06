@@ -1,20 +1,32 @@
 #!/usr/bin/env python
 
 import argparse
+import subprocess
 
 def daemon_mode(args):
     return True
 
 def create_instance(args):
+    # first ssh into the machine running vent-control daemon
+    # from there use docker-machine to provision
     return True
 
 def delete_instance(args):
+    # check if controlled by docker-machine, if not fail
+    # first ssh into the machine running vent-control daemon
+    # from there use docker-machine to delete
     return True
 
 def start_instance(args):
+    # check if controlled by docker-machine, if not fail
+    # first ssh into the machine running vent-control daemon
+    # from there use docker-machine to start
     return True
 
 def stop_instance(args):
+    # check if controlled by docker-machine, if not fail
+    # first ssh into the machine running vent-control daemon
+    # from there use docker-machine to stop
     return True
 
 def command_build(args):
@@ -24,6 +36,11 @@ def command_reboot(args):
     return True
 
 def command_ssh(args):
+    # first ssh into the machine running vent-control daemon
+    # from there ssh to the machine, whether with docker-machine or ssh
+
+    # !! TODO check if controlled by docker-machine otherwise ssh accordingly
+    #subprocess.call(["docker-machine ssh "+args.machine], shell=True)
     return True
 
 def command_start(args):
@@ -32,7 +49,10 @@ def command_start(args):
 def command_stop(args):
     return True
 
-def get_heartbeat(args):
+def heartbeat_instances(args):
+    return True
+
+def heartbeat_providers(args):
     return True
 
 def list_instances(args):
@@ -51,6 +71,8 @@ def deploy_template(args):
     return True
 
 def register_instance(args):
+    # use default or supply credentials
+    # note that they will be stored locally on the client
     return True
 
 def deregister_instance(args):
@@ -132,7 +154,11 @@ def main():
 
     # !! TODO
     heartbeat_parser = subparsers.add_parser('heartbeat')
-    heartbeat_parser.set_defaults(which='heartbeat_parser')
+    heartbeat_subparsers = heartbeat_parser.add_subparsers()
+    hb_instances_parser = heartbeat_subparsers.add_parser('instances')
+    hb_instances_parser.set_defaults(which='hb_instances_parser')
+    hb_providers_parser = heartbeat_subparsers.add_parser('providers')
+    hb_providers_parser.set_defaults(which='hb_providers_parser')
 
     info_parser = subparsers.add_parser('info')
     info_parser.set_defaults(which='info_parser')
@@ -175,7 +201,8 @@ def main():
     elif args.which == "delete_parser": delete_instance(args)
     elif args.which == "deploy_parser": deploy_template(args)
     elif args.which == "deregister_parser": deregister_instance(args)
-    elif args.which == "heartbeat_parser": get_heartbeat(args)
+    elif args.which == "hb_instances_parser": heartbeat_instances(args)
+    elif args.which == "hb_providers_parser": heartbeat_providers(args)
     elif args.which == "info_parser": get_info(args)
     elif args.which == "ls_instances_parser": list_instances(args)
     elif args.which == "ls_providers_parser": list_providers(args)
