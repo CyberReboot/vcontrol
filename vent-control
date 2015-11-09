@@ -17,7 +17,6 @@ class version:
         return v
 
 def daemon_mode(args):
-    print args
     sys.argv[1:] = ['0.0.0.0','8080']
     urls = (
         '/', 'index',
@@ -27,6 +26,15 @@ def daemon_mode(args):
     app = web.application(urls, globals())
     app.run()
 
+    return True
+
+def add_provider(provider, args):
+    # only privileged can add providers, which currently is only
+    # accessible from the server running the vent-control daemon
+    daemon = 'http://localhost:8080'
+
+    # do not use the api here, since that would expose it, instead call
+    # directly to docker-machine since it's on the same machine as the daemon
     return True
 
 def create_instance(args):
@@ -62,7 +70,7 @@ def command_ssh(args):
     # first ssh into the machine running vent-control daemon
     # from there ssh to the machine, whether with docker-machine or ssh
 
-    # !! TODO check if controlled by docker-machine otherwise ssh accordingly
+    # !! TODO check if controlled by docker-machine, if not fail (all machines should be controlled by docker-machine)
     #subprocess.call(["docker-machine ssh "+args.machine], shell=True)
     return True
 
@@ -95,6 +103,7 @@ def deploy_template(args):
 
 def register_instance(args):
     # use default or supply credentials
+    # use generic driver from docker-machine
     # note that they will be sent to the vent-control daemon
     return True
 
@@ -110,23 +119,66 @@ def main(bare_metal_only, daemon):
             privileged = 1
     except:
         pass
-    if privileged:
-        print "woohoo!"
 
     # generate cli and parse args
     with open('VERSION', 'r') as f: version = f.read().strip()
     parser = argparse.ArgumentParser(description='vent-control: a command line interface for managing vent instances')
     subparsers = parser.add_subparsers()
-    command_parser = subparsers.add_parser('command')
+
+    if privileged:
+        add_parser = subparsers.add_parser('add',
+                                           help="add new infrastructure to run vent instances on")
+        add_subparsers = add_parser.add_subparsers()
+        # purposefully don't include virtualbox, hyper-v, fusion, etc.
+        add_aws_parser = add_subparsers.add_parser('aws')
+        add_aws_parser.add_argument('args',
+                                    help='quoted args needed for docker-machine to deploy on aws')
+        add_aws_parser.set_defaults(which='add_aws_parser')
+        add_azure_parser = add_subparsers.add_parser('azure')
+        add_azure_parser.add_argument('args',
+                                      help='quoted args needed for docker-machine to deploy on azure')
+        add_azure_parser.set_defaults(which='add_azure_parser')
+        add_digitalocean_parser = add_subparsers.add_parser('digitalocean')
+        add_digitalocean_parser.add_argument('args',
+                                             help='quoted args needed for docker-machine to deploy on digitalocean')
+        add_digitalocean_parser.set_defaults(which='add_digitalocean_parser')
+        add_exoscale_parser = add_subparsers.add_parser('exoscale')
+        add_exoscale_parser.add_argument('args',
+                                         help='quoted args needed for docker-machine to deploy on exoscale')
+        add_exoscale_parser.set_defaults(which='add_exoscale_parser')
+        add_google_parser = add_subparsers.add_parser('google')
+        add_google_parser.add_argument('args',
+                                       help='quoted args needed for docker-machine to deploy on google')
+        add_google_parser.set_defaults(which='add_google_parser')
+        add_openstack_parser = add_subparsers.add_parser('openstack')
+        add_openstack_parser.add_argument('args',
+                                          help='quoted args needed for docker-machine to deploy on openstack')
+        add_openstack_parser.set_defaults(which='add_openstack_parser')
+        add_rackspace_parser = add_subparsers.add_parser('rackspace')
+        add_rackspace_parser.add_argument('args',
+                                          help='quoted args needed for docker-machine to deploy on rackspace')
+        add_rackspace_parser.set_defaults(which='add_rackspace_parser')
+        add_softlayer_parser = add_subparsers.add_parser('softlayer')
+        add_softlayer_parser.add_argument('args',
+                                          help='quoted args needed for docker-machine to deploy on softlayer')
+        add_softlayer_parser.set_defaults(which='add_softlayer_parser')
+        add_vmware_parser = add_subparsers.add_parser('vmware')
+        add_vmware_parser.add_argument('args',
+                                       help='quoted args needed for docker-machine to deploy on vmware')
+        add_vmware_parser.set_defaults(which='add_vmware_parser')
+
+    command_parser = subparsers.add_parser('command',
+                                           help="command to run on vent instance")
     command_subparsers = command_parser.add_subparsers()
-    cmd_build_parser = command_subparsers.add_parser('build')
+    cmd_build_parser = command_subparsers.add_parser('build',
+                                                     help="build all of the containers on the vent instance")
     cmd_build_parser.set_defaults(which='cmd_build_parser')
     cmd_build_parser.add_argument('machine',
                                   help='machine name to build containers on')
     cmd_build_parser.add_argument('--no-cache',
                                   action='store_true',
                                   default=False,
-                                  help='machine name to build containers on')
+                                  help='build containers without using cache')
     cmd_reboot_parser = command_subparsers.add_parser('reboot')
     cmd_reboot_parser.set_defaults(which='cmd_reboot_parser')
     cmd_reboot_parser.add_argument('machine',
@@ -145,7 +197,8 @@ def main(bare_metal_only, daemon):
                                            'active',
                                            'passive'],
                                   help='category of containers to start')
-    cmd_stop_parser = command_subparsers.add_parser('stop')
+    cmd_stop_parser = command_subparsers.add_parser('stop',
+                                                    help="stop containers in a category on the vent instance")
     cmd_stop_parser.set_defaults(which='cmd_stop_parser')
     cmd_stop_parser.add_argument('machine',
                                  help='machine name to stop containers on')
@@ -168,11 +221,8 @@ def main(bare_metal_only, daemon):
                                    help='disk space in MBs to create the machine with (default: 20000)')
         create_parser.add_argument('--memory', '-m', default=1024, type=int,
                                    help='memory in MBs to create the machine with (default: 1024)')
-
-    # ! TODO
     daemon_parser = subparsers.add_parser('daemon')
     daemon_parser.set_defaults(which='daemon_parser')
-
     if not bare_metal_only:
         delete_parser = subparsers.add_parser('delete')
         delete_parser.set_defaults(which='delete_parser')
@@ -187,15 +237,12 @@ def main(bare_metal_only, daemon):
     deregister_parser.set_defaults(which='deregister_parser')
     deregister_parser.add_argument('machine',
                                    help='machine name to deregister')
-
-    # !! TODO
     heartbeat_parser = subparsers.add_parser('heartbeat')
     heartbeat_subparsers = heartbeat_parser.add_subparsers()
     hb_instances_parser = heartbeat_subparsers.add_parser('instances')
     hb_instances_parser.set_defaults(which='hb_instances_parser')
     hb_providers_parser = heartbeat_subparsers.add_parser('providers')
     hb_providers_parser.set_defaults(which='hb_providers_parser')
-
     info_parser = subparsers.add_parser('info')
     info_parser.set_defaults(which='info_parser')
     info_parser.add_argument('machine',
@@ -242,6 +289,18 @@ def main(bare_metal_only, daemon):
         except:
             print "unable to reach the daemon, please start one and set VENT_CONTROL_DAEMON in your environment"
             sys.exit()
+
+    if privileged:
+        if args.which == "add_aws_parser": add_provider("amazonec2", args)
+        if args.which == "add_azure_parser": add_provider("azure", args)
+        if args.which == "add_digitalocean_parser": add_provider("digitalocean", args)
+        if args.which == "add_exoscale_parser": add_provider("exoscale", args)
+        if args.which == "add_google_parser": add_provider("google", args)
+        if args.which == "add_openstack_parser": add_provider("openstack", args)
+        if args.which == "add_rackspace_parser": add_provider("rackspace", args)
+        if args.which == "add_softlayer_parser": add_provider("softlayer", args)
+        if args.which == "add_vmware_parser": add_provider("vmwarevsphere", args)
+
     if args.which == "cmd_build_parser": command_build(args)
     elif args.which == "cmd_reboot_parser": command_reboot(args)
     elif args.which == "cmd_ssh_parser": command_ssh(args)
