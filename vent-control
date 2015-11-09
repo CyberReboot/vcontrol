@@ -1,9 +1,32 @@
 #!/usr/bin/env python
 
 import argparse
+import os
+import requests
 import subprocess
+import sys
+import web
+
+class index:
+    def GET(self):
+        return "vent-control"
+
+class version:
+    def GET(self):
+        with open('VERSION', 'r') as f: v = f.read().strip()
+        return v
 
 def daemon_mode(args):
+    print args
+    sys.argv[1:] = ['0.0.0.0','8080']
+    urls = (
+        '/', 'index',
+        '/version', 'version'
+    )
+
+    app = web.application(urls, globals())
+    app.run()
+
     return True
 
 def create_instance(args):
@@ -72,13 +95,24 @@ def deploy_template(args):
 
 def register_instance(args):
     # use default or supply credentials
-    # note that they will be stored locally on the client
+    # note that they will be sent to the vent-control daemon
     return True
 
 def deregister_instance(args):
     return True
 
-def main():
+def main(bare_metal_only, daemon):
+
+    privileged = 0
+    try:
+        r = requests.get('http://localhost:8080')
+        if r.text == 'vent-control':
+            privileged = 1
+    except:
+        pass
+    if privileged:
+        print "woohoo!"
+
     # generate cli and parse args
     with open('VERSION', 'r') as f: version = f.read().strip()
     parser = argparse.ArgumentParser(description='vent-control: a command line interface for managing vent instances')
@@ -121,27 +155,29 @@ def main():
                                           'active',
                                           'passive'],
                                  help='category of containers to stop')
-    create_parser = subparsers.add_parser('create')
-    create_parser.set_defaults(which='create_parser')
-    create_parser.add_argument('machine',
-                               help='machine name to create')
-    create_parser.add_argument('provider',
-                               help='provider to create machine on')
-    create_parser.add_argument('--cpus', '-c', default=1, type=int,
-                               help='number of cpus to create the machine with (default: 1)')
-    create_parser.add_argument('--disk-size', '-d', default=20000, type=int,
-                               help='disk space in MBs to create the machine with (default: 20000)')
-    create_parser.add_argument('--memory', '-m', default=1024, type=int,
-                               help='memory in MBs to create the machine with (default: 1024)')
+    if not bare_metal_only:
+        create_parser = subparsers.add_parser('create')
+        create_parser.set_defaults(which='create_parser')
+        create_parser.add_argument('machine',
+                                   help='machine name to create')
+        create_parser.add_argument('provider',
+                                   help='provider to create machine on')
+        create_parser.add_argument('--cpus', '-c', default=1, type=int,
+                                   help='number of cpus to create the machine with (default: 1)')
+        create_parser.add_argument('--disk-size', '-d', default=20000, type=int,
+                                   help='disk space in MBs to create the machine with (default: 20000)')
+        create_parser.add_argument('--memory', '-m', default=1024, type=int,
+                                   help='memory in MBs to create the machine with (default: 1024)')
 
     # ! TODO
     daemon_parser = subparsers.add_parser('daemon')
     daemon_parser.set_defaults(which='daemon_parser')
 
-    delete_parser = subparsers.add_parser('delete')
-    delete_parser.set_defaults(which='delete_parser')
-    delete_parser.add_argument('machine',
-                               help='machine name to delete')
+    if not bare_metal_only:
+        delete_parser = subparsers.add_parser('delete')
+        delete_parser.set_defaults(which='delete_parser')
+        delete_parser.add_argument('machine',
+                                   help='machine name to delete')
 
     # !! TODO
     deploy_parser = subparsers.add_parser('deploy')
@@ -177,20 +213,35 @@ def main():
     register_parser.add_argument('machine',
                                  help='machine name to register')
 
-    start_parser = subparsers.add_parser('start')
-    start_parser.set_defaults(which='start_parser')
-    start_parser.add_argument('machine',
-                              help='machine name to start')
+    if not bare_metal_only:
+        start_parser = subparsers.add_parser('start')
+        start_parser.set_defaults(which='start_parser')
+        start_parser.add_argument('machine',
+                                  help='machine name to start')
     stats_parser = subparsers.add_parser('stats')
     stats_parser.set_defaults(which='stats_parser')
     stats_parser.add_argument('machine',
                               help='machine name to get stats from')
-    stop_parser = subparsers.add_parser('stop')
-    stop_parser.set_defaults(which='stop_parser')
-    stop_parser.add_argument('machine',
-                             help='machine name to stop')
+    if not bare_metal_only:
+        stop_parser = subparsers.add_parser('stop')
+        stop_parser.set_defaults(which='stop_parser')
+        stop_parser.add_argument('machine',
+                                 help='machine name to stop')
 
     args = parser.parse_args()
+    if args.which != "daemon_parser":
+        if not daemon:
+            print "Environment variable VENT_CONTROL_DAEMON not set, defaulting to http://localhost:8080"
+            daemon = 'http://localhost:8080'
+        try:
+            r = requests.get(daemon)
+            if r.text == 'vent-control':
+                print "daemon running and reachable!"
+            else:
+                sys.exit()
+        except:
+            print "unable to reach the daemon, please start one and set VENT_CONTROL_DAEMON in your environment"
+            sys.exit()
     if args.which == "cmd_build_parser": command_build(args)
     elif args.which == "cmd_reboot_parser": command_reboot(args)
     elif args.which == "cmd_ssh_parser": command_ssh(args)
@@ -211,9 +262,10 @@ def main():
     elif args.which == "stats_parser": get_stats(args)
     elif args.which == "stop_parser": stop_instance(args)
     else: pass # should never get here
-    print args
 
     return
 
 if __name__ == '__main__':
-    main()
+    bare_metal_only = os.environ.get('VENT_CONTROL_BARE_METAL_ONLY')
+    daemon = os.environ.get('VENT_CONTROL_DAEMON')
+    main(bare_metal_only, daemon)
