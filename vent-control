@@ -116,15 +116,18 @@ class w_command_build:
 
 class w_command_reboot:
     def GET(self, machine):
-        return 1
+        out = subprocess.check_output("/usr/local/bin/docker-machine restart "+machine, shell=True)
+        return str(out)
 
 class w_command_start:
     def GET(self, machine, category):
-        return 1
+        out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" python2.7 /var/lib/docker/data/template_parser.py "+category+" start", shell=True)
+        return str(out)
 
 class w_command_stop:
     def GET(self, machine, category):
-        return 1
+        out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" python2.7 /var/lib/docker/data/template_parser.py "+category+" stop", shell=True)
+        return str(out)
 
 class w_heartbeat_instances:
     def GET(self):
