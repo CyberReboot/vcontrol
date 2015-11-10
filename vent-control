@@ -16,10 +16,40 @@ class version:
         with open('VERSION', 'r') as f: v = f.read().strip()
         return v
 
+class w_add_provider:
+    def POST(self):
+        print web.ctx.env["HTTP_HOST"]
+        # TODO is this sufficient? probably not...
+        if web.ctx.env["HTTP_HOST"] == 'localhost:8080':
+            data = web.data()
+            data = data.split("&")
+            payload = {}
+            for param in data:
+                p = param.split("=")
+                payload[p[0]] = p[1]
+
+            try:
+                if os.path.isfile('providers.txt'):
+                    with open('providers.txt', 'r') as f:
+                        for line in f:
+                            if line.split(":")[0] == payload['name']:
+                                return "provider already exists"
+                # only get here if it didn't already return
+                with open('providers.txt', 'a') as f:
+                    f.write(payload['name']+':'+payload['provider']+':'+payload['args']+'\n')
+                return "successfully added provider"
+            except:
+                print sys.exc_info()
+                print 'Error on line {}'.format(sys.exc_info()[-1].tb_lineno)
+                return "unable to add provider"
+        else:
+            return "must be done from the localhost running vent-control daemon"
+
 def daemon_mode(args):
     sys.argv[1:] = ['0.0.0.0','8080']
     urls = (
         '/', 'index',
+        '/add_provider', 'w_add_provider',
         '/version', 'version'
     )
 
@@ -32,9 +62,9 @@ def add_provider(provider, args):
     # only privileged can add providers, which currently is only
     # accessible from the server running the vent-control daemon
     daemon = 'http://localhost:8080'
-
-    # do not use the api here, since that would expose it, instead call
-    # directly to docker-machine since it's on the same machine as the daemon
+    payload = {'name': args.name, 'provider': provider, 'args': args.args}
+    r = requests.post(daemon+"/add_provider", data=payload)
+    print r.text
     return True
 
 def create_instance(args):
@@ -132,38 +162,56 @@ def main(bare_metal_only, daemon):
         add_subparsers = add_parser.add_subparsers()
         # purposefully don't include virtualbox, hyper-v, fusion, etc.
         add_aws_parser = add_subparsers.add_parser('aws')
+        add_aws_parser.add_argument('--name', '-n', default='aws',
+                                    help='specify a name for the provider credentials')
         add_aws_parser.add_argument('args',
                                     help='quoted args needed for docker-machine to deploy on aws')
         add_aws_parser.set_defaults(which='add_aws_parser')
         add_azure_parser = add_subparsers.add_parser('azure')
+        add_azure_parser.add_argument('--name', '-n', default='azure',
+                                      help='specify a name for the provider credentials')
         add_azure_parser.add_argument('args',
                                       help='quoted args needed for docker-machine to deploy on azure')
         add_azure_parser.set_defaults(which='add_azure_parser')
         add_digitalocean_parser = add_subparsers.add_parser('digitalocean')
+        add_digitalocean_parser.add_argument('--name', '-n', default='digitalocean',
+                                             help='specify a name for the provider credentials')
         add_digitalocean_parser.add_argument('args',
                                              help='quoted args needed for docker-machine to deploy on digitalocean')
         add_digitalocean_parser.set_defaults(which='add_digitalocean_parser')
         add_exoscale_parser = add_subparsers.add_parser('exoscale')
+        add_exoscale_parser.add_argument('--name', '-n', default='exoscale',
+                                         help='specify a name for the provider credentials')
         add_exoscale_parser.add_argument('args',
                                          help='quoted args needed for docker-machine to deploy on exoscale')
         add_exoscale_parser.set_defaults(which='add_exoscale_parser')
         add_google_parser = add_subparsers.add_parser('google')
+        add_google_parser.add_argument('--name', '-n', default='google',
+                                       help='specify a name for the provider credentials')
         add_google_parser.add_argument('args',
                                        help='quoted args needed for docker-machine to deploy on google')
         add_google_parser.set_defaults(which='add_google_parser')
         add_openstack_parser = add_subparsers.add_parser('openstack')
+        add_openstack_parser.add_argument('--name', '-n', default='openstack',
+                                          help='specify a name for the provider credentials')
         add_openstack_parser.add_argument('args',
                                           help='quoted args needed for docker-machine to deploy on openstack')
         add_openstack_parser.set_defaults(which='add_openstack_parser')
         add_rackspace_parser = add_subparsers.add_parser('rackspace')
+        add_rackspace_parser.add_argument('--name', '-n', default='rackspace',
+                                          help='specify a name for the provider credentials')
         add_rackspace_parser.add_argument('args',
                                           help='quoted args needed for docker-machine to deploy on rackspace')
         add_rackspace_parser.set_defaults(which='add_rackspace_parser')
         add_softlayer_parser = add_subparsers.add_parser('softlayer')
+        add_softlayer_parser.add_argument('--name', '-n', default='softlayer',
+                                          help='specify a name for the provider credentials')
         add_softlayer_parser.add_argument('args',
                                           help='quoted args needed for docker-machine to deploy on softlayer')
         add_softlayer_parser.set_defaults(which='add_softlayer_parser')
         add_vmware_parser = add_subparsers.add_parser('vmware')
+        add_vmware_parser.add_argument('--name', '-n', default='vmware',
+                                       help='specify a name for the provider credentials')
         add_vmware_parser.add_argument('args',
                                        help='quoted args needed for docker-machine to deploy on vmware')
         add_vmware_parser.set_defaults(which='add_vmware_parser')
