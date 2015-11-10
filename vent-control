@@ -55,6 +55,74 @@ class w_list_providers:
         except:
             return "unable to get providers"
 
+class w_create_instance:
+    def POST(self):
+        return 1
+
+class w_delete_instance:
+    def GET(self, machine):
+        return 1
+
+class w_start_instance:
+    def GET(self, machine):
+        return 1
+
+class w_stop_instance:
+    def GET(self, machine):
+        return 1
+
+class w_command_build:
+    def GET(self, machine, cache):
+        return 1
+
+class w_command_reboot:
+    def GET(self, machine):
+        return 1
+
+class w_command_start:
+    def GET(self, machine, category):
+        return 1
+
+class w_command_stop:
+    def GET(self, machine, category):
+        return 1
+
+class w_heartbeat_instances:
+    def GET(self):
+        return 1
+
+class w_heartbeat_providers:
+    def GET(self):
+        return 1
+
+class w_list_instances:
+    def GET(self):
+        return 1
+
+class w_list_providers:
+    def GET(self):
+        return 1
+
+class w_get_stats:
+    def GET(self, machine):
+        return 1
+
+class w_get_info:
+    def GET(self, machine):
+        return 1
+
+class w_deploy_template:
+    def POST(self):
+        return 1
+
+class w_register_instance:
+    def POST(self):
+        return 1
+
+class w_deregister_instance:
+    def GET(self, machine):
+        return 1
+
 def daemon_mode(args):
     sys.argv[1:] = ['0.0.0.0','8080']
     urls = (
