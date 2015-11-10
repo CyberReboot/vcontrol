@@ -84,19 +84,35 @@ class w_create_instance:
 
 class w_delete_instance:
     def GET(self, machine):
-        return 1
+        data = web.input()
+        cmd = "/usr/local/bin/docker-machine rm"
+        if data['force']:
+            cmd += " -f"
+        cmd += " "+machine
+        out = subprocess.check_output(cmd, shell=True)
+        return str(out)
 
 class w_start_instance:
     def GET(self, machine):
-        return 1
+        out = subprocess.check_output("/usr/local/bin/docker-machine start "+machine, shell=True)
+        return str(out)
 
 class w_stop_instance:
     def GET(self, machine):
-        return 1
+        out = subprocess.check_output("/usr/local/bin/docker-machine stop "+machine, shell=True)
+        return str(out)
 
 class w_command_build:
     def GET(self, machine):
-        return 1
+        data = web.input()
+        cmd = "/usr/local/bin/docker-machine ssh "+machine+" /bin/sh /var/lib/docker/data/build_images.sh"
+        if not data['no_cache']:
+            cmd += " --no-cache"
+        try:
+            out = subprocess.check_output(cmd, shell=True)
+        except:
+            return "failed to build"
+        return "done building"
 
 class w_command_reboot:
     def GET(self, machine):
@@ -133,15 +149,18 @@ class w_get_info:
 
 class w_deploy_template:
     def POST(self):
+        # TODO scp to vent instance
         return 1
 
 class w_register_instance:
     def POST(self):
+        # TODO generic driver
         return 1
 
 class w_deregister_instance:
     def GET(self, machine):
-        return 1
+        out = subprocess.check_output("/usr/local/bin/docker-machine rm "+machine, shell=True)
+        return str(out)
 
 def daemon_mode(args):
     sys.argv[1:] = ['0.0.0.0','8080']
@@ -200,7 +219,8 @@ def delete_instance(args, daemon):
     # check if controlled by docker-machine, if not fail
     # first ssh into the machine running vent-control daemon
     # from there use docker-machine to delete
-    r = requests.get(daemon+"/delete_instance/"+args.machine)
+    payload = {'force':args.force}
+    r = requests.get(daemon+"/delete_instance/"+args.machine, params=payload)
     print r.text
     return True
 
@@ -221,7 +241,8 @@ def stop_instance(args, daemon):
     return True
 
 def command_build(args, daemon):
-    r = requests.get(daemon+"/command_build/"+args.machine+"?cache="+args.cache)
+    payload = {'no_cache':args.no_cache}
+    r = requests.get(daemon+"/command_build/"+args.machine, params=payload)
     print r.text
     return True
 
@@ -431,6 +452,10 @@ def main(bare_metal_only, daemon):
         delete_parser.set_defaults(which='delete_parser')
         delete_parser.add_argument('machine',
                                    help='machine name to delete')
+        delete_parser.add_argument('--force', '-f',
+                                   action='store_true',
+                                   default=False,
+                                   help='force remove instance of vent')
 
     # !! TODO
     deploy_parser = subparsers.add_parser('deploy')
