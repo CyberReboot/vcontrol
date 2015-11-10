@@ -67,7 +67,7 @@ def command_reboot(args):
     return True
 
 def command_ssh(args):
-    # first ssh into the machine running vent-control daemon
+    # get the certs from the machine running vent-control daemon
     # from there ssh to the machine, whether with docker-machine or ssh
 
     # !! TODO check if controlled by docker-machine, if not fail (all machines should be controlled by docker-machine)
@@ -124,6 +124,7 @@ def main(bare_metal_only, daemon):
     with open('VERSION', 'r') as f: version = f.read().strip()
     parser = argparse.ArgumentParser(description='vent-control: a command line interface for managing vent instances')
     subparsers = parser.add_subparsers()
+    # !! TODO add more 'help' to each parser/argument
 
     if privileged:
         add_parser = subparsers.add_parser('add',
