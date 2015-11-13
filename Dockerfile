@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -qqy \
     curl \
     iptables \
     lxc \
+    python-dev \
     python-pip \
     sshpass \
     unzip

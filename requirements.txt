@@ -1,2 +1,4 @@
+python-novaclient
+pyVmomi
 requests
 web.py

@@ -1,0 +1,97 @@
+#!/usr/bin/env python
+
+from pyVim.connect import SmartConnect, Disconnect
+from pyVmomi import vmodl, vim
+
+import argparse
+import atexit
+import getpass
+
+def GetArgs():
+    """
+    Supports the command-line arguments listed below.
+    """
+    parser = argparse.ArgumentParser(description='Process args for retrieving all the Virtual Machines')
+    parser.add_argument('-s', '--host', required=True, action='store', help='Remote host to connect to')
+    parser.add_argument('-o', '--port', type=int, default=443, action='store', help='Port to connect on')
+    parser.add_argument('-u', '--user', required=True, action='store', help='User name to use when connecting to host')
+    parser.add_argument('-p', '--password', required=False, action='store',
+                        help='Password to use when connecting to host')
+    parser.add_argument('-i', '--interval', type=int, default=15, action='store',
+                        help='Interval to average the vSphere stats over')
+    args = parser.parse_args()
+    return args
+
+def GetProperties(content, viewType, props, specType):
+    # Build a view and get basic properties for all Virtual Machines
+    objView = content.viewManager.CreateContainerView(content.rootFolder, viewType, True)
+    tSpec = vim.PropertyCollector.TraversalSpec(name='tSpecName', path='view', skip=False, type=vim.view.ContainerView)
+    pSpec = vim.PropertyCollector.PropertySpec(all=False, pathSet=props, type=specType)
+    oSpec = vim.PropertyCollector.ObjectSpec(obj=objView, selectSet=[tSpec], skip=False)
+    pfSpec = vim.PropertyCollector.FilterSpec(objectSet=[oSpec], propSet=[pSpec], reportMissingObjectsInResults=False)
+    retOptions = vim.PropertyCollector.RetrieveOptions()
+    totalProps = []
+    retProps = content.propertyCollector.RetrievePropertiesEx(specSet=[pfSpec], options=retOptions)
+    totalProps += retProps.objects
+    while retProps.token:
+        retProps = content.propertyCollector.ContinueRetrievePropertiesEx(token=retProps.token)
+        totalProps += retProps.objects
+    objView.Destroy()
+    # Turn the output in retProps into a usable dictionary of values
+    gpOutput = []
+    for eachProp in totalProps:
+        propDic = {}
+        for prop in eachProp.propSet:
+            propDic[prop.name] = prop.val
+        propDic['moref'] = eachProp.obj
+        gpOutput.append(propDic)
+    return gpOutput
+
+def main():
+    args = GetArgs()
+    try:
+        si = None
+        if args.password:
+            password = args.password
+        else:
+            password = getpass.getpass(prompt="Enter password for host {} and user {}: ".format(args.host, args.user))
+        try:
+            si = SmartConnect(host=args.host,
+                              user=args.user,
+                              pwd=password,
+                              port=int(args.port))
+        except IOError as e:
+            pass
+        if not si:
+            print('Could not connect to the specified host using specified username and password')
+            return -1
+
+        atexit.register(Disconnect, si)
+        content = si.RetrieveContent()
+        retProps = GetProperties(content, [vim.VirtualMachine], ['name', 'runtime.powerState'], vim.VirtualMachine)
+
+        vm = retProps[0]
+        summary = vm['moref'].summary
+        print('[Host] Name                    : {}'.format(summary.runtime.host.name))
+        print('[Host] CPU Detail              : Processor Sockets: {}, Cores per Socket {}'.format(
+            summary.runtime.host.summary.hardware.numCpuPkgs,
+            (summary.runtime.host.summary.hardware.numCpuCores / summary.runtime.host.summary.hardware.numCpuPkgs)))
+        print('[Host] CPU Type                : {}'.format(summary.runtime.host.summary.hardware.cpuModel))
+        print('[Host] CPU Usage               : Used: {} Mhz, Total: {} Mhz'.format(
+            summary.runtime.host.summary.quickStats.overallCpuUsage,
+            (summary.runtime.host.summary.hardware.cpuMhz * summary.runtime.host.summary.hardware.numCpuCores)))
+        print('[Host] Memory Usage            : Used: {:.0f} GB, Total: {:.0f} GB\n'.format(
+            (float(summary.runtime.host.summary.quickStats.overallMemoryUsage) / 1024),
+            (float(summary.runtime.host.summary.hardware.memorySize) / 1024 / 1024 / 1024)))
+
+    except vmodl.MethodFault as e:
+        print('Caught vmodl fault : ' + e.msg)
+        return -1
+    except Exception as e:
+        print('Caught exception : ' + str(e))
+        return -1
+
+    return 0
+
+if __name__ == "__main__":
+    main()

@@ -17,6 +17,11 @@ class version:
         with open('VERSION', 'r') as f: v = f.read().strip()
         return v
 
+class w_capacity:
+    def GET(self, provider):
+        # TODO for openstack and vmware
+        return 1
+
 class w_add_provider:
     def POST(self):
         # TODO is this sufficient? probably not...
@@ -39,10 +44,21 @@ class w_add_provider:
                 provider_args = provider_args.replace('+', ' ')
                 provider_args = provider_args.replace('\\', '\\\\')
                 with open('providers.txt', 'a') as f:
-                    f.write(payload['name']+':'+payload['provider']+':'+provider_args+'\n')
+                    if payload['provider'] == 'openstack' or payload['provider'] == 'vmwarevsphere':
+                        f.write(payload['name']+':'+payload['provider']+':'+payload['cpu']+":"+payload['ram']+":"+payload['disk']+":"+provider_args+'\n')
+                    else:
+                        f.write(payload['name']+':'+payload['provider']+':'+provider_args+'\n')
                 return "successfully added provider"
             except:
                 return "unable to add provider"
+        else:
+            return "must be done from the localhost running vent-control daemon"
+
+class w_remove_provider:
+    def GET(self, provider):
+        if web.ctx.env["HTTP_HOST"] == 'localhost:8080':
+            # !! TODO
+            pass
         else:
             return "must be done from the localhost running vent-control daemon"
 
@@ -71,7 +87,11 @@ class w_create_instance:
                 with open('providers.txt', 'r') as f:
                     for line in f:
                         if line.split(":")[0] == payload['provider']:
-                            cmd = "/usr/local/bin/docker-machine create -d "+line.split(":")[1]+" "+line.split(":")[2].strip()
+                            if line.split(":")[1] == 'openstack' or line.split(":")[1] == 'vmwarevsphere':
+                                # TODO check usage stats first and make sure it's not over the limits (capacity)
+                                cmd = "/usr/local/bin/docker-machine create -d "+line.split(":")[1]+" "+line.split(":")[5].strip()
+                            else:
+                                cmd = "/usr/local/bin/docker-machine create -d "+line.split(":")[1]+" "+line.split(":")[2].strip()
                             if line.split(":")[1] == "vmwarevsphere":
                                 cmd += ' --vmwarevsphere-cpu-count "'+str(payload['cpus'])+'" --vmwarevsphere-disk-size "'+str(payload['disk_size'])+'" --vmwarevsphere-memory-size "'+str(payload['memory'])+'"'
                             cmd += ' '+payload['machine']
@@ -131,10 +151,12 @@ class w_command_stop:
 
 class w_heartbeat_instances:
     def GET(self):
+        # TODO
         return 1
 
 class w_heartbeat_providers:
     def GET(self):
+        # TODO
         return 1
 
 class w_list_instances:
@@ -144,10 +166,12 @@ class w_list_instances:
 
 class w_get_stats:
     def GET(self, machine):
+        # TODO
         return 1
 
 class w_get_info:
     def GET(self, machine):
+        # TODO
         return 1
 
 class w_deploy_template:
@@ -185,6 +209,8 @@ def daemon_mode(args):
     urls = (
         '/', 'index',
         '/add_provider', 'w_add_provider',
+        '/remove_provider/(.+)', 'w_remove_provider',
+        '/capacity/(.+)', 'w_capacity',
         '/create_instance', 'w_create_instance',
         '/delete_instance/(.+)', 'w_delete_instance',
         '/start_instance/(.+)', 'w_start_instance',
@@ -216,7 +242,19 @@ def add_provider(provider, args):
     # accessible from the server running the vent-control daemon
     daemon = 'http://localhost:8080'
     payload = {'name': args.name, 'provider': provider, 'args': args.args}
+    if provider == "openstack" or provider == "vmwarevsphere":
+        payload['cpu'] = str(args.max_cpu_usage)
+        payload['ram'] = str(args.max_ram_usage)
+        payload['disk'] = str(args.max_disk_usage)
     r = requests.post(daemon+"/add_provider", data=payload)
+    print r.text
+    return True
+
+def remove_provider(args):
+    # only privileged can remove providers, which currently is only
+    # accessible from the server running the vent-control daemon
+    daemon = 'http://localhost:8080'
+    r = requests.get(daemon+"/remove_provider/"+args.provider)
     print r.text
     return True
 
@@ -355,6 +393,10 @@ def main(bare_metal_only, daemon):
     # !! TODO add more 'help' to each parser/argument
 
     if privileged:
+        remove_parser = subparsers.add_parser('remove')
+        remove_parser.set_defaults(which='remove_parser')
+        remove_parser.add_argument('provider',
+                                   help='provider to remove')
         add_parser = subparsers.add_parser('add',
                                            help="add new infrastructure to run vent instances on")
         add_subparsers = add_parser.add_subparsers()
@@ -392,6 +434,12 @@ def main(bare_metal_only, daemon):
         add_openstack_parser = add_subparsers.add_parser('openstack')
         add_openstack_parser.add_argument('--name', '-n', default='openstack',
                                           help='specify a name for the provider credentials')
+        add_openstack_parser.add_argument('--max-cpu-usage', '-c', default=80, type=int
+                                          help='max percentage of cpus that can be used and still create instances (default: 80)')
+        add_openstack_parser.add_argument('--max-ram-usage', '-r', default=80, type=int
+                                          help='max percentage of memory that can be used and still create instances (default: 80)')
+        add_openstack_parser.add_argument('--max-disk-usage', '-d', default=80, type=int
+                                          help='max percentage of disk that can be used and still create instances (default: 80)')
         add_openstack_parser.add_argument('args',
                                           help='quoted args needed for docker-machine to deploy on openstack')
         add_openstack_parser.set_defaults(which='add_openstack_parser')
@@ -412,6 +460,12 @@ def main(bare_metal_only, daemon):
                                        help='specify a name for the provider credentials')
         add_vmware_parser.add_argument('args',
                                        help='quoted args needed for docker-machine to deploy on vmware')
+        add_vmware_parser.add_argument('--max-cpu-usage', '-c', default=80, type=int
+                                       help='max percentage of cpus that can be used and still create instances (default: 80)')
+        add_vmware_parser.add_argument('--max-ram-usage', '-r', default=80, type=int
+                                       help='max percentage of memory that can be used and still create instances (default: 80)')
+        add_vmware_parser.add_argument('--max-disk-usage', '-d', default=80, type=int
+                                       help='max percentage of disk that can be used and still create instances (default: 80)')
         add_vmware_parser.set_defaults(which='add_vmware_parser')
 
     command_parser = subparsers.add_parser('command',
@@ -543,6 +597,7 @@ def main(bare_metal_only, daemon):
             sys.exit()
 
     if privileged:
+        if args.which == "remove_parser": remove_provider(args)
         if args.which == "add_aws_parser": add_provider("amazonec2", args)
         if args.which == "add_azure_parser": add_provider("azure", args)
         if args.which == "add_digitalocean_parser": add_provider("digitalocean", args)
