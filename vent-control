@@ -175,9 +175,20 @@ class w_get_info:
         return 1
 
 class w_deploy_template:
-    def POST(self):
+    def POST(self, machine):
+        x = web.input(myfile={})
+        filedir = '/tmp/templates/'+machine # change this to the directory you want to store the file in.
+        if not os.path.exists(filedir):
+            os.makedirs(filedir)
+        if 'myfile' in x: # to check if the file-object is created
+            filepath=x.myfile.filename.replace('\\','/') # replaces the windows-style slashes with linux ones.
+            filename=filepath.split('/')[-1] # splits the and chooses the last part (the filename with extension)
+            fout = open(filedir +'/'+ filename,'w') # creates the file where the uploaded file should be stored
+            fout.write(x.myfile.file.read()) # writes the uploaded file to the newly created file.
+            fout.close() # closes the file, upload complete.
         # TODO scp to vent instance
-        return 1
+        print machine
+        return "successfully deployed"
 
 class w_register_instance:
     def POST(self):
@@ -225,7 +236,7 @@ def daemon_mode(args):
         '/list_providers', 'w_list_providers',
         '/get_stats/(.+)', 'w_get_stats',
         '/get_info/(.+)', 'w_get_info',
-        '/deploy_template', 'w_deploy_template',
+        '/deploy_template/(.+)', 'w_deploy_template',
         '/register_instance', 'w_register_instance',
         '/deregister_instance/(.+)', 'w_deregister_instance',
         '/list_providers', 'w_list_providers',
@@ -357,7 +368,8 @@ def get_info(args, daemon):
     return True
 
 def deploy_template(args, daemon):
-    # !! TODO
+    files = {'myfile': open(args.path, 'rb')}
+    r = requests.post(daemon+"/deploy_template/"+args.machine, files=files)
     return True
 
 def register_instance(args, daemon):
@@ -529,11 +541,12 @@ def main(bare_metal_only, daemon):
                                    action='store_true',
                                    default=False,
                                    help='force remove instance of vent')
-
-    # !! TODO
     deploy_parser = subparsers.add_parser('deploy')
     deploy_parser.set_defaults(which='deploy_parser')
-
+    deploy_parser.add_argument('machine',
+                               help='machine name to deploy template to')
+    deploy_parser.add_argument('path',
+                               help='file path of template to deploy')
     deregister_parser = subparsers.add_parser('deregister')
     deregister_parser.set_defaults(which='deregister_parser')
     deregister_parser.add_argument('machine',
