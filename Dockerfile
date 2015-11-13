@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -qqy \
     iptables \
     lxc \
     python-pip \
+    sshpass \
     unzip
 
 # install docker
