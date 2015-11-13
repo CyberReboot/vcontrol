@@ -393,10 +393,6 @@ def main(bare_metal_only, daemon):
     # !! TODO add more 'help' to each parser/argument
 
     if privileged:
-        remove_parser = subparsers.add_parser('remove')
-        remove_parser.set_defaults(which='remove_parser')
-        remove_parser.add_argument('provider',
-                                   help='provider to remove')
         add_parser = subparsers.add_parser('add',
                                            help="add new infrastructure to run vent instances on")
         add_subparsers = add_parser.add_subparsers()
@@ -434,11 +430,11 @@ def main(bare_metal_only, daemon):
         add_openstack_parser = add_subparsers.add_parser('openstack')
         add_openstack_parser.add_argument('--name', '-n', default='openstack',
                                           help='specify a name for the provider credentials')
-        add_openstack_parser.add_argument('--max-cpu-usage', '-c', default=80, type=int
+        add_openstack_parser.add_argument('--max-cpu-usage', '-c', default=80, type=int,
                                           help='max percentage of cpus that can be used and still create instances (default: 80)')
-        add_openstack_parser.add_argument('--max-ram-usage', '-r', default=80, type=int
+        add_openstack_parser.add_argument('--max-ram-usage', '-r', default=80, type=int,
                                           help='max percentage of memory that can be used and still create instances (default: 80)')
-        add_openstack_parser.add_argument('--max-disk-usage', '-d', default=80, type=int
+        add_openstack_parser.add_argument('--max-disk-usage', '-d', default=80, type=int,
                                           help='max percentage of disk that can be used and still create instances (default: 80)')
         add_openstack_parser.add_argument('args',
                                           help='quoted args needed for docker-machine to deploy on openstack')
@@ -460,11 +456,11 @@ def main(bare_metal_only, daemon):
                                        help='specify a name for the provider credentials')
         add_vmware_parser.add_argument('args',
                                        help='quoted args needed for docker-machine to deploy on vmware')
-        add_vmware_parser.add_argument('--max-cpu-usage', '-c', default=80, type=int
+        add_vmware_parser.add_argument('--max-cpu-usage', '-c', default=80, type=int,
                                        help='max percentage of cpus that can be used and still create instances (default: 80)')
-        add_vmware_parser.add_argument('--max-ram-usage', '-r', default=80, type=int
+        add_vmware_parser.add_argument('--max-ram-usage', '-r', default=80, type=int,
                                        help='max percentage of memory that can be used and still create instances (default: 80)')
-        add_vmware_parser.add_argument('--max-disk-usage', '-d', default=80, type=int
+        add_vmware_parser.add_argument('--max-disk-usage', '-d', default=80, type=int,
                                        help='max percentage of disk that can be used and still create instances (default: 80)')
         add_vmware_parser.set_defaults(which='add_vmware_parser')
 
@@ -566,6 +562,11 @@ def main(bare_metal_only, daemon):
                                  help='ip address of vent machine to register')
     register_parser.add_argument('--password', '-p', default='tcuser',
                                  help='password to log into docker user on vent with (default: tcuser)')
+    if privileged:
+        remove_parser = subparsers.add_parser('remove')
+        remove_parser.set_defaults(which='remove_parser')
+        remove_parser.add_argument('provider',
+                                   help='provider to remove')
     if not bare_metal_only:
         start_parser = subparsers.add_parser('start')
         start_parser.set_defaults(which='start_parser')
