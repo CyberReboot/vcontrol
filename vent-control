@@ -174,6 +174,16 @@ class w_get_info:
         # TODO
         return 1
 
+class w_get_template:
+    def GET(self):
+        data = web.data()
+        data = data.split("&")
+        payload = {}
+        for param in data:
+            p = param.split("=")
+            payload[p[0]] = p[1]
+        print payload
+
 class w_deploy_template:
     def POST(self, machine):
         x = web.input(myfile={})
@@ -237,6 +247,7 @@ def daemon_mode(args):
         '/get_stats/(.+)', 'w_get_stats',
         '/get_info/(.+)', 'w_get_info',
         '/deploy_template/(.+)', 'w_deploy_template',
+        '/get_template', 'w_get_template',
         '/register_instance', 'w_register_instance',
         '/deregister_instance/(.+)', 'w_deregister_instance',
         '/list_providers', 'w_list_providers',
@@ -364,6 +375,14 @@ def get_stats(args, daemon):
 
 def get_info(args, daemon):
     r = requests.get(daemon+"/get_info/"+args.machine)
+    print r.text
+    return True
+
+def get_template(args, daemon):
+    payload = {}
+    payload['machine'] = args.machine
+    payload['filename'] = args.filename
+    r = requests.get(daemon+"/get_template", data=payload)
     print r.text
     return True
 
@@ -551,6 +570,14 @@ def main(bare_metal_only, daemon):
     deregister_parser.set_defaults(which='deregister_parser')
     deregister_parser.add_argument('machine',
                                    help='machine name to deregister')
+    get_parser = subparsers.add_parser('get')
+    get_subparsers = get_parser.add_subparsers()
+    get_template_parser = get_subparsers.add_parser('template')
+    get_template_parser.set_defaults(which='get_template_parser')
+    get_template_parser.add_argument('machine',
+                               help='machine name to get template from')
+    get_template_parser.add_argument('filename',
+                               help='filename of template to get')
     heartbeat_parser = subparsers.add_parser('heartbeat')
     heartbeat_subparsers = heartbeat_parser.add_subparsers()
     hb_instances_parser = heartbeat_subparsers.add_parser('instances')
@@ -632,6 +659,7 @@ def main(bare_metal_only, daemon):
     elif args.which == "delete_parser": delete_instance(args, daemon)
     elif args.which == "deploy_parser": deploy_template(args, daemon)
     elif args.which == "deregister_parser": deregister_instance(args, daemon)
+    elif args.which == "get_template_parser": get_template(args, daemon)
     elif args.which == "hb_instances_parser": heartbeat_instances(args, daemon)
     elif args.which == "hb_providers_parser": heartbeat_providers(args, daemon)
     elif args.which == "info_parser": get_info(args, daemon)
