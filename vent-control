@@ -153,6 +153,8 @@ class w_command_reboot:
 
 class w_command_start:
     def GET(self, machine, category):
+        # just in case, make sure vent-management is running first
+        out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" docker rm vent-management; sudo /var/lib/docker/data/custom")
         out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" python2.7 /var/lib/docker/data/template_parser.py "+category+" start", shell=True)
         return str(out)
 
