@@ -57,8 +57,20 @@ class w_add_provider:
 class w_remove_provider:
     def GET(self, provider):
         if web.ctx.env["HTTP_HOST"] == 'localhost:8080':
-            # !! TODO
-            pass
+            f = open("providers.txt","r")
+            lines = f.readlines()
+            f.close()
+            flag = 0
+            with open("providers.txt", 'w') as f:
+                for line in lines:
+                    if not line.startswith(provider+":"):
+                        f.write(line)
+                    else:
+                        flag = 1
+            if flag:
+                return "removed " + provider
+            else:
+                return provider + " not found, couldn't remove"
         else:
             return "must be done from the localhost running vent-control daemon"
 
