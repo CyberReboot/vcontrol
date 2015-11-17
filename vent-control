@@ -283,16 +283,14 @@ def add_provider(provider, args):
         payload['ram'] = str(args.max_ram_usage)
         payload['disk'] = str(args.max_disk_usage)
     r = requests.post(daemon+"/add_provider", data=payload)
-    print r.text
-    return True
+    return r.text
 
 def remove_provider(args):
     # only privileged can remove providers, which currently is only
     # accessible from the server running the vent-control daemon
     daemon = 'http://localhost:8080'
     r = requests.get(daemon+"/remove_provider/"+args.provider)
-    print r.text
-    return True
+    return r.text
 
 def create_instance(args, daemon):
     # first ssh into the machine running vent-control daemon
@@ -304,8 +302,7 @@ def create_instance(args, daemon):
     payload['disk_size'] = args.disk_size
     payload['memory'] = args.memory
     r = requests.post(daemon+"/create_instance", data=payload)
-    print r.text
-    return True
+    return r.text
 
 def delete_instance(args, daemon):
     # check if controlled by docker-machine, if not fail
@@ -313,35 +310,30 @@ def delete_instance(args, daemon):
     # from there use docker-machine to delete
     payload = {'force':args.force}
     r = requests.get(daemon+"/delete_instance/"+args.machine, params=payload)
-    print r.text
-    return True
+    return r.text
 
 def start_instance(args, daemon):
     # check if controlled by docker-machine, if not fail
     # first ssh into the machine running vent-control daemon
     # from there use docker-machine to start
     r = requests.get(daemon+"/start_instance/"+args.machine)
-    print r.text
-    return True
+    return r.text
 
 def stop_instance(args, daemon):
     # check if controlled by docker-machine, if not fail
     # first ssh into the machine running vent-control daemon
     # from there use docker-machine to stop
     r = requests.get(daemon+"/stop_instance/"+args.machine)
-    print r.text
-    return True
+    return r.text
 
 def command_build(args, daemon):
     payload = {'no_cache':args.no_cache}
     r = requests.get(daemon+"/command_build/"+args.machine, params=payload)
-    print r.text
-    return True
+    return r.text
 
 def command_reboot(args, daemon):
     r = requests.get(daemon+"/command_reboot/"+args.machine)
-    print r.text
-    return True
+    return r.text
 
 def command_ssh(args, daemon):
     # get the certs from the machine running vent-control daemon
@@ -354,51 +346,42 @@ def command_ssh(args, daemon):
 
 def command_start(args, daemon):
     r = requests.get(daemon+"/command_start/"+args.machine+"/"+args.containers)
-    print r.text
-    return True
+    return r.text
 
 def command_stop(args, daemon):
     r = requests.get(daemon+"/command_stop/"+args.machine+"/"+args.containers)
-    print r.text
-    return True
+    return r.text
 
 def heartbeat_instances(args, daemon):
     r = requests.get(daemon+"/heartbeat_instances")
-    print r.text
-    return True
+    return r.text
 
 def heartbeat_providers(args, daemon):
     r = requests.get(daemon+"/heartbeat_providers")
-    print r.text
-    return True
+    return r.text
 
 def list_instances(args, daemon):
     r = requests.get(daemon+"/list_instances")
-    print r.text
-    return True
+    return r.text
 
 def list_providers(args, daemon):
     r = requests.get(daemon+"/list_providers")
-    print r.text
-    return True
+    return r.text
 
 def get_stats(args, daemon):
     r = requests.get(daemon+"/get_stats/"+args.machine)
-    print r.text
-    return True
+    return r.text
 
 def get_info(args, daemon):
     r = requests.get(daemon+"/get_info/"+args.machine)
-    print r.text
-    return True
+    return r.text
 
 def get_template(args, daemon):
     payload = {}
     payload['machine'] = args.machine
     payload['filename'] = args.filename
     r = requests.get(daemon+"/get_template", data=payload)
-    print r.text
-    return True
+    return r.text
 
 def deploy_template(args, daemon):
     files = {'myfile': open(args.path, 'rb')}
@@ -414,13 +397,11 @@ def register_instance(args, daemon):
     payload['ip'] = args.ip
     payload['password'] = args.password
     r = requests.post(daemon+"/register_instance", data=payload)
-    print r.text
-    return True
+    return r.text
 
 def deregister_instance(args, daemon):
     r = requests.get(daemon+"/deregister_instance/"+args.machine)
-    print r.text
-    return True
+    return r.text
 
 def main(bare_metal_only, daemon):
     privileged = 0
@@ -644,46 +625,50 @@ def main(bare_metal_only, daemon):
         try:
             r = requests.get(daemon)
             if r.text == 'vent-control':
-                print "daemon running and reachable!"
+                #print "daemon running and reachable!"
+                pass
             else:
                 sys.exit()
         except:
             print "unable to reach the daemon, please start one and set VENT_CONTROL_DAEMON in your environment"
             sys.exit()
 
+    output = ""
     if privileged:
-        if args.which == "remove_parser": remove_provider(args)
-        if args.which == "add_aws_parser": add_provider("amazonec2", args)
-        if args.which == "add_azure_parser": add_provider("azure", args)
-        if args.which == "add_digitalocean_parser": add_provider("digitalocean", args)
-        if args.which == "add_exoscale_parser": add_provider("exoscale", args)
-        if args.which == "add_google_parser": add_provider("google", args)
-        if args.which == "add_openstack_parser": add_provider("openstack", args)
-        if args.which == "add_rackspace_parser": add_provider("rackspace", args)
-        if args.which == "add_softlayer_parser": add_provider("softlayer", args)
-        if args.which == "add_vmware_parser": add_provider("vmwarevsphere", args)
+        if args.which == "remove_parser": output = remove_provider(args)
+        if args.which == "add_aws_parser": output = add_provider("amazonec2", args)
+        if args.which == "add_azure_parser": output = add_provider("azure", args)
+        if args.which == "add_digitalocean_parser": output = add_provider("digitalocean", args)
+        if args.which == "add_exoscale_parser": output = add_provider("exoscale", args)
+        if args.which == "add_google_parser": output = add_provider("google", args)
+        if args.which == "add_openstack_parser": output = add_provider("openstack", args)
+        if args.which == "add_rackspace_parser": output = add_provider("rackspace", args)
+        if args.which == "add_softlayer_parser": output = add_provider("softlayer", args)
+        if args.which == "add_vmware_parser": output = add_provider("vmwarevsphere", args)
 
-    if args.which == "cmd_build_parser": command_build(args, daemon)
-    elif args.which == "cmd_reboot_parser": command_reboot(args, daemon)
-    elif args.which == "cmd_ssh_parser": command_ssh(args, daemon)
-    elif args.which == "cmd_start_parser": command_start(args, daemon)
-    elif args.which == "cmd_stop_parser": command_stop(args, daemon)
-    elif args.which == "create_parser": create_instance(args, daemon)
-    elif args.which == "daemon_parser": daemon_mode(args)
-    elif args.which == "delete_parser": delete_instance(args, daemon)
-    elif args.which == "deploy_parser": deploy_template(args, daemon)
-    elif args.which == "deregister_parser": deregister_instance(args, daemon)
-    elif args.which == "get_template_parser": get_template(args, daemon)
-    elif args.which == "hb_instances_parser": heartbeat_instances(args, daemon)
-    elif args.which == "hb_providers_parser": heartbeat_providers(args, daemon)
-    elif args.which == "info_parser": get_info(args, daemon)
-    elif args.which == "ls_instances_parser": list_instances(args, daemon)
-    elif args.which == "ls_providers_parser": list_providers(args, daemon)
-    elif args.which == "register_parser": register_instance(args, daemon)
-    elif args.which == "start_parser": start_instance(args, daemon)
-    elif args.which == "stats_parser": get_stats(args, daemon)
-    elif args.which == "stop_parser": stop_instance(args, daemon)
+    if args.which == "cmd_build_parser": output = command_build(args, daemon)
+    elif args.which == "cmd_reboot_parser": output = command_reboot(args, daemon)
+    elif args.which == "cmd_ssh_parser": output = command_ssh(args, daemon)
+    elif args.which == "cmd_start_parser": output = command_start(args, daemon)
+    elif args.which == "cmd_stop_parser": output = command_stop(args, daemon)
+    elif args.which == "create_parser": output = create_instance(args, daemon)
+    elif args.which == "daemon_parser": output = daemon_mode(args)
+    elif args.which == "delete_parser": output = delete_instance(args, daemon)
+    elif args.which == "deploy_parser": output = deploy_template(args, daemon)
+    elif args.which == "deregister_parser": output = deregister_instance(args, daemon)
+    elif args.which == "get_template_parser": output = get_template(args, daemon)
+    elif args.which == "hb_instances_parser": output = heartbeat_instances(args, daemon)
+    elif args.which == "hb_providers_parser": output = heartbeat_providers(args, daemon)
+    elif args.which == "info_parser": output = get_info(args, daemon)
+    elif args.which == "ls_instances_parser": output = list_instances(args, daemon)
+    elif args.which == "ls_providers_parser": output = list_providers(args, daemon)
+    elif args.which == "register_parser": output = register_instance(args, daemon)
+    elif args.which == "start_parser": output = start_instance(args, daemon)
+    elif args.which == "stats_parser": output = get_stats(args, daemon)
+    elif args.which == "stop_parser": output = stop_instance(args, daemon)
     else: pass # should never get here
+
+    print output
 
     return
 
