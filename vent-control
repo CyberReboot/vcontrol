@@ -163,6 +163,31 @@ class w_command_stop:
         out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" python2.7 /var/lib/docker/data/template_parser.py "+category+" stop", shell=True)
         return str(out)
 
+class w_command_messages:
+    def GET(self, machine):
+        out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" /var/lib/docker/data/info_tools/get_messages.sh", shell=True)
+        return str(out)
+
+class w_command_services:
+    def GET(self, machine):
+        out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" /var/lib/docker/data/info_tools/get_services.sh", shell=True)
+        return str(out)
+
+class w_command_tasks:
+    def GET(self, machine):
+        out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" /var/lib/docker/data/info_tools/get_tasks.sh", shell=True)
+        return str(out)
+
+class w_command_tools:
+    def GET(self, machine):
+        out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" /var/lib/docker/data/info_tools/get_tools.sh", shell=True)
+        return str(out)
+
+class w_command_types:
+    def GET(self, machine):
+        out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" /var/lib/docker/data/info_tools/get_types.sh", shell=True)
+        return str(out)
+
 class w_heartbeat_instances:
     def GET(self):
         # TODO
@@ -271,6 +296,11 @@ def daemon_mode(args):
         '/command_reboot/(.+)', 'w_command_reboot',
         '/command_start/(.+)/(.+)', 'w_command_start',
         '/command_stop/(.+)/(.+)', 'w_command_stop',
+        '/command_messages/(.+)', 'w_command_messages',
+        '/command_services/(.+)', 'w_command_services',
+        '/command_tasks/(.+)', 'w_command_tasks',
+        '/command_tools/(.+)', 'w_command_tools',
+        '/command_types/(.+)', 'w_command_types',
         '/heartbeat_instances', 'w_heartbeat_instances',
         '/heartbeat_providers', 'w_heartbeat_providers',
         '/list_instances', 'w_list_instances',
@@ -366,6 +396,26 @@ def command_start(args, daemon):
 
 def command_stop(args, daemon):
     r = requests.get(daemon+"/command_stop/"+args.machine+"/"+args.containers)
+    return r.text
+
+def command_messages(args, daemon):
+    r = requests.get(daemon+"/command_messages/"+args.machine)
+    return r.text
+
+def command_services(args, daemon):
+    r = requests.get(daemon+"/command_services/"+args.machine)
+    return r.text
+
+def command_tasks(args, daemon):
+    r = requests.get(daemon+"/command_tasks/"+args.machine)
+    return r.text
+
+def command_tools(args, daemon):
+    r = requests.get(daemon+"/command_tools/"+args.machine)
+    return r.text
+
+def command_types(args, daemon):
+    r = requests.get(daemon+"/command_types/"+args.machine)
     return r.text
 
 def heartbeat_instances(args, daemon):
@@ -527,6 +577,26 @@ def main(bare_metal_only, daemon):
     cmd_ssh_parser.set_defaults(which='cmd_ssh_parser')
     cmd_ssh_parser.add_argument('machine',
                                 help='machine name to ssh into')
+    cmd_messages_parser = command_subparsers.add_parser('messages')
+    cmd_messages_parser.set_defaults(which='cmd_messages_parser')
+    cmd_messages_parser.add_argument('machine',
+                                     help='machine name to get messages from')
+    cmd_services_parser = command_subparsers.add_parser('services')
+    cmd_services_parser.set_defaults(which='cmd_services_parser')
+    cmd_services_parser.add_argument('machine',
+                                     help='machine name to get services from')
+    cmd_tasks_parser = command_subparsers.add_parser('tasks')
+    cmd_tasks_parser.set_defaults(which='cmd_tasks_parser')
+    cmd_tasks_parser.add_argument('machine',
+                                  help='machine name to get tasks from')
+    cmd_tools_parser = command_subparsers.add_parser('tools')
+    cmd_tools_parser.set_defaults(which='cmd_tools_parser')
+    cmd_tools_parser.add_argument('machine',
+                                  help='machine name to get tools from')
+    cmd_types_parser = command_subparsers.add_parser('types')
+    cmd_types_parser.set_defaults(which='cmd_types_parser')
+    cmd_types_parser.add_argument('machine',
+                                     help='machine name to get types from')
     cmd_start_parser = command_subparsers.add_parser('start')
     cmd_start_parser.set_defaults(which='cmd_start_parser')
     cmd_start_parser.add_argument('machine',
@@ -672,6 +742,11 @@ def main(bare_metal_only, daemon):
     elif args.which == "cmd_ssh_parser": output = command_ssh(args, daemon)
     elif args.which == "cmd_start_parser": output = command_start(args, daemon)
     elif args.which == "cmd_stop_parser": output = command_stop(args, daemon)
+    elif args.which == "cmd_messages_parser": output = command_messages(args, daemon)
+    elif args.which == "cmd_services_parser": output = command_services(args, daemon)
+    elif args.which == "cmd_tasks_parser": output = command_tasks(args, daemon)
+    elif args.which == "cmd_tools_parser": output = command_tools(args, daemon)
+    elif args.which == "cmd_types_parser": output = command_types(args, daemon)
     elif args.which == "create_parser": output = create_instance(args, daemon)
     elif args.which == "daemon_parser": output = daemon_mode(args)
     elif args.which == "delete_parser": output = delete_instance(args, daemon)
