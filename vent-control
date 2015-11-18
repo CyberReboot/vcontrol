@@ -281,7 +281,6 @@ def daemon_mode(args):
         '/get_template', 'w_get_template',
         '/register_instance', 'w_register_instance',
         '/deregister_instance/(.+)', 'w_deregister_instance',
-        '/list_providers', 'w_list_providers',
         '/version', 'version'
     )
 
