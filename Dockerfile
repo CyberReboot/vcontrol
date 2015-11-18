@@ -30,6 +30,10 @@ RUN curl -L https://github.com/docker/machine/releases/download/v0.5.0/docker-ma
     rm machine.zip && \
     mv docker-machine* /usr/local/bin
 
+# TODO temporary dev
+RUN curl --insecure -L https://github.com/CyberReboot/vent/releases/download/v0.4.0/vent.iso >boot2docker.iso && mkdir -p /root/.docker/machine/ && mv boot2docker.iso /root/.docker/machine/boot2docker.iso
+RUN mkdir -p /root/.docker/machine/cache && cp /root/.docker/machine/boot2docker.iso /root/.docker/machine/cache/boot2docker.iso
+
 ADD ./wrapdocker /usr/local/bin/wrapdocker
 RUN chmod +x /usr/local/bin/wrapdocker
 ADD . /vent-control
