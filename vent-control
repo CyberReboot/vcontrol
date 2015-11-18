@@ -175,8 +175,25 @@ class w_heartbeat_providers:
 
 class w_list_instances:
     def GET(self):
-        out = subprocess.check_output("/usr/local/bin/docker-machine ls", shell=True)
-        return str(out)
+        data = web.input()
+        instance_array = []
+        if data['fast'] == 'True':
+            if os.path.isdir('/root/.docker/machine/machines'):
+                out = subprocess.check_output("ls -1 /root/.docker/machine/machines", shell=True)
+                out = str(out)
+                out = out.split("\n")
+                for instance in out[:-1]:
+                    instance_array.append(instance)
+            else:
+                out = ""
+        else:
+            out = subprocess.check_output("/usr/local/bin/docker-machine ls", shell=True)
+            out = str(out)
+            out = out.split("\n")
+            for instance in out[1:-1]:
+                i = instance.split(" ")
+                instance_array.append(i[0])
+        return str(instance_array)
 
 class w_get_stats:
     def GET(self, machine):
@@ -361,7 +378,8 @@ def heartbeat_providers(args, daemon):
     return r.text
 
 def list_instances(args, daemon):
-    r = requests.get(daemon+"/list_instances")
+    payload = {'fast':args.fast}
+    r = requests.get(daemon+"/list_instances", params=payload)
     return r.text
 
 def list_providers(args, daemon):
@@ -587,6 +605,10 @@ def main(bare_metal_only, daemon):
     list_subparsers = list_parser.add_subparsers()
     ls_instances_parser = list_subparsers.add_parser('instances')
     ls_instances_parser.set_defaults(which='ls_instances_parser')
+    ls_instances_parser.add_argument('--fast', '-f',
+                                     action='store_true',
+                                     default=False,
+                                     help='get the list fast, without verifying')
     ls_providers_parser = list_subparsers.add_parser('providers')
     ls_providers_parser.set_defaults(which='ls_providers_parser')
     register_parser = subparsers.add_parser('register')
