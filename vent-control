@@ -652,7 +652,7 @@ def main(bare_metal_only, daemon):
                                           help='start the daemon')
     daemon_parser.set_defaults(which='daemon_parser')
     if not bare_metal_only:
-        delete_parser = subparsers.add_parser('delete')
+        delete_parser = subparsers.add_parser('delete',
                                               help='delete a vent instance')
         delete_parser.set_defaults(which='delete_parser')
         delete_parser.add_argument('machine',
