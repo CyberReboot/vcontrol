@@ -483,7 +483,6 @@ def main(bare_metal_only, daemon):
     with open('VERSION', 'r') as f: version = f.read().strip()
     parser = argparse.ArgumentParser(description='vent-control: a command line interface for managing vent instances')
     subparsers = parser.add_subparsers()
-    # !! TODO add more 'help' to each parser/argument
 
     if privileged:
         add_parser = subparsers.add_parser('add',
