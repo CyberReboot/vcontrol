@@ -101,9 +101,9 @@ class w_create_instance:
                         if line.split(":")[0] == payload['provider']:
                             if line.split(":")[1] == 'openstack' or line.split(":")[1] == 'vmwarevsphere':
                                 # TODO check usage stats first and make sure it's not over the limits (capacity)
-                                cmd = "/usr/local/bin/docker-machine create --engine-label "+payload['provider']+" -d "+line.split(":")[1]+" "+line.split(":")[5].strip()
+                                cmd = "/usr/local/bin/docker-machine create -d "+line.split(":")[1]+" "+line.split(":")[5].strip()
                             else:
-                                cmd = "/usr/local/bin/docker-machine create --engine-label "+payload['provider']+" -d "+line.split(":")[1]+" "+line.split(":")[2].strip()
+                                cmd = "/usr/local/bin/docker-machine create -d "+line.split(":")[1]+" "+line.split(":")[2].strip()
                             if line.split(":")[1] == "vmwarevsphere":
                                 cmd += ' --vmwarevsphere-cpu-count "'+str(payload['cpus'])+'" --vmwarevsphere-disk-size "'+str(payload['disk_size'])+'" --vmwarevsphere-memory-size "'+str(payload['memory'])+'"'
                             cmd += ' '+payload['machine']
