@@ -146,6 +146,17 @@ class w_command_build:
             return "failed to build"
         return "done building"
 
+class w_command_generic:
+    def POST(self, machine):
+        data = web.data()
+        data = data.split("&")
+        payload = {}
+        for param in data:
+            p = param.split("=")
+            payload[p[0]] = p[1]
+        cmd = "/usr/local/bin/docker-machine ssh "+machine+" \""+payload['command']+"\""
+        return subprocess.check_output(cmd, shell=True)
+
 class w_command_reboot:
     def GET(self, machine):
         out = subprocess.check_output("/usr/local/bin/docker-machine restart "+machine, shell=True)
@@ -293,6 +304,7 @@ def daemon_mode(args):
         '/start_instance/(.+)', 'w_start_instance',
         '/stop_instance/(.+)', 'w_stop_instance',
         '/command_build/(.+)', 'w_command_build',
+        '/command_generic/(.+)', 'w_command_generic',
         '/command_reboot/(.+)', 'w_command_reboot',
         '/command_start/(.+)/(.+)', 'w_command_start',
         '/command_stop/(.+)/(.+)', 'w_command_stop',
@@ -375,6 +387,11 @@ def stop_instance(args, daemon):
 def command_build(args, daemon):
     payload = {'no_cache':args.no_cache}
     r = requests.get(daemon+"/command_build/"+args.machine, params=payload)
+    return r.text
+
+def command_generic(args, daemon):
+    payload = {'command':args.command}
+    r = requests.post(daemon+"/command_generic/"+args.machine, data=payload)
     return r.text
 
 def command_reboot(args, daemon):
@@ -577,6 +594,13 @@ def main(bare_metal_only, daemon):
                                   action='store_true',
                                   default=False,
                                   help='build containers without using cache')
+    cmd_generic_parser = command_subparsers.add_parser('generic',
+                                                     help="generic command to execute on the vent instance")
+    cmd_generic_parser.set_defaults(which='cmd_generic_parser')
+    cmd_generic_parser.add_argument('machine',
+                                    help='machine name to execute command on')
+    cmd_generic_parser.add_argument('command',
+                                    help='command to execute')
     cmd_reboot_parser = command_subparsers.add_parser('reboot',
                                                       help="reboot a vent instance")
     cmd_reboot_parser.set_defaults(which='cmd_reboot_parser')
@@ -773,6 +797,7 @@ def main(bare_metal_only, daemon):
         if args.which == "add_vmware_parser": output = add_provider("vmwarevsphere", args)
 
     if args.which == "cmd_build_parser": output = command_build(args, daemon)
+    elif args.which == "cmd_generic_parser": output = command_generic(args, daemon)
     elif args.which == "cmd_reboot_parser": output = command_reboot(args, daemon)
     elif args.which == "cmd_ssh_parser": output = command_ssh(args, daemon)
     elif args.which == "cmd_start_parser": output = command_start(args, daemon)
