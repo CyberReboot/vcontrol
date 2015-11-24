@@ -20,14 +20,18 @@ RUN curl -sSL https://get.docker.com/ | sh
 RUN curl -L https://github.com/vmware/govmomi/releases/download/v0.2.0/govc_linux_amd64.gz >govc.gz && gzip -d govc.gz && mv govc /usr/local/bin/govc
 RUN chmod +x /usr/local/bin/govc
 
+# replace with vent iso download url
+RUN curl -L https://github.com/boot2docker/boot2docker/releases/download/v1.9.1/boot2docker.iso >boot2docker.iso && mkdir -p /root/.docker/machine/ && mv boot2docker.iso /root/.docker/machine/boot2docker.iso
+RUN mkdir -p /root/.docker/machine/cache && cp /root/.docker/machine/boot2docker.iso /root/.docker/machine/cache/boot2docker.iso
+
 # install docker-machine
-RUN curl -L https://github.com/docker/machine/releases/download/v0.5.0/docker-machine_linux-amd64.zip >machine.zip && \
+RUN curl -L https://github.com/docker/machine/releases/download/v0.5.1/docker-machine_linux-amd64.zip >machine.zip && \
     unzip machine.zip && \
     rm machine.zip && \
     mv docker-machine* /usr/local/bin
 
 # TODO temporary dev
-RUN curl --insecure -L https://github.com/CyberReboot/vent/releases/download/v0.4.0/vent.iso >boot2docker.iso && mkdir -p /root/.docker/machine/ && mv boot2docker.iso /root/.docker/machine/boot2docker.iso
+RUN curl --insecure -L https://github.com/CyberReboot/vent/releases/download/v0.4.1/vent.iso >boot2docker.iso && mkdir -p /root/.docker/machine/ && mv boot2docker.iso /root/.docker/machine/boot2docker.iso
 RUN mkdir -p /root/.docker/machine/cache && cp /root/.docker/machine/boot2docker.iso /root/.docker/machine/cache/boot2docker.iso
 
 ADD ./wrapdocker /usr/local/bin/wrapdocker

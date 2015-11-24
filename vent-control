@@ -137,7 +137,7 @@ class w_stop_instance:
 class w_command_build:
     def GET(self, machine):
         data = web.input()
-        cmd = "/usr/local/bin/docker-machine ssh "+machine+" /bin/sh /var/lib/docker/data/build_images.sh"
+        cmd = "/usr/local/bin/docker-machine ssh "+machine+" /bin/sh /data/build_images.sh"
         if not data['no_cache']:
             cmd += " --no-cache"
         try:
@@ -154,7 +154,8 @@ class w_command_generic:
         for param in data:
             p = param.split("=")
             payload[p[0]] = p[1]
-        cmd = "/usr/local/bin/docker-machine ssh "+machine+" \""+payload['command']+"\""
+        command = urllib.unquote(payload['command'])
+        cmd = "/usr/local/bin/docker-machine ssh "+machine+" \""+command+"\""
         return subprocess.check_output(cmd, shell=True)
 
 class w_command_reboot:
@@ -166,37 +167,37 @@ class w_command_start:
     def GET(self, machine, category):
         # just in case, make sure vent-management is running first
         out = ""
-        out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"python2.7 /var/lib/docker/data/template_parser.py "+category+" start\"", shell=True)
+        out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"python2.7 /data/template_parser.py "+category+" start\"", shell=True)
         return str(out)
 
 class w_command_stop:
     def GET(self, machine, category):
-        out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"python2.7 /var/lib/docker/data/template_parser.py "+category+" stop\"", shell=True)
+        out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"python2.7 /data/template_parser.py "+category+" stop\"", shell=True)
         return str(out)
 
 class w_command_messages:
     def GET(self, machine):
-        out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/var/lib/docker/data/info_tools/get_messages.sh\"", shell=True)
+        out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/data/info_tools/get_messages.sh\"", shell=True)
         return str(out)
 
 class w_command_services:
     def GET(self, machine):
-        out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/var/lib/docker/data/info_tools/get_services.sh\"", shell=True)
+        out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/data/info_tools/get_services.sh\"", shell=True)
         return str(out)
 
 class w_command_tasks:
     def GET(self, machine):
-        out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/var/lib/docker/data/info_tools/get_tasks.sh\"", shell=True)
+        out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/data/info_tools/get_tasks.sh\"", shell=True)
         return str(out)
 
 class w_command_tools:
     def GET(self, machine):
-        out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/var/lib/docker/data/info_tools/get_tools.sh\"", shell=True)
+        out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/data/info_tools/get_tools.sh\"", shell=True)
         return str(out)
 
 class w_command_types:
     def GET(self, machine):
-        out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/var/lib/docker/data/info_tools/get_types.sh\"", shell=True)
+        out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/data/info_tools/get_types.sh\"", shell=True)
         return str(out)
 
 class w_heartbeat_instances:
