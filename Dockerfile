@@ -34,8 +34,6 @@ RUN curl -L https://github.com/docker/machine/releases/download/v0.5.1/docker-ma
 RUN curl --insecure -L https://github.com/CyberReboot/vent/releases/download/v0.4.1/vent.iso >boot2docker.iso && mkdir -p /root/.docker/machine/ && mv boot2docker.iso /root/.docker/machine/boot2docker.iso
 RUN mkdir -p /root/.docker/machine/cache && cp /root/.docker/machine/boot2docker.iso /root/.docker/machine/cache/boot2docker.iso
 
-ADD ./wrapdocker /usr/local/bin/wrapdocker
-RUN chmod +x /usr/local/bin/wrapdocker
 ADD . /vent-control
 RUN pip install -r /vent-control/requirements.txt
 WORKDIR /vent-control
