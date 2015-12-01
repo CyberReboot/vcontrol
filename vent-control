@@ -471,6 +471,7 @@ def daemon_mode(args):
     sys.argv[1:] = ['0.0.0.0','8080']
     urls = (
         '/v1', 'index',
+        '/v1/', 'index',
         '/v1/add_provider', 'w_add_provider',
         '/v1/remove_provider/(.+)', 'w_remove_provider',
         '/v1/capacity/(.+)', 'w_capacity',
