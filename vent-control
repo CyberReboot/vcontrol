@@ -10,20 +10,44 @@ import web
 
 class index:
     def GET(self):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         return "vent-control"
 
 class version:
     def GET(self):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         with open('VERSION', 'r') as f: v = f.read().strip()
         return v
 
 class w_capacity:
     def GET(self, provider):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         # TODO for openstack and vmware
         return 1
 
 class w_add_provider:
     def POST(self):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         # TODO is this sufficient? probably not...
         if web.ctx.env["HTTP_HOST"] == 'localhost:8080':
             data = web.data()
@@ -56,6 +80,12 @@ class w_add_provider:
 
 class w_remove_provider:
     def GET(self, provider):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         if web.ctx.env["HTTP_HOST"] == 'localhost:8080':
             f = open("providers.txt","r")
             lines = f.readlines()
@@ -76,6 +106,12 @@ class w_remove_provider:
 
 class w_list_providers:
     def GET(self):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         try:
             providers = {}
             if os.path.isfile('providers.txt'):
@@ -88,6 +124,12 @@ class w_list_providers:
 
 class w_create_instance:
     def POST(self):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         data = web.data()
         data = data.split("&")
         payload = {}
@@ -116,6 +158,12 @@ class w_create_instance:
 
 class w_delete_instance:
     def GET(self, machine):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         data = web.input()
         cmd = "/usr/local/bin/docker-machine rm"
         if data['force']:
@@ -126,16 +174,34 @@ class w_delete_instance:
 
 class w_start_instance:
     def GET(self, machine):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         out = subprocess.check_output("/usr/local/bin/docker-machine start "+machine, shell=True)
         return str(out)
 
 class w_stop_instance:
     def GET(self, machine):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         out = subprocess.check_output("/usr/local/bin/docker-machine stop "+machine, shell=True)
         return str(out)
 
 class w_command_build:
     def GET(self, machine):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         data = web.input()
         cmd = "/usr/local/bin/docker-machine ssh "+machine+" /bin/sh /data/build_images.sh"
         if not data['no_cache']:
@@ -148,6 +214,12 @@ class w_command_build:
 
 class w_command_generic:
     def POST(self, machine):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         data = web.data()
         data = data.split("&")
         payload = {}
@@ -160,11 +232,23 @@ class w_command_generic:
 
 class w_command_reboot:
     def GET(self, machine):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         out = subprocess.check_output("/usr/local/bin/docker-machine restart "+machine, shell=True)
         return str(out)
 
 class w_command_start:
     def GET(self, machine, category):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         # just in case, make sure vent-management is running first
         out = ""
         out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"python2.7 /data/template_parser.py "+category+" start\"", shell=True)
@@ -172,46 +256,100 @@ class w_command_start:
 
 class w_command_stop:
     def GET(self, machine, category):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"python2.7 /data/template_parser.py "+category+" stop\"", shell=True)
         return str(out)
 
 class w_command_messages:
     def GET(self, machine):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/data/info_tools/get_messages.sh\"", shell=True)
         return str(out)
 
 class w_command_services:
     def GET(self, machine):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/data/info_tools/get_services.sh\"", shell=True)
         return str(out)
 
 class w_command_tasks:
     def GET(self, machine):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/data/info_tools/get_tasks.sh\"", shell=True)
         return str(out)
 
 class w_command_tools:
     def GET(self, machine):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/data/info_tools/get_tools.sh\"", shell=True)
         return str(out)
 
 class w_command_types:
     def GET(self, machine):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/data/info_tools/get_types.sh\"", shell=True)
         return str(out)
 
 class w_heartbeat_instances:
     def GET(self):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         # TODO
         return 1
 
 class w_heartbeat_providers:
     def GET(self):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         # TODO
         return 1
 
 class w_list_instances:
     def GET(self):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         data = web.input()
         instance_array = []
         if data['fast'] == 'True':
@@ -234,16 +372,34 @@ class w_list_instances:
 
 class w_get_stats:
     def GET(self, machine):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         # TODO
         return 1
 
 class w_get_info:
     def GET(self, machine):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         # TODO
         return 1
 
 class w_get_template:
     def GET(self):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         data = web.data()
         data = data.split("&")
         payload = {}
@@ -254,6 +410,12 @@ class w_get_template:
 
 class w_deploy_template:
     def POST(self, machine):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         x = web.input(myfile={})
         filedir = '/tmp/templates/'+machine # change this to the directory you want to store the file in.
         if not os.path.exists(filedir):
@@ -270,6 +432,12 @@ class w_deploy_template:
 
 class w_register_instance:
     def POST(self):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         # generic driver
         data = web.data()
         data = data.split("&")
@@ -290,6 +458,12 @@ class w_register_instance:
 
 class w_deregister_instance:
     def GET(self, machine):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
         out = subprocess.check_output("/usr/local/bin/docker-machine rm "+machine, shell=True)
         return str(out)
 
