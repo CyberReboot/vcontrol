@@ -470,35 +470,35 @@ class w_deregister_instance:
 def daemon_mode(args):
     sys.argv[1:] = ['0.0.0.0','8080']
     urls = (
-        '/', 'index',
-        '/add_provider', 'w_add_provider',
-        '/remove_provider/(.+)', 'w_remove_provider',
-        '/capacity/(.+)', 'w_capacity',
-        '/create_instance', 'w_create_instance',
-        '/delete_instance/(.+)', 'w_delete_instance',
-        '/start_instance/(.+)', 'w_start_instance',
-        '/stop_instance/(.+)', 'w_stop_instance',
-        '/command_build/(.+)', 'w_command_build',
-        '/command_generic/(.+)', 'w_command_generic',
-        '/command_reboot/(.+)', 'w_command_reboot',
-        '/command_start/(.+)/(.+)', 'w_command_start',
-        '/command_stop/(.+)/(.+)', 'w_command_stop',
-        '/command_messages/(.+)', 'w_command_messages',
-        '/command_services/(.+)', 'w_command_services',
-        '/command_tasks/(.+)', 'w_command_tasks',
-        '/command_tools/(.+)', 'w_command_tools',
-        '/command_types/(.+)', 'w_command_types',
-        '/heartbeat_instances', 'w_heartbeat_instances',
-        '/heartbeat_providers', 'w_heartbeat_providers',
-        '/list_instances', 'w_list_instances',
-        '/list_providers', 'w_list_providers',
-        '/get_stats/(.+)', 'w_get_stats',
-        '/get_info/(.+)', 'w_get_info',
-        '/deploy_template/(.+)', 'w_deploy_template',
-        '/get_template', 'w_get_template',
-        '/register_instance', 'w_register_instance',
-        '/deregister_instance/(.+)', 'w_deregister_instance',
-        '/version', 'version'
+        '/v1', 'index',
+        '/v1/add_provider', 'w_add_provider',
+        '/v1/remove_provider/(.+)', 'w_remove_provider',
+        '/v1/capacity/(.+)', 'w_capacity',
+        '/v1/create_instance', 'w_create_instance',
+        '/v1/delete_instance/(.+)', 'w_delete_instance',
+        '/v1/start_instance/(.+)', 'w_start_instance',
+        '/v1/stop_instance/(.+)', 'w_stop_instance',
+        '/v1/command_build/(.+)', 'w_command_build',
+        '/v1/command_generic/(.+)', 'w_command_generic',
+        '/v1/command_reboot/(.+)', 'w_command_reboot',
+        '/v1/command_start/(.+)/(.+)', 'w_command_start',
+        '/v1/command_stop/(.+)/(.+)', 'w_command_stop',
+        '/v1/command_messages/(.+)', 'w_command_messages',
+        '/v1/command_services/(.+)', 'w_command_services',
+        '/v1/command_tasks/(.+)', 'w_command_tasks',
+        '/v1/command_tools/(.+)', 'w_command_tools',
+        '/v1/command_types/(.+)', 'w_command_types',
+        '/v1/heartbeat_instances', 'w_heartbeat_instances',
+        '/v1/heartbeat_providers', 'w_heartbeat_providers',
+        '/v1/list_instances', 'w_list_instances',
+        '/v1/list_providers', 'w_list_providers',
+        '/v1/get_stats/(.+)', 'w_get_stats',
+        '/v1/get_info/(.+)', 'w_get_info',
+        '/v1/deploy_template/(.+)', 'w_deploy_template',
+        '/v1/get_template', 'w_get_template',
+        '/v1/register_instance', 'w_register_instance',
+        '/v1/deregister_instance/(.+)', 'w_deregister_instance',
+        '/v1/version', 'version'
     )
 
     app = web.application(urls, globals())
@@ -662,10 +662,10 @@ def deregister_instance(args, daemon):
     r = requests.get(daemon+"/deregister_instance/"+args.machine)
     return r.text
 
-def main(bare_metal_only, daemon):
+def main(bare_metal_only, daemon, api_v):
     privileged = 0
     try:
-        r = requests.get('http://localhost:8080')
+        r = requests.get('http://localhost:8080'+api_v)
         if r.text == 'vent-control':
             privileged = 1
     except:
@@ -948,7 +948,7 @@ def main(bare_metal_only, daemon):
             print "Environment variable VENT_CONTROL_DAEMON not set, defaulting to http://localhost:8080"
             daemon = 'http://localhost:8080'
         try:
-            r = requests.get(daemon)
+            r = requests.get(daemon+api_v)
             if r.text == 'vent-control':
                 #print "daemon running and reachable!"
                 pass
@@ -970,6 +970,8 @@ def main(bare_metal_only, daemon):
         if args.which == "add_rackspace_parser": output = add_provider("rackspace", args)
         if args.which == "add_softlayer_parser": output = add_provider("softlayer", args)
         if args.which == "add_vmware_parser": output = add_provider("vmwarevsphere", args)
+
+    daemon = daemon+api_v
 
     if args.which == "cmd_build_parser": output = command_build(args, daemon)
     elif args.which == "cmd_generic_parser": output = command_generic(args, daemon)
@@ -1006,4 +1008,7 @@ def main(bare_metal_only, daemon):
 if __name__ == '__main__':
     bare_metal_only = os.environ.get('VENT_CONTROL_BARE_METAL_ONLY')
     daemon = os.environ.get('VENT_CONTROL_DAEMON')
-    main(bare_metal_only, daemon)
+    api_v = os.environ.get('VENT_CONTROL_API_VERSION')
+    if not api_v:
+        api_v = "/v1"
+    main(bare_metal_only, daemon, api_v)
