@@ -1,0 +1,500 @@
+swagger: '2.0'
+info:
+  title: vent-control API
+  description: This contains the documentation and a functional vent-control API testing sandbox.
+  version: 0.1.0
+host: '192.168.99.100:32800'
+schemes:
+  - http
+basePath: /v1
+produces:
+  - application/json
+paths:
+  /:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      produces:
+        - text/html
+      tags:
+        - Meta
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /version:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Meta
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /add_provider:
+    post:
+      summary: Add a new provider
+      description: |
+        This endpoint allows for a new provider such as openstack or vmware to be added.  A vent instance runs on a provider.  Note that a provider can only be added from `localhost` of the machine running `vent-control` unless the environment variable `VENT_CONTROL_OPEN=true` is set on the server.
+      tags:
+        - Providers
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Add a new provider
+          required: true
+          schema:
+            $ref: '#/definitions/AddProvider'
+      responses:
+        '200':
+          description: String of whether it was able to successfully add a new provider or not.
+  /capacity/{provider}:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Providers
+      produces:
+        - text/html
+      parameters:
+        - in: path
+          name: provider
+          description: Name of provider to get capacity for
+          required: true
+          type: string
+          format: string
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /heartbeat_providers:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Providers
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /list_providers:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Providers
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /remove_provider/{provider}:
+    get:
+      summary: Remove a provider
+      description: |
+        This endpoint allows for removing a provider such as openstack or vmware.  A vent instance runs on a provider, this will not remove existing vent instances on the specified provider.  Note that a provider can only be removed from `localhost` of the machine running `vent-control` unless the environment variable `VENT_CONTROL_OPEN=true` is set on the server.
+      tags:
+        - Providers
+      produces:
+        - text/html
+      parameters:
+        - in: path
+          name: provider
+          description: Name of provider to remove
+          required: true
+          type: string
+          format: string
+      responses:
+        '200':
+          description: String of whether it was able to successfully remove the provider or not.
+  /create_instance:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Instances
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /delete_instance/{instance}:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Instances
+      parameters:
+        - in: path
+          name: instance
+          description: name of provider to get capacity for
+          required: true
+          type: string
+          format: string
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /deploy_template/{instance}:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Instances
+      parameters:
+        - in: path
+          name: instance
+          description: name of provider to get capacity for
+          required: true
+          type: string
+          format: string
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /deregister_instance/{instance}:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Instances
+      parameters:
+        - in: path
+          name: instance
+          description: name of provider to get capacity for
+          required: true
+          type: string
+          format: string
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /get_info/{instance}:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Instances
+      parameters:
+        - in: path
+          name: instance
+          description: name of provider to get capacity for
+          required: true
+          type: string
+          format: string
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /get_stats/{instance}:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Instances
+      parameters:
+        - in: path
+          name: instance
+          description: name of provider to get capacity for
+          required: true
+          type: string
+          format: string
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /get_template:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Instances
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /heartbeat_instances:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Instances
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /list_instances:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Instances
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /register_instance:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Instances
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /start_instance/{instance}:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Instances
+      parameters:
+        - in: path
+          name: instance
+          description: name of provider to get capacity for
+          required: true
+          type: string
+          format: string
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /stop_instance/{instance}:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Instances
+      parameters:
+        - in: path
+          name: instance
+          description: name of provider to get capacity for
+          required: true
+          type: string
+          format: string
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /command_build/{instance}:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Commands
+      parameters:
+        - in: path
+          name: instance
+          description: name of provider to get capacity for
+          required: true
+          type: string
+          format: string
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /command_generic/{instance}:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Commands
+      parameters:
+        - in: path
+          name: instance
+          description: name of provider to get capacity for
+          required: true
+          type: string
+          format: string
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /command_messages/{instance}:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Commands
+      parameters:
+        - in: path
+          name: instance
+          description: name of provider to get capacity for
+          required: true
+          type: string
+          format: string
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /command_reboot/{instance}:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Commands
+      parameters:
+        - in: path
+          name: instance
+          description: name of provider to get capacity for
+          required: true
+          type: string
+          format: string
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /command_start/{instance}/{containers}:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Commands
+      parameters:
+        - in: path
+          name: instance
+          description: name of provider to get capacity for
+          required: true
+          type: string
+          format: string
+        - in: path
+          name: containers
+          description: name of provider to get capacity for
+          required: true
+          type: string
+          format: string
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /command_services/{instance}:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Commands
+      parameters:
+        - in: path
+          name: instance
+          description: name of provider to get capacity for
+          required: true
+          type: string
+          format: string
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /command_stop/{instance}/{containers}:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Commands
+      parameters:
+        - in: path
+          name: instance
+          description: name of provider to get capacity for
+          required: true
+          type: string
+          format: string
+        - in: path
+          name: containers
+          description: name of provider to get capacity for
+          required: true
+          type: string
+          format: string
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /command_tasks/{instance}:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Commands
+      parameters:
+        - in: path
+          name: instance
+          description: name of provider to get capacity for
+          required: true
+          type: string
+          format: string
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /command_tools/{instance}:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Commands
+      parameters:
+        - in: path
+          name: instance
+          description: name of provider to get capacity for
+          required: true
+          type: string
+          format: string
+      responses:
+        '200':
+          description: Returns `vent-control`
+  /command_types/{instance}:
+    get:
+      summary: Index
+      description: |
+        This endpoint is just a quick way to ensure that the vent-control API is up and running properly.
+      tags:
+        - Commands
+      parameters:
+        - in: path
+          name: instance
+          description: name of provider to get capacity for
+          required: true
+          type: string
+          format: string
+      responses:
+        '200':
+          description: Returns `vent-control`
+definitions:
+  AddProvider:
+    type: object
+    required:
+      - name
+      - provider
+      - args
+      - ram
+      - cpu
+      - disk
+    properties:
+      name:
+        type: string
+        example: esxi1
+      provider:
+        type: string
+        example: openstack
+        description: |
+          Available providers include `aws`, `azure`, `digitalocean`, `exoscale`, `google`, `openstack`, `rackspace`, `softlayer`, and `vmware`
+      args:
+        type: string
+        example: ""
+        description: Quoted additional arguments for the specified provider according to `docker-machine`
+      ram:
+        type: integer
+        format: int32
+        example: 80
+        description: Percentage of RAM usage on host until instances can no longer be created on this provider
+      cpu:
+        type: integer
+        format: int32
+        example: 80
+        description: Percentage of CPU usage on host until instances can no longer be created on this provider
+      disk:
+        type: integer
+        format: int32
+        example: 80
+        description: Percentage of Disk usage on host until instances can no longer be created on this provider
