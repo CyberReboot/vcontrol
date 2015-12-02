@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
 import argparse
+import ast
+import json
 import os
 import requests
 import subprocess
 import sys
-import urllib
 import web
 
 class index:
@@ -41,6 +42,9 @@ class w_capacity:
         return 1
 
 class w_add_provider:
+    def OPTIONS(self):
+        return self.POST()
+
     def POST(self):
         # set allowed origins for api calls
         try:
@@ -48,14 +52,18 @@ class w_add_provider:
         except:
             allow_origin = ''
         web.header('Access-Control-Allow-Origin', allow_origin)
+        web.header('Access-Control-Allow-Headers', "Content-type")
+        open_d = os.environ.get('VENT_CONTROL_OPEN')
         # TODO is this sufficient? probably not...
-        if web.ctx.env["HTTP_HOST"] == 'localhost:8080':
+        if web.ctx.env["HTTP_HOST"] == 'localhost:8080' or open_d == "true":
             data = web.data()
-            data = data.split("&")
             payload = {}
-            for param in data:
-                p = param.split("=")
-                payload[p[0]] = p[1]
+            try:
+                payload = ast.literal_eval(data)
+                if type(payload) != dict:
+                    payload = ast.literal_eval(json.loads(data))
+            except:
+                return "malformed json body"
 
             try:
                 if os.path.isfile('providers.txt'):
@@ -64,14 +72,11 @@ class w_add_provider:
                             if line.split(":")[0] == payload['name']:
                                 return "provider already exists"
                 # only get here if it didn't already return
-                provider_args = urllib.unquote(payload['args'])
-                provider_args = provider_args.replace('+', ' ')
-                provider_args = provider_args.replace('\\', '\\\\')
                 with open('providers.txt', 'a') as f:
                     if payload['provider'] == 'openstack' or payload['provider'] == 'vmwarevsphere':
-                        f.write(payload['name']+':'+payload['provider']+':'+payload['cpu']+":"+payload['ram']+":"+payload['disk']+":"+provider_args+'\n')
+                        f.write(payload['name']+':'+payload['provider']+':'+str(payload['cpu'])+":"+str(payload['ram'])+":"+str(payload['disk'])+":"+str(payload['args'])+'\n')
                     else:
-                        f.write(payload['name']+':'+payload['provider']+':'+provider_args+'\n')
+                        f.write(payload['name']+':'+payload['provider']+':'+str(payload['args'])+'\n')
                 return "successfully added provider"
             except:
                 return "unable to add provider"
@@ -86,7 +91,8 @@ class w_remove_provider:
         except:
             allow_origin = ''
         web.header('Access-Control-Allow-Origin', allow_origin)
-        if web.ctx.env["HTTP_HOST"] == 'localhost:8080':
+        open_d = os.environ.get('VENT_CONTROL_OPEN')
+        if web.ctx.env["HTTP_HOST"] == 'localhost:8080' or open_d == "true":
             f = open("providers.txt","r")
             lines = f.readlines()
             f.close()
@@ -123,6 +129,9 @@ class w_list_providers:
             return "unable to get providers"
 
 class w_create_instance:
+    def OPTIONS(self):
+        return self.POST()
+
     def POST(self):
         # set allowed origins for api calls
         try:
@@ -130,12 +139,16 @@ class w_create_instance:
         except:
             allow_origin = ''
         web.header('Access-Control-Allow-Origin', allow_origin)
+        web.header('Access-Control-Allow-Headers', "Content-type")
         data = web.data()
-        data = data.split("&")
         payload = {}
-        for param in data:
-            p = param.split("=")
-            payload[p[0]] = p[1]
+        try:
+            payload = ast.literal_eval(data)
+            if type(payload) != dict:
+                payload = ast.literal_eval(json.loads(data))
+        except:
+            return "malformed json body"
+
         try:
             if os.path.isfile('providers.txt'):
                 with open('providers.txt', 'r') as f:
@@ -213,6 +226,9 @@ class w_command_build:
         return "done building"
 
 class w_command_generic:
+    def OPTIONS(self, machine):
+        return self.POST(machine)
+
     def POST(self, machine):
         # set allowed origins for api calls
         try:
@@ -221,12 +237,18 @@ class w_command_generic:
             allow_origin = ''
         web.header('Access-Control-Allow-Origin', allow_origin)
         data = web.data()
-        data = data.split("&")
         payload = {}
+        try:
+            payload = ast.literal_eval(data)
+            if type(payload) != dict:
+                payload = ast.literal_eval(json.loads(data))
+        except:
+            return "malformed json body"
+
         for param in data:
             p = param.split("=")
             payload[p[0]] = p[1]
-        command = urllib.unquote(payload['command'])
+        command = payload['command']
         cmd = "/usr/local/bin/docker-machine ssh "+machine+" \""+command+"\""
         return subprocess.check_output(cmd, shell=True)
 
@@ -400,6 +422,7 @@ class w_get_template:
         except:
             allow_origin = ''
         web.header('Access-Control-Allow-Origin', allow_origin)
+        # !! TODO does this work with swagger?
         data = web.data()
         data = data.split("&")
         payload = {}
@@ -409,6 +432,9 @@ class w_get_template:
         print payload
 
 class w_deploy_template:
+    def OPTIONS(self, machine):
+        return self.POST(machine)
+
     def POST(self, machine):
         # set allowed origins for api calls
         try:
@@ -416,6 +442,7 @@ class w_deploy_template:
         except:
             allow_origin = ''
         web.header('Access-Control-Allow-Origin', allow_origin)
+        # TODO how does this work with swagger
         x = web.input(myfile={})
         filedir = '/tmp/templates/'+machine # change this to the directory you want to store the file in.
         if not os.path.exists(filedir):
@@ -431,6 +458,9 @@ class w_deploy_template:
         return "successfully deployed"
 
 class w_register_instance:
+    def OPTIONS(self):
+        return self.POST()
+
     def POST(self):
         # set allowed origins for api calls
         try:
@@ -440,11 +470,14 @@ class w_register_instance:
         web.header('Access-Control-Allow-Origin', allow_origin)
         # generic driver
         data = web.data()
-        data = data.split("&")
         payload = {}
-        for param in data:
-            p = param.split("=")
-            payload[p[0]] = p[1]
+        try:
+            payload = ast.literal_eval(data)
+            if type(payload) != dict:
+                payload = ast.literal_eval(json.loads(data))
+        except:
+            return "malformed json body"
+
         # generate ssh keys
         out = subprocess.check_output('ssh-keygen -t rsa -b 4096 -C "vent-generic-'+payload['machine']+'" -f /root/.ssh/id_vent_generic_'+payload['machine']+' -q -N ""', shell=True)
 
@@ -467,9 +500,22 @@ class w_deregister_instance:
         out = subprocess.check_output("/usr/local/bin/docker-machine rm "+machine, shell=True)
         return str(out)
 
+class swagger:
+    def GET(self):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
+        f = open("docs/swagger.yaml", 'r')
+        web.header("Content-Type","text/yaml")
+        return f.read()
+
 def daemon_mode(args):
     sys.argv[1:] = ['0.0.0.0','8080']
     urls = (
+        '/swagger.yaml', 'swagger',
         '/v1', 'index',
         '/v1/', 'index',
         '/v1/add_provider', 'w_add_provider',
@@ -507,22 +553,26 @@ def daemon_mode(args):
 
     return True
 
-def add_provider(provider, args):
+def add_provider(provider, args, daemon):
     # only privileged can add providers, which currently is only
     # accessible from the server running the vent-control daemon
-    daemon = 'http://localhost:8080'
+    open_d = os.environ.get('VENT_CONTROL_OPEN')
+    if open_d != "true":
+        daemon = 'http://localhost:8080'
     payload = {'name': args.name, 'provider': provider, 'args': args.args}
     if provider == "openstack" or provider == "vmwarevsphere":
         payload['cpu'] = str(args.max_cpu_usage)
         payload['ram'] = str(args.max_ram_usage)
         payload['disk'] = str(args.max_disk_usage)
-    r = requests.post(daemon+"/add_provider", data=payload)
+    r = requests.post(daemon+"/add_provider", json=json.dumps(payload))
     return r.text
 
-def remove_provider(args):
+def remove_provider(args, daemon):
     # only privileged can remove providers, which currently is only
     # accessible from the server running the vent-control daemon
-    daemon = 'http://localhost:8080'
+    open_d = os.environ.get('VENT_CONTROL_OPEN')
+    if open_d != "true":
+        daemon = 'http://localhost:8080'
     r = requests.get(daemon+"/remove_provider/"+args.provider)
     return r.text
 
@@ -535,7 +585,7 @@ def create_instance(args, daemon):
     payload['cpus'] = args.cpus
     payload['disk_size'] = args.disk_size
     payload['memory'] = args.memory
-    r = requests.post(daemon+"/create_instance", data=payload)
+    r = requests.post(daemon+"/create_instance", json=json.dumps(payload))
     return r.text
 
 def delete_instance(args, daemon):
@@ -567,7 +617,7 @@ def command_build(args, daemon):
 
 def command_generic(args, daemon):
     payload = {'command':args.command}
-    r = requests.post(daemon+"/command_generic/"+args.machine, data=payload)
+    r = requests.post(daemon+"/command_generic/"+args.machine, json=json.dumps(payload))
     return r.text
 
 def command_reboot(args, daemon):
@@ -645,6 +695,7 @@ def get_template(args, daemon):
 
 def deploy_template(args, daemon):
     files = {'myfile': open(args.path, 'rb')}
+    # !! TODO how does files work with swagger?
     r = requests.post(daemon+"/deploy_template/"+args.machine, files=files)
     return True
 
@@ -656,14 +707,14 @@ def register_instance(args, daemon):
     payload['machine'] = args.machine
     payload['ip'] = args.ip
     payload['password'] = args.password
-    r = requests.post(daemon+"/register_instance", data=payload)
+    r = requests.post(daemon+"/register_instance", json=json.dumps(payload))
     return r.text
 
 def deregister_instance(args, daemon):
     r = requests.get(daemon+"/deregister_instance/"+args.machine)
     return r.text
 
-def main(bare_metal_only, daemon, api_v):
+def main(bare_metal_only, daemon, open_d, api_v):
     privileged = 0
     try:
         r = requests.get('http://localhost:8080'+api_v)
@@ -671,6 +722,8 @@ def main(bare_metal_only, daemon, api_v):
             privileged = 1
     except:
         pass
+    if open_d == "true":
+        privileged = 1
 
     # generate cli and parse args
     with open('VERSION', 'r') as f: version = f.read().strip()
@@ -959,20 +1012,20 @@ def main(bare_metal_only, daemon, api_v):
             print "unable to reach the daemon, please start one and set VENT_CONTROL_DAEMON in your environment"
             sys.exit()
 
+    daemon = daemon+api_v
+
     output = ""
     if privileged:
-        if args.which == "remove_parser": output = remove_provider(args)
-        if args.which == "add_aws_parser": output = add_provider("amazonec2", args)
-        if args.which == "add_azure_parser": output = add_provider("azure", args)
-        if args.which == "add_digitalocean_parser": output = add_provider("digitalocean", args)
-        if args.which == "add_exoscale_parser": output = add_provider("exoscale", args)
-        if args.which == "add_google_parser": output = add_provider("google", args)
-        if args.which == "add_openstack_parser": output = add_provider("openstack", args)
-        if args.which == "add_rackspace_parser": output = add_provider("rackspace", args)
-        if args.which == "add_softlayer_parser": output = add_provider("softlayer", args)
-        if args.which == "add_vmware_parser": output = add_provider("vmwarevsphere", args)
-
-    daemon = daemon+api_v
+        if args.which == "remove_parser": output = remove_provider(args, daemon)
+        if args.which == "add_aws_parser": output = add_provider("amazonec2", args, daemon)
+        if args.which == "add_azure_parser": output = add_provider("azure", args, daemon)
+        if args.which == "add_digitalocean_parser": output = add_provider("digitalocean", args, daemon)
+        if args.which == "add_exoscale_parser": output = add_provider("exoscale", args, daemon)
+        if args.which == "add_google_parser": output = add_provider("google", args, daemon)
+        if args.which == "add_openstack_parser": output = add_provider("openstack", args, daemon)
+        if args.which == "add_rackspace_parser": output = add_provider("rackspace", args, daemon)
+        if args.which == "add_softlayer_parser": output = add_provider("softlayer", args, daemon)
+        if args.which == "add_vmware_parser": output = add_provider("vmwarevsphere", args, daemon)
 
     if args.which == "cmd_build_parser": output = command_build(args, daemon)
     elif args.which == "cmd_generic_parser": output = command_generic(args, daemon)
@@ -1009,7 +1062,8 @@ def main(bare_metal_only, daemon, api_v):
 if __name__ == '__main__':
     bare_metal_only = os.environ.get('VENT_CONTROL_BARE_METAL_ONLY')
     daemon = os.environ.get('VENT_CONTROL_DAEMON')
+    open_d = os.environ.get('VENT_CONTROL_OPEN')
     api_v = os.environ.get('VENT_CONTROL_API_VERSION')
     if not api_v:
         api_v = "/v1"
-    main(bare_metal_only, daemon, api_v)
+    main(bare_metal_only, daemon, open_d, api_v)
