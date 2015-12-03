@@ -3,7 +3,7 @@ info:
   title: vent-control API
   description: This contains the documentation and a functional vent-control API testing sandbox.
   version: 0.1.0
-host: '192.168.99.100:32800'
+host: 'mydomain'
 schemes:
   - http
 basePath: /v1
