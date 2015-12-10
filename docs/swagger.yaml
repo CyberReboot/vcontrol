@@ -80,7 +80,7 @@ paths:
           description: Returns available capacity of the provider
   /heartbeat_providers:
     get:
-      summary: Index
+      summary: Heartbeat providers
       description: >
         This endpoint is just a quick way to ensure that providers are still
         reachable.
@@ -91,7 +91,7 @@ paths:
           description: Returns a JSON string of providers and their status
   /list_providers:
     get:
-      summary: Index
+      summary: List providers
       description: >
         This endpoint lists all of the providers that have been added or
         registered.
@@ -126,15 +126,23 @@ paths:
           description: String of whether it was able to successfully remove the provider or not.
   /create_instance:
     post:
-      summary: Index
+      summary: Create Instance
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint is for creating a new instance of `vent` on a provider.
       tags:
         - Instances
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Create a new instance of vent
+          required: true
+          schema:
+            $ref: '#/definitions/CreateInstance'
       responses:
         '200':
-          description: Returns `vent-control`
+          description: String of whether it was able to successfully add a new instnace of not.
   '/delete_instance/{instance}':
     get:
       summary: Index
@@ -536,3 +544,38 @@ definitions:
         format: int32
         example: 80
         description: Percentage of Disk usage on host until instances can no longer be created on this provider
+  CreateInstance:
+    type: object
+    required:
+      - name
+      - provider
+    properties:
+      name:
+        type: string
+        example: vent1
+      provider:
+        type: string
+        example: esxi1
+        description: >
+          Provider to create machine on
+      memory:
+        type: integer
+        format: int32
+        example: 4096
+        description: >
+          Specify how much RAM in MBs to allocate to the new instance, note this
+          only works for VMWare and OpenStack providers (default: 1024)
+      cpus:
+        type: integer
+        format: int32
+        example: 4
+        description: >
+          Specify how many CPUs to allocate to the new instance, note this only
+          works for VMWare and OpenStack providers (default: 1)
+      disk_size:
+        type: integer
+        format: int32
+        example: 20000
+        description: >
+          Specify how much disk space in MBs to allocate to the new instance,
+          note this only works for VMWare and OpenStack providers (default: 20000)
