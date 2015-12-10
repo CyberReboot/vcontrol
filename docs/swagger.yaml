@@ -62,8 +62,8 @@ paths:
     get:
       summary: Provider Capacity
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint allows for getting the current capacity of a particular
+        provider.  Currently only supports VMWare and OpenStack.
       tags:
         - Providers
       produces:
@@ -77,29 +77,29 @@ paths:
           format: string
       responses:
         '200':
-          description: Returns `vent-control`
+          description: Returns available capacity of the provider
   /heartbeat_providers:
     get:
       summary: Index
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint is just a quick way to ensure that a provider is still
+        reachable.
       tags:
         - Providers
       responses:
         '200':
-          description: Returns `vent-control`
+          description: Returns if heartbeat was up or down
   /list_providers:
     get:
       summary: Index
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint lists all of the providers that have been added or
+        registered.
       tags:
         - Providers
       responses:
         '200':
-          description: Returns `vent-control`
+          description: Returns a JSON object of provider names and types
   '/remove_provider/{provider}':
     get:
       summary: Remove a provider
