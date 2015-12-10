@@ -82,13 +82,13 @@ paths:
     get:
       summary: Index
       description: >
-        This endpoint is just a quick way to ensure that a provider is still
+        This endpoint is just a quick way to ensure that providers are still
         reachable.
       tags:
         - Providers
       responses:
         '200':
-          description: Returns if heartbeat was up or down
+          description: Returns a JSON string of providers and their status
   /list_providers:
     get:
       summary: Index
@@ -99,7 +99,7 @@ paths:
         - Providers
       responses:
         '200':
-          description: Returns a JSON object of provider names and types
+          description: Returns a JSON string of provider names and types
   '/remove_provider/{provider}':
     get:
       summary: Remove a provider
