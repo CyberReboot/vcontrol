@@ -200,7 +200,7 @@ class w_start_instance:
         try:
             out = subprocess.check_output("/usr/local/bin/docker-machine start "+machine, shell=True)
         except:
-            out = "unable start instance"
+            out = "unable to start instance"
         return str(out)
 
 class w_stop_instance:
@@ -284,7 +284,7 @@ class w_command_reboot:
         try:
             out = subprocess.check_output("/usr/local/bin/docker-machine restart "+machine, shell=True)
         except:
-            out = "unable reboot instance"
+            out = "unable to reboot instance"
         return str(out)
 
 class w_command_start:
@@ -328,7 +328,7 @@ class w_command_messages:
         try:
             out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/data/info_tools/get_messages.sh\"", shell=True)
         except:
-            out = "unable ot get messages from "+machine
+            out = "unable to get messages from "+machine
         return str(out)
 
 class w_command_services:
@@ -342,7 +342,7 @@ class w_command_services:
         try:
             out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/data/info_tools/get_services.sh\"", shell=True)
         except:
-            out = "unable ot get services from "+machine
+            out = "unable to get services from "+machine
         return str(out)
 
 class w_command_tasks:
@@ -356,7 +356,7 @@ class w_command_tasks:
         try:
             out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/data/info_tools/get_tasks.sh\"", shell=True)
         except:
-            out = "unable ot get tasks from "+machine
+            out = "unable to get tasks from "+machine
         return str(out)
 
 class w_command_tools:
@@ -370,7 +370,7 @@ class w_command_tools:
         try:
             out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/data/info_tools/get_tools.sh\"", shell=True)
         except:
-            out = "unable ot get tools from "+machine
+            out = "unable to get tools from "+machine
         return str(out)
 
 class w_command_types:
@@ -384,7 +384,7 @@ class w_command_types:
         try:
             out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/data/info_tools/get_types.sh\"", shell=True)
         except:
-            out = "unable ot get types from "+machine
+            out = "unable to get types from "+machine
         return str(out)
 
 class w_heartbeat_instances:
