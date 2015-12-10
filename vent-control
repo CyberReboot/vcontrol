@@ -217,8 +217,9 @@ class w_command_build:
         web.header('Access-Control-Allow-Origin', allow_origin)
         data = web.input()
         cmd = "/usr/local/bin/docker-machine ssh "+machine+" /bin/sh /data/build_images.sh"
-        if not data['no_cache']:
-            cmd += " --no-cache"
+        if 'no_cache' in data:
+            if not data['no_cache']:
+                cmd += " --no-cache"
         try:
             out = subprocess.check_output(cmd, shell=True)
         except:
