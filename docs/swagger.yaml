@@ -93,8 +93,7 @@ paths:
     get:
       summary: List providers
       description: >
-        This endpoint lists all of the providers that have been added or
-        registered.
+        This endpoint lists all of the providers that have been added.
       tags:
         - Providers
       responses:
@@ -145,22 +144,21 @@ paths:
           description: String of whether it was able to successfully add a new instnace of not.
   '/delete_instance/{instance}':
     get:
-      summary: Index
+      summary: Delete Instance
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint is for delete an existing instance of `vent`.
       tags:
         - Instances
       parameters:
         - in: path
           name: instance
-          description: name of provider to get capacity for
+          description: name of instance to remove
           required: true
           type: string
           format: string
       responses:
         '200':
-          description: Returns `vent-control`
+          description: String of whether it was able to successfully remove instance or not.
   '/deploy_template/{instance}':
     post:
       summary: Index
@@ -181,58 +179,55 @@ paths:
           description: Returns `vent-control`
   '/deregister_instance/{instance}':
     get:
-      summary: Index
+      summary: Deregister an instance
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint is for deregistering an instance from `vent-control`.
       tags:
         - Instances
       parameters:
         - in: path
           name: instance
-          description: name of provider to get capacity for
+          description: name of instance to deregister
           required: true
           type: string
           format: string
       responses:
         '200':
-          description: Returns `vent-control`
+          description: String of whether it was able to successfully deregister instance or not
   '/get_info/{instance}':
     get:
-      summary: Index
+      summary: Get info of an instance
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint is for getting info about an instance.
       tags:
         - Instances
       parameters:
         - in: path
           name: instance
-          description: name of provider to get capacity for
+          description: name of instance to get info for
           required: true
           type: string
           format: string
       responses:
         '200':
-          description: Returns `vent-control`
+          description: Returns JSON string of info about the instance
   '/get_stats/{instance}':
     get:
-      summary: Index
+      summary: Get stats of an instance
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint is for getting stats about an instance.
       tags:
         - Instances
       parameters:
         - in: path
           name: instance
-          description: name of provider to get capacity for
+          description: name of instance to get stats for
           required: true
           type: string
           format: string
       responses:
         '200':
-          description: Returns `vent-control`
+          description: Returns JSON string of stats about the instance
   /get_template:
     get:
       summary: Index
@@ -246,37 +241,37 @@ paths:
           description: Returns `vent-control`
   /heartbeat_instances:
     get:
-      summary: Index
+      summary: Heartbeat instances
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint is just a quick way to ensure that providers are still
+        reachable.
       tags:
         - Instances
       responses:
         '200':
-          description: Returns `vent-control`
+          description: Returns a JSON string of providers and their status
   /list_instances:
     get:
-      summary: Index
+      summary: List instances
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint lists all of the instances that have been created or
+        registered.
       tags:
         - Instances
       responses:
         '200':
-          description: Returns `vent-control`
+          description: Returns a JSON string of instances
   /register_instance:
     post:
-      summary: Index
+      summary: Register instance
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint is for registering an existing `vent` instance into
+        `vent-control`.
       tags:
         - Instances
       responses:
         '200':
-          description: Returns `vent-control`
+          description: String of whether it was able to successfully register the instance or not.
   '/start_instance/{instance}':
     get:
       summary: Index
