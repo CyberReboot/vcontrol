@@ -161,22 +161,21 @@ paths:
           description: String of whether it was able to successfully remove instance or not.
   '/deploy_template/{instance}':
     post:
-      summary: Index
+      summary: Deploy a template to an instance
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint is for uploading a template file to an instance.
       tags:
         - Instances
       parameters:
         - in: path
           name: instance
-          description: name of provider to get capacity for
+          description: name of instance to deploy template to
           required: true
           type: string
           format: string
       responses:
         '200':
-          description: Returns `vent-control`
+          description: String of whether it was able to successfully deploy template to the instance or not
   '/deregister_instance/{instance}':
     get:
       summary: Deregister an instance
@@ -230,15 +229,14 @@ paths:
           description: Returns JSON string of stats about the instance
   /get_template:
     get:
-      summary: Index
+      summary: Get template from instance
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint is not implemented yet.
       tags:
         - Instances
       responses:
         '200':
-          description: Returns `vent-control`
+          description: Returns 1
   /heartbeat_instances:
     get:
       summary: Heartbeat instances
@@ -274,232 +272,223 @@ paths:
           description: String of whether it was able to successfully register the instance or not.
   '/start_instance/{instance}':
     get:
-      summary: Index
+      summary: Start an instance
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint is for starting a stopped instance.
       tags:
         - Instances
       parameters:
         - in: path
           name: instance
-          description: name of provider to get capacity for
+          description: name of instance to start
           required: true
           type: string
           format: string
       responses:
         '200':
-          description: Returns `vent-control`
+          description: String of whether it was able to successfully start the instance or not.
   '/stop_instance/{instance}':
     get:
-      summary: Index
+      summary: Stop an instance
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint is for stopping a running instance.
       tags:
         - Instances
       parameters:
         - in: path
           name: instance
-          description: name of provider to get capacity for
+          description: name of instance to stop
           required: true
           type: string
           format: string
       responses:
         '200':
-          description: Returns `vent-control`
+          description: String of whether it was able to successfully stop the instance or not.
   '/command_build/{instance}':
     get:
-      summary: Index
+      summary: Build images on an instance
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint is building Docker images on an instance.
       tags:
         - Commands
       parameters:
         - in: path
           name: instance
-          description: name of provider to get capacity for
+          description: name of instance to build images on
           required: true
           type: string
           format: string
       responses:
         '200':
-          description: Returns `vent-control`
+          description: String of whether it was able to successfully build images on the instance or not.
   '/command_generic/{instance}':
     post:
-      summary: Index
+      summary: Run an arbitrary command on an instance
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint is for running an arbitrary command on an instance and
+        getting the result back.
       tags:
         - Commands
       parameters:
         - in: path
           name: instance
-          description: name of provider to get capacity for
+          description: name of instance to execute the command on
           required: true
           type: string
           format: string
       responses:
         '200':
-          description: Returns `vent-control`
+          description: Returns string result of the command 
   '/command_messages/{instance}':
     get:
-      summary: Index
+      summary: Get messages of an instance
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint is for getting messages that happen on an instance.
       tags:
         - Commands
       parameters:
         - in: path
           name: instance
-          description: name of provider to get capacity for
+          description: name of instance to get messages for
           required: true
           type: string
           format: string
       responses:
         '200':
-          description: Returns `vent-control`
+          description: Returns JSON string of messages
   '/command_reboot/{instance}':
     get:
-      summary: Index
+      summary: Reboot an instance
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint is for rebooting a running instance.
       tags:
         - Commands
       parameters:
         - in: path
           name: instance
-          description: name of provider to get capacity for
+          description: name of instance to reboot
           required: true
           type: string
           format: string
       responses:
         '200':
-          description: Returns `vent-control`
+          description: String of whether it was able to successfully reboot the instance or not.
   '/command_start/{instance}/{containers}':
     get:
-      summary: Index
+      summary: Start a category of containers on an instance
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint is for starting a specified category of containers on a
+        specific instance.
       tags:
         - Commands
       parameters:
         - in: path
           name: instance
-          description: name of provider to get capacity for
+          description: name of instance to start containers on
           required: true
           type: string
           format: string
         - in: path
           name: containers
-          description: name of provider to get capacity for
+          description: name of category of containers to start
           required: true
           type: string
           format: string
       responses:
         '200':
-          description: Returns `vent-control`
+          description: String of whether it was able to successfully start the containers on the instance or not.
   '/command_services/{instance}':
     get:
-      summary: Index
+      summary: Get services running on an instance
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint is for getting services that are running on an instance.
       tags:
         - Commands
       parameters:
         - in: path
           name: instance
-          description: name of provider to get capacity for
+          description: name of instance to get services for
           required: true
           type: string
           format: string
       responses:
         '200':
-          description: Returns `vent-control`
+          description: Returns JSON string of services
   '/command_stop/{instance}/{containers}':
     get:
-      summary: Index
+      summary: Stop a category of containers on an instance
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint is for stopping a specified category of containers on a 
+        specific instance.
       tags:
         - Commands
       parameters:
         - in: path
           name: instance
-          description: name of provider to get capacity for
+          description: name of instance to stop containers on
           required: true
           type: string
           format: string
         - in: path
           name: containers
-          description: name of provider to get capacity for
+          description: name of category of containers to stop
           required: true
           type: string
           format: string
       responses:
         '200':
-          description: Returns `vent-control`
+          description: String of whether it was able to successfully stop the containers on the instance or not.
   '/command_tasks/{instance}':
     get:
-      summary: Index
+      summary: Get tasks running on an instance
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint is for getting tasks that are running on an instance.
       tags:
         - Commands
       parameters:
         - in: path
           name: instance
-          description: name of provider to get capacity for
+          description: name of instance to get tasks for
           required: true
           type: string
           format: string
       responses:
         '200':
-          description: Returns `vent-control`
+          description: Returns JSON string of tasks
   '/command_tools/{instance}':
     get:
-      summary: Index
+      summary: Get tools on an instance
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint is for getting tools on an instance.
       tags:
         - Commands
       parameters:
         - in: path
           name: instance
-          description: name of provider to get capacity for
+          description: name of instance to get tools for
           required: true
           type: string
           format: string
       responses:
         '200':
-          description: Returns `vent-control`
+          description: Returns JSON string of tools
   '/command_types/{instance}':
     get:
-      summary: Index
+      summary: Get types on an instance
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
-        up and running properly.
+        This endpoint is for getting types on an instance.
       tags:
         - Commands
       parameters:
         - in: path
           name: instance
-          description: name of provider to get capacity for
+          description: name of instance to get types for
           required: true
           type: string
           format: string
       responses:
         '200':
-          description: Returns `vent-control`
+          description: Returns JSON string of types
 definitions:
   AddProvider:
     type: object
