@@ -156,19 +156,29 @@ class w_create_instance:
                 with open('providers.txt', 'r') as f:
                     for line in f:
                         if line.split(":")[0] == payload['provider']:
+                            proc = None
                             if line.split(":")[1] == 'openstack' or line.split(":")[1] == 'vmwarevsphere':
                                 # TODO check usage stats first and make sure it's not over the limits (capacity)
                                 cmd = "/usr/local/bin/docker-machine create -d "+line.split(":")[1]+" "+line.split(":")[5].strip()
                             elif line.split(":")[1].strip() == "virtualbox":
                                 cmd = "/usr/local/bin/docker-machine create -d "+line.split(":")[1].strip()
+                                if payload['iso'] == '/tmp/vent/vent.iso':
+                                    if not os.path.isfile('/tmp/vent/vent.iso'):
+                                        os.system("git config --global http.sslVerify false")
+                                        os.system("cd /tmp && git clone https://github.com/CyberReboot/vent.git")
+                                        os.system("cd /tmp/vent && make")
+                                    proc = subprocess.Popen(["nohup", "python", "-m", "SimpleHTTPServer"], cwd="/tmp/vent")
+                                    cmd += ' --virtualbox-boot2docker-url=http://localhost:8000/vent.iso'
                                 cmd += ' --virtualbox-cpu-count "'+str(payload['cpus'])+'" --virtualbox-disk-size "'+str(payload['disk_size'])+'" --virtualbox-memory "'+str(payload['memory'])+'"'
                             else:
                                 cmd = "/usr/local/bin/docker-machine create -d "+line.split(":")[1]+" "+line.split(":")[2].strip()
                             if line.split(":")[1] == "vmwarevsphere":
                                 cmd += ' --vmwarevsphere-cpu-count "'+str(payload['cpus'])+'" --vmwarevsphere-disk-size "'+str(payload['disk_size'])+'" --vmwarevsphere-memory-size "'+str(payload['memory'])+'"'
                             cmd += ' '+payload['machine']
-                            print cmd
-                            return subprocess.check_output(cmd, shell=True)
+                            output = subprocess.check_output(cmd, shell=True)
+                            if proc != None:
+                                os.system("kill -9 "+str(proc.pid))
+                            return output
                 return "provider specified was not found"
             else:
                 return "no providers, please first add a provider"
@@ -658,6 +668,7 @@ def create_instance(args, daemon):
     payload['provider'] = args.provider
     payload['cpus'] = args.cpus
     payload['disk_size'] = args.disk_size
+    payload['iso'] = args.iso
     payload['memory'] = args.memory
     r = requests.post(daemon+"/create_instance", data=json.dumps(payload))
     return r.text
@@ -808,7 +819,7 @@ def main(bare_metal_only, daemon, open_d, api_v):
         add_parser = subparsers.add_parser('add',
                                            help="add new infrastructure to run vent instances on")
         add_subparsers = add_parser.add_subparsers()
-        # purposefully don't include virtualbox, hyper-v, fusion, etc.
+        # purposefully don't include hyper-v, fusion, etc.
         add_aws_parser = add_subparsers.add_parser('aws',
                                                    help="Public Amazon Web Services")
         add_aws_parser.add_argument('--name', '-n', default='aws',
@@ -974,6 +985,8 @@ def main(bare_metal_only, daemon, open_d, api_v):
                                    help='machine name to create')
         create_parser.add_argument('provider',
                                    help='provider to create machine on')
+        create_parser.add_argument('--iso', '-i', default="/tmp/vent/vent.iso", type=str,
+                                   help='URL to ISO, if left as default, it will build the ISO from source')
         create_parser.add_argument('--cpus', '-c', default=1, type=int,
                                    help='number of cpus to create the machine with (default: 1)')
         create_parser.add_argument('--disk-size', '-d', default=20000, type=int,
