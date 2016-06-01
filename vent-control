@@ -75,6 +75,8 @@ class w_add_provider:
                 with open('providers.txt', 'a') as f:
                     if payload['provider'] == 'openstack' or payload['provider'] == 'vmwarevsphere':
                         f.write(payload['name']+':'+payload['provider']+':'+str(payload['cpu'])+":"+str(payload['ram'])+":"+str(payload['disk'])+":"+str(payload['args'])+'\n')
+                    elif payload['provider'] == 'virtualbox':
+                        f.write(payload['name']+':'+payload['provider']+'\n')
                     else:
                         f.write(payload['name']+':'+payload['provider']+':'+str(payload['args'])+'\n')
                 return "successfully added provider"
@@ -157,11 +159,15 @@ class w_create_instance:
                             if line.split(":")[1] == 'openstack' or line.split(":")[1] == 'vmwarevsphere':
                                 # TODO check usage stats first and make sure it's not over the limits (capacity)
                                 cmd = "/usr/local/bin/docker-machine create -d "+line.split(":")[1]+" "+line.split(":")[5].strip()
+                            elif line.split(":")[1].strip() == "virtualbox":
+                                cmd = "/usr/local/bin/docker-machine create -d "+line.split(":")[1].strip()
+                                cmd += ' --virtualbox-cpu-count "'+str(payload['cpus'])+'" --virtualbox-disk-size "'+str(payload['disk_size'])+'" --virtualbox-memory "'+str(payload['memory'])+'"'
                             else:
                                 cmd = "/usr/local/bin/docker-machine create -d "+line.split(":")[1]+" "+line.split(":")[2].strip()
                             if line.split(":")[1] == "vmwarevsphere":
                                 cmd += ' --vmwarevsphere-cpu-count "'+str(payload['cpus'])+'" --vmwarevsphere-disk-size "'+str(payload['disk_size'])+'" --vmwarevsphere-memory-size "'+str(payload['memory'])+'"'
                             cmd += ' '+payload['machine']
+                            print cmd
                             return subprocess.check_output(cmd, shell=True)
                 return "provider specified was not found"
             else:
@@ -621,13 +627,17 @@ def add_provider(provider, args, daemon):
     # accessible from the server running the vent-control daemon
     open_d = os.environ.get('VENT_CONTROL_OPEN')
     if open_d != "true":
-        daemon = 'http://localhost:8080'
-    payload = {'name': args.name, 'provider': provider, 'args': args.args}
+        # !! TODO get the api_v instead of hardcoding version
+        daemon = 'http://localhost:8080/v1'
+    if provider == "virtualbox":
+        payload = {'name': args.name, 'provider': provider}
+    else:
+        payload = {'name': args.name, 'provider': provider, 'args': args.args}
     if provider == "openstack" or provider == "vmwarevsphere":
         payload['cpu'] = str(args.max_cpu_usage)
         payload['ram'] = str(args.max_ram_usage)
         payload['disk'] = str(args.max_disk_usage)
-    r = requests.post(daemon+"/add_provider", json=json.dumps(payload))
+    r = requests.post(daemon+"/add_provider", data=json.dumps(payload))
     return r.text
 
 def remove_provider(args, daemon):
@@ -635,7 +645,8 @@ def remove_provider(args, daemon):
     # accessible from the server running the vent-control daemon
     open_d = os.environ.get('VENT_CONTROL_OPEN')
     if open_d != "true":
-        daemon = 'http://localhost:8080'
+        # !! TODO get the api_v instead of hardcoding version
+        daemon = 'http://localhost:8080/v1'
     r = requests.get(daemon+"/remove_provider/"+args.provider)
     return r.text
 
@@ -648,7 +659,7 @@ def create_instance(args, daemon):
     payload['cpus'] = args.cpus
     payload['disk_size'] = args.disk_size
     payload['memory'] = args.memory
-    r = requests.post(daemon+"/create_instance", json=json.dumps(payload))
+    r = requests.post(daemon+"/create_instance", data=json.dumps(payload))
     return r.text
 
 def delete_instance(args, daemon):
@@ -680,7 +691,7 @@ def command_build(args, daemon):
 
 def command_generic(args, daemon):
     payload = {'command':args.command}
-    r = requests.post(daemon+"/command_generic/"+args.machine, json=json.dumps(payload))
+    r = requests.post(daemon+"/command_generic/"+args.machine, data=json.dumps(payload))
     return r.text
 
 def command_reboot(args, daemon):
@@ -770,7 +781,7 @@ def register_instance(args, daemon):
     payload['machine'] = args.machine
     payload['ip'] = args.ip
     payload['password'] = args.password
-    r = requests.post(daemon+"/register_instance", json=json.dumps(payload))
+    r = requests.post(daemon+"/register_instance", data=json.dumps(payload))
     return r.text
 
 def deregister_instance(args, daemon):
@@ -860,6 +871,11 @@ def main(bare_metal_only, daemon, open_d, api_v):
         add_softlayer_parser.add_argument('args',
                                           help='quoted args needed for docker-machine to deploy on softlayer')
         add_softlayer_parser.set_defaults(which='add_softlayer_parser')
+        add_virtualbox_parser = add_subparsers.add_parser('virtualbox',
+                                                      help="Virtualbox for testing, can only be run locally not in a Docker container")
+        add_virtualbox_parser.add_argument('--name', '-n', default='virtualbox',
+                                       help='specify a name for the local provider')
+        add_virtualbox_parser.set_defaults(which='add_virtualbox_parser')
         add_vmware_parser = add_subparsers.add_parser('vmware',
                                                       help="Private VMWare vSphere cloud")
         add_vmware_parser.add_argument('--name', '-n', default='vmware',
@@ -1088,6 +1104,7 @@ def main(bare_metal_only, daemon, open_d, api_v):
         if args.which == "add_openstack_parser": output = add_provider("openstack", args, daemon)
         if args.which == "add_rackspace_parser": output = add_provider("rackspace", args, daemon)
         if args.which == "add_softlayer_parser": output = add_provider("softlayer", args, daemon)
+        if args.which == "add_virtualbox_parser": output = add_provider("virtualbox", args, daemon)
         if args.which == "add_vmware_parser": output = add_provider("vmwarevsphere", args, daemon)
 
     if args.which == "cmd_build_parser": output = command_build(args, daemon)
@@ -1125,6 +1142,8 @@ def main(bare_metal_only, daemon, open_d, api_v):
 if __name__ == '__main__':
     bare_metal_only = os.environ.get('VENT_CONTROL_BARE_METAL_ONLY')
     daemon = os.environ.get('VENT_CONTROL_DAEMON')
+    if not daemon:
+        daemon = "http://localhost:8080"
     open_d = os.environ.get('VENT_CONTROL_OPEN')
     api_v = os.environ.get('VENT_CONTROL_API_VERSION')
     if not api_v:
