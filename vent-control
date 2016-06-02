@@ -5,6 +5,7 @@ import ast
 import json
 import os
 import requests
+import shutil
 import subprocess
 import sys
 import web
@@ -157,6 +158,7 @@ class w_create_instance:
                     for line in f:
                         if line.split(":")[0] == payload['provider']:
                             proc = None
+                            cleanup = False
                             if line.split(":")[1] == 'openstack' or line.split(":")[1] == 'vmwarevsphere':
                                 # TODO check usage stats first and make sure it's not over the limits (capacity)
                                 cmd = "/usr/local/bin/docker-machine create -d "+line.split(":")[1]+" "+line.split(":")[5].strip()
@@ -164,6 +166,7 @@ class w_create_instance:
                                 cmd = "/usr/local/bin/docker-machine create -d "+line.split(":")[1].strip()
                                 if payload['iso'] == '/tmp/vent/vent.iso':
                                     if not os.path.isfile('/tmp/vent/vent.iso'):
+                                        cleanup = True
                                         os.system("git config --global http.sslVerify false")
                                         os.system("cd /tmp && git clone https://github.com/CyberReboot/vent.git")
                                         os.system("cd /tmp/vent && make")
@@ -178,6 +181,8 @@ class w_create_instance:
                             output = subprocess.check_output(cmd, shell=True)
                             if proc != None:
                                 os.system("kill -9 "+str(proc.pid))
+                            if cleanup:
+                                shutil.rmtree('/tmp/vent')
                             return output
                 return "provider specified was not found"
             else:
