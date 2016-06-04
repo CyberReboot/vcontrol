@@ -126,7 +126,7 @@ class w_list_providers:
             if os.path.isfile('providers.txt'):
                 with open('providers.txt', 'r') as f:
                     for line in f:
-                        providers[line.split(":")[0]] = line.split(":")[1]
+                        providers[line.split(":")[0]] = line.split(":")[1].strip()
             return providers
         except:
             return "unable to get providers"
