@@ -1,5 +1,4 @@
-# get newer version of docker with ubuntu rather than alpine
-FROM ubuntu:14.04.2
+FROM ubuntu:16.04
 MAINTAINER Charlie Lewis <clewis@iqt.org>
 
 RUN apt-get update && apt-get install -qqy \
@@ -10,29 +9,22 @@ RUN apt-get update && apt-get install -qqy \
     lxc \
     python-dev \
     python-pip \
-    sshpass \
-    unzip
+    sshpass
 
 # install docker
 RUN curl -sSL https://get.docker.com/ | sh
 
 # hacks for vmware driver
-RUN curl -L https://github.com/vmware/govmomi/releases/download/v0.2.0/govc_linux_amd64.gz >govc.gz && gzip -d govc.gz && mv govc /usr/local/bin/govc
+RUN curl -L https://github.com/vmware/govmomi/releases/download/v0.7.1/govc_linux_amd64.gz >govc.gz && gzip -d govc.gz && mv govc /usr/local/bin/govc
 RUN chmod +x /usr/local/bin/govc
 
-# replace with vent iso download url
-RUN curl -L https://github.com/boot2docker/boot2docker/releases/download/v1.9.1/boot2docker.iso >boot2docker.iso && mkdir -p /root/.docker/machine/ && mv boot2docker.iso /root/.docker/machine/boot2docker.iso
-RUN mkdir -p /root/.docker/machine/cache && cp /root/.docker/machine/boot2docker.iso /root/.docker/machine/cache/boot2docker.iso
-
 # install docker-machine
-RUN curl -L https://github.com/docker/machine/releases/download/v0.5.1/docker-machine_linux-amd64.zip >machine.zip && \
-    unzip machine.zip && \
-    rm machine.zip && \
-    mv docker-machine* /usr/local/bin
+RUN curl -L https://github.com/docker/machine/releases/download/v0.7.0/docker-machine-`uname -s`-`uname -m` >/usr/local/bin/docker-machine && \
+    chmod +x /usr/local/bin/docker-machine
 
-# TODO temporary dev
-RUN curl --insecure -L https://github.com/CyberReboot/vent/releases/download/v0.4.1/vent.iso >boot2docker.iso && mkdir -p /root/.docker/machine/ && mv boot2docker.iso /root/.docker/machine/boot2docker.iso
-RUN mkdir -p /root/.docker/machine/cache && cp /root/.docker/machine/boot2docker.iso /root/.docker/machine/cache/boot2docker.iso
+# TODO add vent iso
+RUN curl --insecure -L https://github.com/CyberReboot/vent/releases/download/v0.4.2/vent.iso >boot2docker.iso && mkdir -p /root/.docker/machine/ && mv boot2docker.iso /root/.docker/machine/boot2docker.iso
+RUN mkdir -p /root/.docker/machine/cache && ln -s /root/.docker/machine/boot2docker.iso /root/.docker/machine/cache/boot2docker.iso
 
 ADD . /vent-control
 RUN pip install -r /vent-control/requirements.txt
