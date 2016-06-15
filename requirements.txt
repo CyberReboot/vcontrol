@@ -1,3 +1,5 @@
+pytest
+pytest-cov
 python-novaclient
 pyVmomi
 requests

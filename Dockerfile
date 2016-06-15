@@ -29,6 +29,8 @@ RUN mkdir -p /root/.docker/machine/cache && ln -s /root/.docker/machine/boot2doc
 ADD . /vent-control
 RUN pip install -r /vent-control/requirements.txt
 WORKDIR /vent-control
+RUN py.test -v --cov=. --cov-report term-missing
+
 VOLUME /var/lib/docker
 VOLUME /root/.docker
 ENV PATH "$PATH":/vent-control
@@ -37,5 +39,5 @@ ENV VENT_CONTROL_API_VERSION /v1
 
 EXPOSE 8080
 
-ENTRYPOINT ["python", "vent-control"]
+ENTRYPOINT ["python", "vent-control.py"]
 CMD ["daemon"]
