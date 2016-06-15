@@ -1,4 +1,4 @@
-Vent-control Documentation
+Vcontrol Documentation
 ====
 
 Summary of stuff.

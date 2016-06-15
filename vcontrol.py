@@ -18,7 +18,7 @@ class index:
         except:
             allow_origin = ''
         web.header('Access-Control-Allow-Origin', allow_origin)
-        return "vent-control"
+        return "vcontrol"
 
 class version:
     def GET(self):
@@ -84,7 +84,7 @@ class w_add_provider:
             except:
                 return "unable to add provider"
         else:
-            return "must be done from the localhost running vent-control daemon"
+            return "must be done from the localhost running vcontrol daemon"
 
 class w_remove_provider:
     def GET(self, provider):
@@ -111,7 +111,7 @@ class w_remove_provider:
             else:
                 return provider + " not found, couldn't remove"
         else:
-            return "must be done from the localhost running vent-control daemon"
+            return "must be done from the localhost running vcontrol daemon"
 
 class w_list_providers:
     def GET(self):
@@ -641,7 +641,7 @@ def daemon_mode(args):
 
 def add_provider(provider, args, daemon):
     # only privileged can add providers, which currently is only
-    # accessible from the server running the vent-control daemon
+    # accessible from the server running the vcontrol daemon
     open_d = os.environ.get('VENT_CONTROL_OPEN')
     if open_d != "true":
         # !! TODO get the api_v instead of hardcoding version
@@ -659,7 +659,7 @@ def add_provider(provider, args, daemon):
 
 def remove_provider(args, daemon):
     # only privileged can remove providers, which currently is only
-    # accessible from the server running the vent-control daemon
+    # accessible from the server running the vcontrol daemon
     open_d = os.environ.get('VENT_CONTROL_OPEN')
     if open_d != "true":
         # !! TODO get the api_v instead of hardcoding version
@@ -668,7 +668,7 @@ def remove_provider(args, daemon):
     return r.text
 
 def create_instance(args, daemon):
-    # first ssh into the machine running vent-control daemon
+    # first ssh into the machine running vcontrol daemon
     # from there use docker-machine to provision
     payload = {}
     payload['machine'] = args.machine
@@ -682,7 +682,7 @@ def create_instance(args, daemon):
 
 def delete_instance(args, daemon):
     # check if controlled by docker-machine, if not fail
-    # first ssh into the machine running vent-control daemon
+    # first ssh into the machine running vcontrol daemon
     # from there use docker-machine to delete
     payload = {'force':args.force}
     r = requests.get(daemon+"/delete_instance/"+args.machine, params=payload)
@@ -690,14 +690,14 @@ def delete_instance(args, daemon):
 
 def start_instance(args, daemon):
     # check if controlled by docker-machine, if not fail
-    # first ssh into the machine running vent-control daemon
+    # first ssh into the machine running vcontrol daemon
     # from there use docker-machine to start
     r = requests.get(daemon+"/start_instance/"+args.machine)
     return r.text
 
 def stop_instance(args, daemon):
     # check if controlled by docker-machine, if not fail
-    # first ssh into the machine running vent-control daemon
+    # first ssh into the machine running vcontrol daemon
     # from there use docker-machine to stop
     r = requests.get(daemon+"/stop_instance/"+args.machine)
     return r.text
@@ -717,7 +717,7 @@ def command_reboot(args, daemon):
     return r.text
 
 def command_ssh(args, daemon):
-    # get the certs from the machine running vent-control daemon
+    # get the certs from the machine running vcontrol daemon
     # from there ssh to the machine, whether with docker-machine or ssh
 
     # !! TODO check if controlled by docker-machine, if not fail (all machines should be controlled by docker-machine)
@@ -794,7 +794,7 @@ def deploy_template(args, daemon):
 def register_instance(args, daemon):
     # use default or supply credentials
     # use generic driver from docker-machine
-    # note that they will be sent to the vent-control daemon
+    # note that they will be sent to the vcontrol daemon
     payload = {}
     payload['machine'] = args.machine
     payload['ip'] = args.ip
@@ -810,7 +810,7 @@ def main(bare_metal_only, daemon, open_d, api_v):
     privileged = 0
     try:
         r = requests.get('http://localhost:8080'+api_v)
-        if r.text == 'vent-control':
+        if r.text == 'vcontrol':
             privileged = 1
     except:
         pass
@@ -819,7 +819,7 @@ def main(bare_metal_only, daemon, open_d, api_v):
 
     # generate cli and parse args
     with open('VERSION', 'r') as f: version = f.read().strip()
-    parser = argparse.ArgumentParser(description='vent-control: a command line interface for managing vent instances')
+    parser = argparse.ArgumentParser(description='vcontrol: a command line interface for managing vent instances')
     subparsers = parser.add_subparsers()
 
     if privileged:
@@ -1102,7 +1102,7 @@ def main(bare_metal_only, daemon, open_d, api_v):
             daemon = 'http://localhost:8080'
         try:
             r = requests.get(daemon+api_v)
-            if r.text == 'vent-control':
+            if r.text == 'vcontrol':
                 #print "daemon running and reachable!"
                 pass
             else:

@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
-  title: vent-control API
-  description: This contains the documentation and a functional vent-control API testing sandbox.
+  title: vcontrol API
+  description: This contains the documentation and a functional vcontrol API testing sandbox.
   version: 0.1.0
 host: mydomain
 schemes:
@@ -14,7 +14,7 @@ paths:
     get:
       summary: Index
       description: >
-        This endpoint is just a quick way to ensure that the vent-control API is
+        This endpoint is just a quick way to ensure that the vcontrol API is
         up and running properly.
       produces:
         - text/html
@@ -22,12 +22,12 @@ paths:
         - Meta
       responses:
         '200':
-          description: Returns `vent-control`
+          description: Returns `vcontrol`
   /version:
     get:
       summary: Version
       description: >
-        This endpoint return the version of `vent-control` that is currently running this API.
+        This endpoint return the version of `vcontrol` that is currently running this API.
       produces:
         - text/html
       tags:
@@ -41,7 +41,7 @@ paths:
       description: >
         This endpoint allows for a new provider such as openstack or vmware to be
         added.  A vent instance runs on a provider.  Note that a provider can
-        only be added from `localhost` of the machine running `vent-control`
+        only be added from `localhost` of the machine running `vcontrol`
         unless the environment variable `VENT_CONTROL_OPEN=true` is set on the
         server.
       tags:
@@ -107,7 +107,7 @@ paths:
         vmware.  A vent instance runs on a provider, this will not remove
         existing vent instances on the specified provider.  Note that a provider
         can only be removed from `localhost` of the machine running
-        `vent-control` unless the environment variable `VENT_CONTROL_OPEN=true`
+        `vcontrol` unless the environment variable `VENT_CONTROL_OPEN=true`
         is set on the server.
       tags:
         - Providers
@@ -180,7 +180,7 @@ paths:
     get:
       summary: Deregister an instance
       description: >
-        This endpoint is for deregistering an instance from `vent-control`.
+        This endpoint is for deregistering an instance from `vcontrol`.
       tags:
         - Instances
       parameters:
@@ -264,7 +264,7 @@ paths:
       summary: Register instance
       description: >
         This endpoint is for registering an existing `vent` instance into
-        `vent-control`.
+        `vcontrol`.
       tags:
         - Instances
       responses:
