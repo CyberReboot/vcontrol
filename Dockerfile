@@ -26,18 +26,18 @@ RUN curl -L https://github.com/docker/machine/releases/download/v0.7.0/docker-ma
 RUN curl --insecure -L https://github.com/CyberReboot/vent/releases/download/v0.4.2/vent.iso >boot2docker.iso && mkdir -p /root/.docker/machine/ && mv boot2docker.iso /root/.docker/machine/boot2docker.iso
 RUN mkdir -p /root/.docker/machine/cache && ln -s /root/.docker/machine/boot2docker.iso /root/.docker/machine/cache/boot2docker.iso
 
-ADD . /vent-control
-RUN pip install -r /vent-control/requirements.txt
-WORKDIR /vent-control
+ADD . /vcontrol
+RUN pip install -r /vcontrol/requirements.txt
+WORKDIR /vcontrol
 RUN py.test -v --cov=. --cov-report term-missing
 
 VOLUME /var/lib/docker
 VOLUME /root/.docker
-ENV PATH "$PATH":/vent-control
+ENV PATH "$PATH":/vcontrol
 ENV VENT_CONTROL_DAEMON http://localhost:8080
 ENV VENT_CONTROL_API_VERSION /v1
 
 EXPOSE 8080
 
-ENTRYPOINT ["python", "vent-control.py"]
+ENTRYPOINT ["python", "vcontrol.py"]
 CMD ["daemon"]

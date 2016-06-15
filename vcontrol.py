@@ -596,8 +596,7 @@ class swagger:
         web.header("Content-Type","text/yaml")
         return f.read()
 
-def daemon_mode(args):
-    sys.argv[1:] = ['0.0.0.0','8080']
+def get_urls():
     urls = (
         '/swagger.yaml', 'swagger',
         '/v1', 'index',
@@ -631,10 +630,13 @@ def daemon_mode(args):
         '/v1/deregister_instance/(.+)', 'w_deregister_instance',
         '/v1/version', 'version'
     )
+    return urls
 
+def daemon_mode(args):
+    sys.argv[1:] = ['0.0.0.0','8080']
+    urls = get_urls()
     app = web.application(urls, globals())
     app.run()
-
     return True
 
 def add_provider(provider, args, daemon):

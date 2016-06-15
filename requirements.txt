@@ -1,3 +1,4 @@
+paste
 pytest
 pytest-cov
 python-novaclient
