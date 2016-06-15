@@ -12,6 +12,7 @@ import web
 
 class index:
     def GET(self):
+        web.header("Content-Type","text/plain")
         # set allowed origins for api calls
         try:
             allow_origin = os.environ["ALLOW_ORIGIN"]
@@ -22,6 +23,7 @@ class index:
 
 class version:
     def GET(self):
+        web.header("Content-Type","text/plain")
         # set allowed origins for api calls
         try:
             allow_origin = os.environ["ALLOW_ORIGIN"]
