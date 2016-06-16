@@ -30,7 +30,10 @@ class version:
         except:
             allow_origin = ''
         web.header('Access-Control-Allow-Origin', allow_origin)
-        with open('VERSION', 'r') as f: v = f.read().strip()
+        try:
+            with open('VERSION', 'r') as f: v = f.read().strip()
+        except:
+            with open('../VERSION', 'r') as f: v = f.read().strip()
         return v
 
 class w_capacity:
@@ -820,7 +823,10 @@ def main(bare_metal_only, daemon, open_d, api_v):
         privileged = 1
 
     # generate cli and parse args
-    with open('VERSION', 'r') as f: version = f.read().strip()
+    try:
+        with open('VERSION', 'r') as f: version = f.read().strip()
+    except:
+        with open('../VERSION', 'r') as f: version = f.read().strip()
     parser = argparse.ArgumentParser(description='vcontrol: a command line interface for managing vent instances')
     subparsers = parser.add_subparsers()
 
