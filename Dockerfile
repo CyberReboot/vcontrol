@@ -39,5 +39,5 @@ ENV VENT_CONTROL_API_VERSION /v1
 
 EXPOSE 8080
 
-ENTRYPOINT ["vcontrol"]
+ENTRYPOINT ["/vcontrol/vcontrol/vcontrol.py"]
 CMD ["daemon"]

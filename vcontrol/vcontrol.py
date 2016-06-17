@@ -10,6 +10,20 @@ import subprocess
 import sys
 import web
 
+def get_allowed():
+    rest_url = ""
+    if "ALLOW_ORIGIN" in os.environ:
+        allow_origin = os.environ["ALLOW_ORIGIN"]
+        host_port = allow_origin.split("//")[1]
+        host = host_port.split(":")[0]
+        port = str(int(host_port.split(":")[1])+1)
+        rest_url = host+":"+port
+    else:
+        allow_origin = ""
+    return allow_origin, rest_url
+
+allow_origin, rest_url = get_allowed()
+
 class index:
     def GET(self):
         web.header("Content-Type","text/plain")
@@ -597,7 +611,20 @@ class swagger:
         except:
             allow_origin = ''
         web.header('Access-Control-Allow-Origin', allow_origin)
-        f = open("docs/swagger.yaml", 'r')
+        try:
+            with open("swagger.yaml", 'r') as f:
+                filedata = f.read()
+            newdata = filedata.replace("mydomain", rest_url)
+            with open("swagger.yaml", 'w') as f:
+                f.write(newdata)
+            f = open("swagger.yaml", 'r')
+        except:
+            with open("vcontrol/swagger.yaml", 'r') as f:
+                filedata = f.read()
+            newdata = filedata.replace("mydomain", rest_url)
+            with open("vcontrol/swagger.yaml", 'w') as f:
+                f.write(newdata)
+            f = open("vcontrol/swagger.yaml", 'r')
         web.header("Content-Type","text/yaml")
         return f.read()
 
