@@ -36,8 +36,9 @@ VOLUME /root/.docker
 ENV PATH "$PATH":/vcontrol/bin
 ENV VENT_CONTROL_DAEMON http://localhost:8080
 ENV VENT_CONTROL_API_VERSION /v1
+WORKDIR /vcontrol/bin
 
 EXPOSE 8080
 
-ENTRYPOINT ["/vcontrol/vcontrol/vcontrol.py"]
+ENTRYPOINT ["vcontrol"]
 CMD ["daemon"]
