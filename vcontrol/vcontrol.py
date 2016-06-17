@@ -619,12 +619,12 @@ class swagger:
                 f.write(newdata)
             f = open("swagger.yaml", 'r')
         except:
-            with open("vcontrol/swagger.yaml", 'r') as f:
+            with open("../vcontrol/swagger.yaml", 'r') as f:
                 filedata = f.read()
             newdata = filedata.replace("mydomain", rest_url)
-            with open("vcontrol/swagger.yaml", 'w') as f:
+            with open("../vcontrol/swagger.yaml", 'w') as f:
                 f.write(newdata)
-            f = open("vcontrol/swagger.yaml", 'r')
+            f = open("../vcontrol/swagger.yaml", 'r')
         web.header("Content-Type","text/yaml")
         return f.read()
 
