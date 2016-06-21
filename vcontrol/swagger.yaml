@@ -542,6 +542,16 @@ definitions:
         example: esxi1
         description: >
           Provider to create machine on
+      group:
+        type: string
+        example: vent
+        description: >
+          Group this vent instance will belong to
+      labels:
+        type: string
+        example: foo=bar,key=val
+        description: >
+          Pairs of key/values used as labels to identify this vent instance
       memory:
         type: integer
         format: int32
