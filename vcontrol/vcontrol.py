@@ -187,18 +187,29 @@ class w_create_instance:
         except:
             return "malformed json body"
 
+        # TODO add --engine-label(s) vent specific labels
+        engine_labels = "--engine-label vcontrol_managed=yes "
         try:
             if os.path.isfile('providers.txt'):
                 with open('providers.txt', 'r') as f:
                     for line in f:
                         if line.split(":")[0] == payload['provider']:
+                            # add --engine-label for group specified in payload
+                            if "group" in payload:
+                                engine_labels += "--engine-label vcontrol_group="+payload["group"]+" "
+                            # !! TODO add any additional --engine-label(s) in payload
+                            if "labels" in payload:
+                                if payload["labels"] != "":
+                                    labels = payload["labels"].split(",")
+                                    for label in labels:
+                                        engine_labels += "--engine-label "+label+" "
                             proc = None
                             cleanup = False
                             if line.split(":")[1] == 'openstack' or line.split(":")[1] == 'vmwarevsphere':
                                 # TODO check usage stats first and make sure it's not over the limits (capacity)
-                                cmd = "/usr/local/bin/docker-machine create -d "+line.split(":")[1]+" "+line.split(":")[5].strip()
+                                cmd = "/usr/local/bin/docker-machine create "+engine_labels+"-d "+line.split(":")[1]+" "+line.split(":")[5].strip()
                             elif line.split(":")[1].strip() == "virtualbox":
-                                cmd = "/usr/local/bin/docker-machine create -d "+line.split(":")[1].strip()
+                                cmd = "/usr/local/bin/docker-machine create "+engine_labels+"-d "+line.split(":")[1].strip()
                                 if payload['iso'] == '/tmp/vent/vent.iso':
                                     if not os.path.isfile('/tmp/vent/vent.iso'):
                                         cleanup = True
@@ -209,7 +220,7 @@ class w_create_instance:
                                     cmd += ' --virtualbox-boot2docker-url=http://localhost:8000/vent.iso'
                                 cmd += ' --virtualbox-cpu-count "'+str(payload['cpus'])+'" --virtualbox-disk-size "'+str(payload['disk_size'])+'" --virtualbox-memory "'+str(payload['memory'])+'"'
                             else:
-                                cmd = "/usr/local/bin/docker-machine create -d "+line.split(":")[1]+" "+line.split(":")[2].strip()
+                                cmd = "/usr/local/bin/docker-machine create "+engine_labels+"-d "+line.split(":")[1]+" "+line.split(":")[2].strip()
                             if line.split(":")[1] == "vmwarevsphere":
                                 cmd += ' --vmwarevsphere-cpu-count "'+str(payload['cpus'])+'" --vmwarevsphere-disk-size "'+str(payload['disk_size'])+'" --vmwarevsphere-memory-size "'+str(payload['memory'])+'"'
                             cmd += ' '+payload['machine']
@@ -499,32 +510,26 @@ class w_list_instances:
         data = web.input()
         instance_array = []
         try:
-            if 'fast' in data:
-                if data['fast'] == 'True':
-                    if os.path.isdir('/root/.docker/machine/machines'):
-                        out = subprocess.check_output("ls -1 /root/.docker/machine/machines", shell=True)
-                        out = str(out)
-                        out = out.split("\n")
-                        for instance in out[:-1]:
-                            instance_array.append(instance)
-                    else:
-                        out = ""
-                else:
-                    out = subprocess.check_output("/usr/local/bin/docker-machine ls", shell=True)
+            if 'fast' in data and data['fast'] == 'True':
+                # !! TODO parse out the config.json file for the label
+                # !! TODO use current users home directory instead of /root
+                if os.path.isdir('/root/.docker/machine/machines'):
+                    out = subprocess.check_output("ls -1 /root/.docker/machine/machines", shell=True)
                     out = str(out)
                     out = out.split("\n")
-                    for instance in out[1:-1]:
-                        i = instance.split(" ")
-                        instance_array.append(i[0])
+                    for instance in out[:-1]:
+                        instance_array.append(instance)
+                else:
+                    out = ""
             else:
-                out = subprocess.check_output("/usr/local/bin/docker-machine ls", shell=True)
+                out = subprocess.check_output("/usr/local/bin/docker-machine ls --filter label=vcontrol_managed=yes", shell=True)
                 out = str(out)
                 out = out.split("\n")
                 for instance in out[1:-1]:
                     i = instance.split(" ")
                     instance_array.append(i[0])
         except:
-            pass
+            print sys.exc_info()
         return str(instance_array)
 
 # This endpoint is for getting stats about an instance.
@@ -771,6 +776,9 @@ def create_instance(args, daemon):
     payload['disk_size'] = args.disk_size
     payload['iso'] = args.iso
     payload['memory'] = args.memory
+    payload['group'] = args.group
+    payload['labels'] = args.labels
+
     r = requests.post(daemon+"/create_instance", data=json.dumps(payload))
     return r.text
 
@@ -1095,6 +1103,10 @@ def main(bare_metal_only, daemon, open_d, api_v):
                                    help='provider to create machine on')
         create_parser.add_argument('--iso', '-i', default="/tmp/vent/vent.iso", type=str,
                                    help='URL to ISO, if left as default, it will build the ISO from source')
+        create_parser.add_argument('--group', '-g', default="vent", type=str,
+                                   help='group vent instance belongs to (default: vent)')
+        create_parser.add_argument('--labels', '-l', default="", type=str,
+                                   help='additional label pairs for the vent instance (default: "", examples would be "foo=bar,key=val")')
         create_parser.add_argument('--cpus', '-c', default=1, type=int,
                                    help='number of cpus to create the machine with (default: 1)')
         create_parser.add_argument('--disk-size', '-d', default=20000, type=int,
