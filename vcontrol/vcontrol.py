@@ -743,8 +743,10 @@ def add_provider(provider, args, daemon):
     # accessible from the server running the vcontrol daemon
     open_d = os.environ.get('VENT_CONTROL_OPEN')
     if open_d != "true":
-        # !! TODO get the api_v instead of hardcoding version
-        daemon = 'http://localhost:8080/v1'
+        # daemon as passed in is: 'http:..../'+api_v
+        # split and get the end and append
+        api_v = daemon.split('/')[-1]
+        daemon = 'http://localhost:8080/'+api_v
     if provider == "virtualbox":
         payload = {'name': args.name, 'provider': provider}
     else:
@@ -761,8 +763,10 @@ def remove_provider(args, daemon):
     # accessible from the server running the vcontrol daemon
     open_d = os.environ.get('VENT_CONTROL_OPEN')
     if open_d != "true":
-        # !! TODO get the api_v instead of hardcoding version
-        daemon = 'http://localhost:8080/v1'
+        # daemon as passed in is: 'http:..../'+api_v
+        # split and get the end and append
+        api_v = daemon.split('/')[-1]
+        daemon = 'http://localhost:8080/'+api_v
     r = requests.get(daemon+"/remove_provider/"+args.provider)
     return r.text
 
