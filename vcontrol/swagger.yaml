@@ -227,6 +227,24 @@ paths:
       responses:
         '200':
           description: Returns JSON string of stats about the instance
+  '/get_logs/{instance}':
+    get:
+      summary: Get logs of an instance
+      description: >
+        This endpoint is not implemented yet.
+        This endpoint is for retrieving logs from an instance.
+      tags:
+        - Instances
+      parameters:
+        - in: path
+          name: instance
+          description: name of instance to get logs from
+          required: true
+          type: string
+          format: string
+      responses:
+        '200':
+          description: Returns JSON string of log stats from an instance
   /get_template:
     get:
       summary: Get template from instance
@@ -304,6 +322,24 @@ paths:
       responses:
         '200':
           description: String of whether it was able to successfully stop the instance or not.
+  '/command_ssh/{instance}':
+    get:
+      summary: SSH into an instance
+      description: >
+        This endpoint is not implemented yet.
+        This endpoint is to SSH into an instance.
+      tags:
+        - Commands
+      parameters:
+        - in: path
+          name: instance
+          description: name of instance to SSH into
+          required: true
+          type: string
+          format: string
+      responses:
+        '200':
+          description: String of whether it was able to successfully reach the instance via SSH or not.
   '/command_build/{instance}':
     get:
       summary: Build images on an instance
