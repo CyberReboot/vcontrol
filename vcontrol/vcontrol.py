@@ -24,6 +24,7 @@ def get_allowed():
 
 allow_origin, rest_url = get_allowed()
 
+# This endpoint is just a quick way to ensure that the vcontrol API is up and running properly.
 class index:
     def GET(self):
         web.header("Content-Type","text/plain")
@@ -35,6 +36,7 @@ class index:
         web.header('Access-Control-Allow-Origin', allow_origin)
         return "vcontrol"
 
+# This endpoint returns the version of vcontrol that is currently running this API.
 class version:
     def GET(self):
         web.header("Content-Type","text/plain")
@@ -50,6 +52,7 @@ class version:
             with open('../VERSION', 'r') as f: v = f.read().strip()
         return v
 
+# This endpoint allows for getting the current capacity of a particular provider. Currently only supports VMWare and OpenStack.
 class w_capacity:
     def GET(self, provider):
         # set allowed origins for api calls
@@ -61,6 +64,11 @@ class w_capacity:
         # TODO for openstack and vmware
         return 1
 
+'''
+This endpoint allows for a new provider such as openstack or vmware to be added.
+A vent instance runs on a provider. Note that a provider can only be added from localhost
+of the machine running vcontrol unless the environment variable VENT_CONTROL_OPEN=true is set on the server.
+'''
 class w_add_provider:
     def OPTIONS(self):
         return self.POST()
@@ -105,6 +113,12 @@ class w_add_provider:
         else:
             return "must be done from the localhost running vcontrol daemon"
 
+'''
+This endpoint allows for removing a provider such as openstack or vmware.
+A vent instance runs on a provider, this will not remove existing vent instances
+on the specified provider. Note that a provider can only be removed from localhost
+of the machine running vcontrol unless the environment variable VENT_CONTROL_OPEN=true is set on the server.
+'''
 class w_remove_provider:
     def GET(self, provider):
         # set allowed origins for api calls
@@ -132,6 +146,7 @@ class w_remove_provider:
         else:
             return "must be done from the localhost running vcontrol daemon"
 
+# This endpoint lists all of the providers that have been added.
 class w_list_providers:
     def GET(self):
         # set allowed origins for api calls
@@ -150,6 +165,7 @@ class w_list_providers:
         except:
             return "unable to get providers"
 
+# This endpoint is for creating a new instance of vent on a provider.
 class w_create_instance:
     def OPTIONS(self):
         return self.POST()
@@ -209,6 +225,7 @@ class w_create_instance:
         except:
             return "unable to create instance"
 
+# This endpoint is for delete an existing instance of vent.
 class w_delete_instance:
     def GET(self, machine):
         # set allowed origins for api calls
@@ -229,6 +246,7 @@ class w_delete_instance:
             out = "unable to delete instance"
         return str(out)
 
+# This endpoint is for starting a stopped instance.
 class w_start_instance:
     def GET(self, machine):
         # set allowed origins for api calls
@@ -243,6 +261,7 @@ class w_start_instance:
             out = "unable to start instance"
         return str(out)
 
+# This endpoint is for stopping a running instance.
 class w_stop_instance:
     def GET(self, machine):
         # set allowed origins for api calls
@@ -257,6 +276,7 @@ class w_stop_instance:
             out = "unable to stop instance"
         return str(out)
 
+# This endpoint is building Docker images on an instance.
 class w_command_build:
     def GET(self, machine):
         # set allowed origins for api calls
@@ -277,6 +297,7 @@ class w_command_build:
             return "failed to build"
         return "done building"
 
+# This endpoint is for running an arbitrary command on an instance and getting the result back.
 class w_command_generic:
     def OPTIONS(self, machine):
         return self.POST(machine)
@@ -313,6 +334,7 @@ class w_command_generic:
             out = "unable to execute generic command"
         return str(out)
 
+# This endpoint is for rebooting a running instance.
 class w_command_reboot:
     def GET(self, machine):
         # set allowed origins for api calls
@@ -327,6 +349,7 @@ class w_command_reboot:
             out = "unable to reboot instance"
         return str(out)
 
+# This endpoint is for starting a specified category of containers on a specific instance.
 class w_command_start:
     def GET(self, machine, category):
         # set allowed origins for api calls
@@ -343,6 +366,7 @@ class w_command_start:
             out = "unable to start "+category+" on "+machine
         return str(out)
 
+# This endpoint is for stopping a specified category of containers on a specific instance.
 class w_command_stop:
     def GET(self, machine, category):
         # set allowed origins for api calls
@@ -357,6 +381,7 @@ class w_command_stop:
             out = "unable to stop "+category+" on "+machine
         return str(out)
 
+# This endpoint is for getting messages that happen on an instance.
 class w_command_messages:
     def GET(self, machine):
         # set allowed origins for api calls
@@ -371,6 +396,7 @@ class w_command_messages:
             out = "unable to get messages from "+machine
         return str(out)
 
+# This endpoint is for getting services that are running on an instance.
 class w_command_services:
     def GET(self, machine):
         # set allowed origins for api calls
@@ -385,6 +411,7 @@ class w_command_services:
             out = "unable to get services from "+machine
         return str(out)
 
+# This endpoint is for getting tasks that are running on an instance.
 class w_command_tasks:
     def GET(self, machine):
         # set allowed origins for api calls
@@ -399,6 +426,7 @@ class w_command_tasks:
             out = "unable to get tasks from "+machine
         return str(out)
 
+# This endpoint is for getting tools on an instance.
 class w_command_tools:
     def GET(self, machine):
         # set allowed origins for api calls
@@ -413,6 +441,7 @@ class w_command_tools:
             out = "unable to get tools from "+machine
         return str(out)
 
+# This endpoint is for getting types on an instance.
 class w_command_types:
     def GET(self, machine):
         # set allowed origins for api calls
@@ -427,6 +456,14 @@ class w_command_types:
             out = "unable to get types from "+machine
         return str(out)
 
+# This endpoint is for ssh-ing into an instance.
+# !! TODO
+class w_command_ssh:
+    def GET(self, machine):
+        # TODO
+        return 1
+
+# This endpoint is just a quick way to ensure that providers are still reachable.
 class w_heartbeat_instances:
     def GET(self):
         # set allowed origins for api calls
@@ -438,6 +475,7 @@ class w_heartbeat_instances:
         # TODO
         return 1
 
+# This endpoint is just a quick way to ensure that providers are still reachable.
 class w_heartbeat_providers:
     def GET(self):
         # set allowed origins for api calls
@@ -449,6 +487,7 @@ class w_heartbeat_providers:
         # TODO
         return 1
 
+# This endpoint lists all of the instances that have been created or registered.
 class w_list_instances:
     def GET(self):
         # set allowed origins for api calls
@@ -488,6 +527,7 @@ class w_list_instances:
             pass
         return str(instance_array)
 
+# This endpoint is for getting stats about an instance.
 class w_get_stats:
     def GET(self, machine):
         # set allowed origins for api calls
@@ -499,6 +539,7 @@ class w_get_stats:
         # TODO
         return 1
 
+# This endpoint is for getting info about an instance.
 class w_get_info:
     def GET(self, machine):
         # set allowed origins for api calls
@@ -510,6 +551,19 @@ class w_get_info:
         # TODO
         return 1
 
+# This endpoint is for retrieving instance logs.
+class w_get_logs:
+    def GET(self, machine):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
+        # TODO
+        return 1
+
+# This endpoint is for retrieving the template file of an instance.
 class w_get_template:
     def GET(self):
         # set allowed origins for api calls
@@ -528,6 +582,7 @@ class w_get_template:
         print payload
         return 1
 
+# This endpoint is for uploading a template file to an instance.
 class w_deploy_template:
     def OPTIONS(self, machine):
         return self.POST(machine)
@@ -554,6 +609,7 @@ class w_deploy_template:
         print machine
         return "successfully deployed"
 
+# This endpoint is for registering an existing vent instance into vcontrol.
 class w_register_instance:
     def OPTIONS(self):
         return self.POST()
@@ -589,6 +645,7 @@ class w_register_instance:
             out = "unable to register instance"
         return str(out)
 
+# This endpoint is for deregistering an instance from vcontrol.
 class w_deregister_instance:
     def GET(self, machine):
         # set allowed origins for api calls
@@ -656,6 +713,7 @@ def get_urls():
         '/v1/list_providers', 'w_list_providers',
         '/v1/get_stats/(.+)', 'w_get_stats',
         '/v1/get_info/(.+)', 'w_get_info',
+        '/v1/get_logs/(.+)', 'w_get_logs',
         '/v1/deploy_template/(.+)', 'w_deploy_template',
         '/v1/get_template', 'w_get_template',
         '/v1/register_instance', 'w_register_instance',
@@ -670,6 +728,10 @@ def daemon_mode(args):
     app = web.application(urls, globals())
     app.run()
     return True
+
+# !! TODO
+def capacity(args, daemon):
+    return False
 
 def add_provider(provider, args, daemon):
     # only privileged can add providers, which currently is only
@@ -808,6 +870,10 @@ def get_stats(args, daemon):
 
 def get_info(args, daemon):
     r = requests.get(daemon+"/get_info/"+args.machine)
+    return r.text
+
+def get_logs(args, daemon):
+    r = requests.get(daemon + "/get_logs/"+args.machine)
     return r.text
 
 def get_template(args, daemon):
