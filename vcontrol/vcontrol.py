@@ -1081,7 +1081,7 @@ def main(bare_metal_only, daemon, open_d, api_v):
     cmd_start_parser.add_argument('machine',
                                   help='machine name to start containers on')
     cmd_start_parser.add_argument('containers',
-                                  choices=['collectors',
+                                  choices=['core',
                                            'visualization',
                                            'active',
                                            'passive'],
@@ -1092,7 +1092,7 @@ def main(bare_metal_only, daemon, open_d, api_v):
     cmd_stop_parser.add_argument('machine',
                                  help='machine name to stop containers on')
     cmd_stop_parser.add_argument('containers',
-                                 choices=['collectors',
+                                 choices=['core',
                                           'visualization',
                                           'active',
                                           'passive'],
