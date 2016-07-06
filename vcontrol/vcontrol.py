@@ -66,7 +66,7 @@ class w_capacity:
 
 '''
 This endpoint allows for a new provider such as openstack or vmware to be added.
-A vent instance runs on a provider. Note that a provider can only be added from localhost
+A Vent machine runs on a provider. Note that a provider can only be added from localhost
 of the machine running vcontrol unless the environment variable VENT_CONTROL_OPEN=true is set on the server.
 '''
 class w_add_provider:
@@ -137,7 +137,7 @@ class w_shutdown_machine:
 
 '''
 This endpoint allows for removing a provider such as openstack or vmware.
-A vent instance runs on a provider, this will not remove existing vent instances
+A Vent machine runs on a provider, this will not remove existing Vent machines
 on the specified provider. Note that a provider can only be removed from localhost
 of the machine running vcontrol unless the environment variable VENT_CONTROL_OPEN=true is set on the server.
 '''
@@ -187,8 +187,8 @@ class w_list_providers:
         except:
             return "unable to get providers"
 
-# This endpoint is for creating a new instance of vent on a provider.
-class w_create_instance:
+# This endpoint is for creating a new machine of Vent on a provider.
+class w_create_machine:
     def OPTIONS(self):
         return self.POST()
 
@@ -209,7 +209,7 @@ class w_create_instance:
         except:
             return "malformed json body"
 
-        # TODO add --engine-label(s) vent specific labels
+        # TODO add --engine-label(s) Vent specific labels
         engine_labels = "--engine-label vcontrol_managed=yes "
         try:
             if os.path.isfile('providers.txt'):
@@ -232,14 +232,14 @@ class w_create_instance:
                                 cmd = "/usr/local/bin/docker-machine create "+engine_labels+"-d "+line.split(":")[1]+" "+line.split(":")[5].strip()
                             elif line.split(":")[1].strip() == "virtualbox":
                                 cmd = "/usr/local/bin/docker-machine create "+engine_labels+"-d "+line.split(":")[1].strip()
-                                if payload['iso'] == '/tmp/vent/vent.iso':
-                                    if not os.path.isfile('/tmp/vent/vent.iso'):
+                                if payload['iso'] == '/tmp/Vent/Vent.iso':
+                                    if not os.path.isfile('/tmp/Vent/Vent.iso'):
                                         cleanup = True
                                         os.system("git config --global http.sslVerify false")
-                                        os.system("cd /tmp && git clone https://github.com/CyberReboot/vent.git")
-                                        os.system("cd /tmp/vent && make")
-                                    proc = subprocess.Popen(["nohup", "python", "-m", "SimpleHTTPServer"], cwd="/tmp/vent")
-                                    cmd += ' --virtualbox-boot2docker-url=http://localhost:8000/vent.iso'
+                                        os.system("cd /tmp && git clone https://github.com/CyberReboot/Vent.git")
+                                        os.system("cd /tmp/Vent && make")
+                                    proc = subprocess.Popen(["nohup", "python", "-m", "SimpleHTTPServer"], cwd="/tmp/Vent")
+                                    cmd += ' --virtualbox-boot2docker-url=http://localhost:8000/Vent.iso'
                                 cmd += ' --virtualbox-cpu-count "'+str(payload['cpus'])+'" --virtualbox-disk-size "'+str(payload['disk_size'])+'" --virtualbox-memory "'+str(payload['memory'])+'"'
                             else:
                                 cmd = "/usr/local/bin/docker-machine create "+engine_labels+"-d "+line.split(":")[1]+" "+line.split(":")[2].strip()
@@ -250,16 +250,16 @@ class w_create_instance:
                             if proc != None:
                                 os.system("kill -9 "+str(proc.pid))
                             if cleanup:
-                                shutil.rmtree('/tmp/vent')
+                                shutil.rmtree('/tmp/Vent')
                             return output
                 return "provider specified was not found"
             else:
                 return "no providers, please first add a provider"
         except:
-            return "unable to create instance"
+            return "unable to create machine"
 
-# This endpoint is for delete an existing instance of vent.
-class w_delete_instance:
+# This endpoint is for delete an existing machine of Vent.
+class w_delete_machine:
     def GET(self, machine):
         # set allowed origins for api calls
         try:
@@ -276,11 +276,11 @@ class w_delete_instance:
         try:
             out = subprocess.check_output(cmd, shell=True)
         except:
-            out = "unable to delete instance"
+            out = "unable to delete machine"
         return str(out)
 
-# This endpoint is for starting a stopped instance.
-class w_start_instance:
+# This endpoint is for starting a stopped machine.
+class w_start_machine:
     def GET(self, machine):
         # set allowed origins for api calls
         try:
@@ -291,11 +291,11 @@ class w_start_instance:
         try:
             out = subprocess.check_output("/usr/local/bin/docker-machine start "+machine, shell=True)
         except:
-            out = "unable to start instance"
+            out = "unable to start machine"
         return str(out)
 
-# This endpoint is for stopping a running instance.
-class w_stop_instance:
+# This endpoint is for stopping a running machine.
+class w_stop_machine:
     def GET(self, machine):
         # set allowed origins for api calls
         try:
@@ -306,10 +306,10 @@ class w_stop_instance:
         try:
             out = subprocess.check_output("/usr/local/bin/docker-machine stop "+machine, shell=True)
         except:
-            out = "unable to stop instance"
+            out = "unable to stop machine"
         return str(out)
 
-# This endpoint is building Docker images on an instance.
+# This endpoint is building Docker images on an machine.
 class w_command_build:
     def GET(self, machine):
         # set allowed origins for api calls
@@ -330,7 +330,7 @@ class w_command_build:
             return "failed to build"
         return "done building"
 
-# This endpoint is for running an arbitrary command on an instance and getting the result back.
+# This endpoint is for running an arbitrary command on an machine and getting the result back.
 class w_command_generic:
     def OPTIONS(self, machine):
         return self.POST(machine)
@@ -367,7 +367,7 @@ class w_command_generic:
             out = "unable to execute generic command"
         return str(out)
 
-# This endpoint is for rebooting a running instance.
+# This endpoint is for rebooting a running machine.
 class w_command_reboot:
     def GET(self, machine):
         # set allowed origins for api calls
@@ -379,10 +379,10 @@ class w_command_reboot:
         try:
             out = subprocess.check_output("/usr/local/bin/docker-machine restart "+machine, shell=True)
         except:
-            out = "unable to reboot instance"
+            out = "unable to reboot machine"
         return str(out)
 
-# This endpoint is for starting a specified category of containers on a specific instance.
+# This endpoint is for starting a specified category of containers on a specific machine.
 class w_command_start:
     def GET(self, machine, category):
         # set allowed origins for api calls
@@ -391,7 +391,7 @@ class w_command_start:
         except:
             allow_origin = ''
         web.header('Access-Control-Allow-Origin', allow_origin)
-        # just in case, make sure vent-management is running first
+        # just in case, make sure Vent-management is running first
         out = ""
         try:
             out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"python2.7 /data/template_parser.py "+category+" start\"", shell=True)
@@ -399,7 +399,7 @@ class w_command_start:
             out = "unable to start "+category+" on "+machine
         return str(out)
 
-# This endpoint is for stopping a specified category of containers on a specific instance.
+# This endpoint is for stopping a specified category of containers on a specific machine.
 class w_command_stop:
     def GET(self, machine, category):
         # set allowed origins for api calls
@@ -414,7 +414,7 @@ class w_command_stop:
             out = "unable to stop "+category+" on "+machine
         return str(out)
 
-# This endpoint is for getting messages that happen on an instance.
+# This endpoint is for getting messages that happen on an machine.
 class w_command_messages:
     def GET(self, machine):
         # set allowed origins for api calls
@@ -429,7 +429,7 @@ class w_command_messages:
             out = "unable to get messages from "+machine
         return str(out)
 
-# This endpoint is for getting services that are running on an instance.
+# This endpoint is for getting services that are running on an machine.
 class w_command_services:
     def GET(self, machine):
         # set allowed origins for api calls
@@ -444,7 +444,7 @@ class w_command_services:
             out = "unable to get services from "+machine
         return str(out)
 
-# This endpoint is for getting tasks that are running on an instance.
+# This endpoint is for getting tasks that are running on an machine.
 class w_command_tasks:
     def GET(self, machine):
         # set allowed origins for api calls
@@ -459,7 +459,7 @@ class w_command_tasks:
             out = "unable to get tasks from "+machine
         return str(out)
 
-# This endpoint is for getting tools on an instance.
+# This endpoint is for getting tools on an machine.
 class w_command_tools:
     def GET(self, machine):
         # set allowed origins for api calls
@@ -474,7 +474,7 @@ class w_command_tools:
             out = "unable to get tools from "+machine
         return str(out)
 
-# This endpoint is for getting types on an instance.
+# This endpoint is for getting types on an machine.
 class w_command_types:
     def GET(self, machine):
         # set allowed origins for api calls
@@ -489,7 +489,7 @@ class w_command_types:
             out = "unable to get types from "+machine
         return str(out)
 
-# This endpoint is for ssh-ing into an instance.
+# This endpoint is for ssh-ing into an machine.
 # !! TODO
 class w_command_ssh:
     def GET(self, machine):
@@ -520,7 +520,7 @@ class w_heartbeat_providers:
         # TODO
         return 1
 
-# This endpoint lists all of the instances that have been created or registered.
+# This endpoint lists all of the machines that have been created or registered.
 class w_list_machines:
     def GET(self):
         # set allowed origins for api calls
@@ -530,7 +530,7 @@ class w_list_machines:
             allow_origin = ''
         web.header('Access-Control-Allow-Origin', allow_origin)
         data = web.input()
-        instance_array = []
+        machine_array = []
         try:
             if 'fast' in data and data['fast'] == 'True':
                 # !! TODO parse out the config.json file for the label
@@ -539,20 +539,20 @@ class w_list_machines:
                     out = subprocess.check_output("ls -1 /root/.docker/machine/machines", shell=True)
                     out = str(out)
                     out = out.split("\n")
-                    for instance in out[:-1]:
-                        instance_array.append(instance)
+                    for machine in out[:-1]:
+                        machine_array.append(machine)
                 else:
                     out = ""
             else:
                 out = subprocess.check_output("/usr/local/bin/docker-machine ls --filter label=vcontrol_managed=yes", shell=True)
                 out = str(out)
                 out = out.split("\n")
-                for instance in out[1:-1]:
-                    i = instance.split(" ")
-                    instance_array.append(i[0])
+                for machine in out[1:-1]:
+                    i = machine.split(" ")
+                    machine_array.append(i[0])
         except:
             print sys.exc_info()
-        return str(instance_array)
+        return str(machine_array)
 
 # This endpoint is for getting stats about a provider.
 class w_get_stats_commands:
@@ -602,7 +602,7 @@ class w_get_info_commands:
         # TODO
         return 1
 
-# This endpoint is for retrieving instance logs.
+# This endpoint is for retrieving machine logs.
 class w_get_logs:
     def GET(self, machine):
         # set allowed origins for api calls
@@ -614,7 +614,7 @@ class w_get_logs:
         # TODO
         return 1
 
-# This endpoint is for retrieving the template file of an instance.
+# This endpoint is for retrieving the template file of an machine.
 class w_get_template:
     def GET(self):
         # set allowed origins for api calls
@@ -633,7 +633,7 @@ class w_get_template:
         print payload
         return 1
 
-# This endpoint is for uploading a template file to an instance.
+# This endpoint is for uploading a template file to an machine.
 class w_deploy_template:
     def OPTIONS(self, machine):
         return self.POST(machine)
@@ -656,12 +656,12 @@ class w_deploy_template:
             fout = open(filedir +'/'+ filename,'w') # creates the file where the uploaded file should be stored
             fout.write(x.myfile.file.read()) # writes the uploaded file to the newly created file.
             fout.close() # closes the file, upload complete.
-        # TODO scp to vent instance
+        # TODO scp to Vent machine
         print machine
         return "successfully deployed"
 
-# This endpoint is for registering an existing vent instance into vcontrol.
-class w_register_instance:
+# This endpoint is for registering an existing Vent machine into vcontrol.
+class w_register_machine:
     def OPTIONS(self):
         return self.POST()
 
@@ -684,20 +684,20 @@ class w_register_instance:
 
         try:
             # generate ssh keys
-            out = subprocess.check_output('ssh-keygen -t rsa -b 4096 -C "vent-generic-'+payload['machine']+'" -f /root/.ssh/id_vent_generic_'+payload['machine']+' -q -N ""', shell=True)
+            out = subprocess.check_output('ssh-keygen -t rsa -b 4096 -C "Vent-generic-'+payload['machine']+'" -f /root/.ssh/id_Vent_generic_'+payload['machine']+' -q -N ""', shell=True)
 
             # upload public key
-            out = subprocess.check_output('sshpass -p "'+payload['password']+'" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -q /root/.ssh/id_vent_generic_'+payload['machine']+'.pub docker@'+payload['ip']+':/tmp/', shell=True)
-            out = subprocess.check_output('sshpass -p "'+payload['password']+'" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -q docker@'+payload['ip']+' "cat /tmp/id_vent_generic_'+payload['machine']+'.pub >> /home/docker/.ssh/authorized_keys && rm /tmp/id_vent_generic_'+payload['machine']+'.pub"', shell=True)
+            out = subprocess.check_output('sshpass -p "'+payload['password']+'" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -q /root/.ssh/id_Vent_generic_'+payload['machine']+'.pub docker@'+payload['ip']+':/tmp/', shell=True)
+            out = subprocess.check_output('sshpass -p "'+payload['password']+'" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -q docker@'+payload['ip']+' "cat /tmp/id_Vent_generic_'+payload['machine']+'.pub >> /home/docker/.ssh/authorized_keys && rm /tmp/id_Vent_generic_'+payload['machine']+'.pub"', shell=True)
 
             # add to docker-machine
-            out = subprocess.check_output('docker-machine create -d generic --generic-ip-address "'+payload['ip']+'" --generic-ssh-key "/root/.ssh/id_vent_generic_'+payload['machine']+'" --generic-ssh-user "docker" '+payload['machine'], shell=True)
+            out = subprocess.check_output('docker-machine create -d generic --generic-ip-address "'+payload['ip']+'" --generic-ssh-key "/root/.ssh/id_Vent_generic_'+payload['machine']+'" --generic-ssh-user "docker" '+payload['machine'], shell=True)
         except:
-            out = "unable to register instance"
+            out = "unable to register machine"
         return str(out)
 
-# This endpoint is for deregistering an instance from vcontrol.
-class w_deregister_instance:
+# This endpoint is for deregistering an machine from vcontrol.
+class w_deregister_machine:
     def GET(self, machine):
         # set allowed origins for api calls
         try:
@@ -708,7 +708,7 @@ class w_deregister_instance:
         try:
             out = subprocess.check_output("/usr/local/bin/docker-machine rm "+machine, shell=True)
         except:
-            out = "unable to deregister instance"
+            out = "unable to deregister machine"
         return str(out)
 
 class swagger:
@@ -744,12 +744,12 @@ def get_urls():
         '/v1/add_provider', 'w_add_provider',
         '/v1/remove_provider/(.+)', 'w_remove_provider',
         '/v1/capacity/(.+)', 'w_capacity',
-        '/v1/create_instance', 'w_create_instance',
-        '/v1/delete_instance/(.+)', 'w_delete_instance',
-        '/v1/start_instance/(.+)', 'w_start_instance',
-        '/v1/stop_instance/(.+)', 'w_stop_instance',
-        '/v1/boot_machine/(.+)', 'w_boot_instance',
-        '/v1/shutdown_machine/(.+)', 'w_shutdown_instance',
+        '/v1/create_machine', 'w_create_machine',
+        '/v1/delete_machine/(.+)', 'w_delete_machine',
+        '/v1/start_machine/(.+)', 'w_start_machine',
+        '/v1/stop_machine/(.+)', 'w_stop_machine',
+        '/v1/boot_machine/(.+)', 'w_boot_machine',
+        '/v1/shutdown_machine/(.+)', 'w_shutdown_machine',
         '/v1/command_build/(.+)', 'w_command_build',
         '/v1/command_generic/(.+)', 'w_command_generic',
         '/v1/command_reboot/(.+)', 'w_command_reboot',
@@ -771,8 +771,8 @@ def get_urls():
         '/v1/get_logs/(.+)', 'w_get_logs',
         '/v1/deploy_template/(.+)', 'w_deploy_template',
         '/v1/get_template', 'w_get_template',
-        '/v1/register_instance', 'w_register_instance',
-        '/v1/deregister_instance/(.+)', 'w_deregister_instance',
+        '/v1/register_machine', 'w_register_machine',
+        '/v1/deregister_machine/(.+)', 'w_deregister_machine',
         '/v1/version', 'version'
     )
     return urls
@@ -820,7 +820,7 @@ def remove_provider(args, daemon):
     r = requests.get(daemon+"/remove_provider/"+args.provider)
     return r.text
 
-def create_instance(args, daemon):
+def create_machine(args, daemon):
     # first ssh into the machine running vcontrol daemon
     # from there use docker-machine to provision
     payload = {}
@@ -833,29 +833,29 @@ def create_instance(args, daemon):
     payload['group'] = args.group
     payload['labels'] = args.labels
 
-    r = requests.post(daemon+"/create_instance", data=json.dumps(payload))
+    r = requests.post(daemon+"/create_machine", data=json.dumps(payload))
     return r.text
 
-def delete_instance(args, daemon):
+def delete_machine(args, daemon):
     # check if controlled by docker-machine, if not fail
     # first ssh into the machine running vcontrol daemon
     # from there use docker-machine to delete
     payload = {'force':args.force}
-    r = requests.get(daemon+"/delete_instance/"+args.machine, params=payload)
+    r = requests.get(daemon+"/delete_machine/"+args.machine, params=payload)
     return r.text
 
-def start_instance(args, daemon):
+def start_machine(args, daemon):
     # check if controlled by docker-machine, if not fail
     # first ssh into the machine running vcontrol daemon
     # from there use docker-machine to start
-    r = requests.get(daemon+"/start_instance/"+args.machine)
+    r = requests.get(daemon+"/start_machine/"+args.machine)
     return r.text
 
-def stop_instance(args, daemon):
+def stop_machine(args, daemon):
     # check if controlled by docker-machine, if not fail
     # first ssh into the machine running vcontrol daemon
     # from there use docker-machine to stop
-    r = requests.get(daemon+"/stop_instance/"+args.machine)
+    r = requests.get(daemon+"/stop_machine/"+args.machine)
     return r.text
 
 def version_str(args, daemon):
@@ -971,7 +971,7 @@ def deploy_template(args, daemon):
     r = requests.post(daemon+"/deploy_template/"+args.machine, files=files)
     return True
 
-def register_instance(args, daemon):
+def register_machine(args, daemon):
     # use default or supply credentials
     # use generic driver from docker-machine
     # note that they will be sent to the vcontrol daemon
@@ -979,11 +979,11 @@ def register_instance(args, daemon):
     payload['machine'] = args.machine
     payload['ip'] = args.ip
     payload['password'] = args.password
-    r = requests.post(daemon+"/register_instance", data=json.dumps(payload))
+    r = requests.post(daemon+"/register_machine", data=json.dumps(payload))
     return r.text
 
-def deregister_instance(args, daemon):
-    r = requests.get(daemon+"/deregister_instance/"+args.machine)
+def deregister_machine(args, daemon):
+    r = requests.get(daemon+"/deregister_machine/"+args.machine)
     return r.text
 
 def main(daemon, open_d, api_v):
@@ -1003,7 +1003,7 @@ def main(daemon, open_d, api_v):
         with open('../VERSION', 'r') as f: version = f.read().strip()
 
     # generate cli and parse args
-    parser = argparse.ArgumentParser(description='vcontrol: a command line interface for managing vent instances')
+    parser = argparse.ArgumentParser(description='vcontrol: a command line interface for managing Vent machines')
     subparsers = parser.add_subparsers()
     commands_parser = subparsers.add_parser('commands',
                                             help='Run commands specific to a Vent machine')
@@ -1021,6 +1021,207 @@ def main(daemon, open_d, api_v):
                                            help='Prints out the version of vcontrol')
     version_parser.set_defaults(which='version_parser')
 
+    # commands subparsers
+    cmd_build_parser = commands_subparsers.add_parser('build',
+                                                     help="Build all containers of a namespace on a Vent machine")
+    cmd_build_parser.set_defaults(which='cmd_build_parser')
+    cmd_build_parser.add_argument('machine',
+                                  help='Machine name to build containers on')
+    cmd_build_parser.add_argument('namespace',
+                                  choices=['core',
+                                           'visualization',
+                                           'active',
+                                           'passive',
+                                           'all'],
+                                  help='Category of namespace to build')
+    cmd_build_parser.add_argument('--no-cache',
+                                  action='store_true',
+                                  default=False,
+                                  help='Build containers without using cache')
+    cmd_clean_parser = commands_subparsers.add_parser('clean',
+                                                     help="Clean all containers of a namespace on a Vent machine")
+    cmd_clean_parser.set_defaults(which='cmd_clean_parser')
+    cmd_clean_parser.add_argument('machine',
+                                  help='Machine name to clean containers on')
+    cmd_clean_parser.add_argument('namespace',
+                                  choices=['core',
+                                           'visualization',
+                                           'active',
+                                           'passive',
+                                           'all'],
+                                  help='Category of namespace to clean')
+    deploy_parser = commands_subparsers.add_parser('deploy',
+                                          help='Deploy a template to a Vent machine')
+    deploy_parser.set_defaults(which='deploy_parser')
+    deploy_parser.add_argument('machine',
+                               help='Machine name to deploy template to')
+    deploy_parser.add_argument('path',
+                               help='File path of template to deploy')
+    download_parser = commands_subparsers.add_parser('download',
+                                          help='Download a template from a Vent machine')
+    download_parser.set_defaults(which='download_parser')
+    download_parser.add_argument('machine',
+                               help='Machine name to download template from')
+    download_parser.add_argument('template',
+                               help='Template name to download')
+    cmd_generic_parser = commands_subparsers.add_parser('generic',
+                                                     help="Generic command to execute on the Vent machine")
+    cmd_generic_parser.set_defaults(which='cmd_generic_parser')
+    cmd_generic_parser.add_argument('machine',
+                                    help='Machine name to execute command on')
+    cmd_generic_parser.add_argument('command',
+                                    help='Command to execute')
+    info_commands_parser = commands_subparsers.add_parser('info',
+                                        help='Get info on a Vent machine')
+    info_commands_parser.set_defaults(which='info_commands_parser')
+    info_commands_parser.add_argument('machine',
+                             help='Machine name to get info from')
+    logs_commands_parser = commands_subparsers.add_parser('logs',
+                                        help='Get logs on a Vent machine')
+    logs_commands_parser.set_defaults(which='logs_commands_parser')
+    plugin_parser = commands_subparsers.add_parser('plugins',
+                                                     help="Perform operations on plugins")
+    plugin_subparsers = plugin_parser.add_subparsers()
+    add_plugin_parser = plugin_subparsers.add_parser('add',
+                                                     help="Add a new plugin")
+    add_plugin_parser.add_argument('url',
+                                   help='Specify an HTTPS Git URL for the repository that containers plugins')
+    add_plugin_parser.set_defaults(which='add_plugin_parser')
+    list_plugin_parser = plugin_subparsers.add_parser('list',
+                                                     help="List installed plugins")
+    list_plugin_parser.set_defaults(which='list_plugin_parser')
+    remove_plugin_parser = plugin_subparsers.add_parser('remove',
+                                                     help="Remove a plugin")
+    remove_plugin_parser.add_argument('url',
+                                   help='Specify an HTTPS Git URL for the repository of plugins to remove')
+    remove_plugin_parser.set_defaults(which='remove_plugin_parser')
+    update_plugin_parser = plugin_subparsers.add_parser('update',
+                                                     help="Update a plugin")
+    update_plugin_parser.add_argument('url',
+                                   help='Specify an HTTPS Git URL for the repository of plugins to update')
+    update_plugin_parser.set_defaults(which='update_plugin_parser')
+
+    cmd_start_parser = commands_subparsers.add_parser('start',
+                                                     help="Start containers in a category on a Vent machine")
+    cmd_start_parser.set_defaults(which='cmd_start_parser')
+    cmd_start_parser.add_argument('machine',
+                                  help='Machine name to start containers on')
+    cmd_start_parser.add_argument('containers',
+                                  choices=['core',
+                                           'visualization',
+                                           'active',
+                                           'passive',
+                                           'all'],
+                                  help='Category of containers to start')
+    stats_commands_parser = commands_subparsers.add_parser('stats',
+                                         help='Get stats of a Vent machine')
+    stats_commands_parser.set_defaults(which='stats_commands_parser')
+    stats_commands_parser.add_argument('machine',
+                              help='Machine name to get stats from')
+    status_parser = commands_subparsers.add_parser('status',
+                                                     help="Status of containers and images")
+    status_subparsers = status_parser.add_subparsers()
+    containers_status_parser = status_subparsers.add_parser('containers',
+                                                     help="Status of containers")
+    containers_status_parser.set_defaults(which='containers_status_parser')
+    images_status_parser = status_subparsers.add_parser('images',
+                                                     help="Status of images")
+    images_status_parser.set_defaults(which='images_status_parser')
+    cmd_stop_parser = commands_subparsers.add_parser('stop',
+                                                    help="Stop containers in a category on a Vent machine")
+    cmd_stop_parser.set_defaults(which='cmd_stop_parser')
+    cmd_stop_parser.add_argument('machine',
+                                 help='Machine name to stop containers on')
+    cmd_stop_parser.add_argument('containers',
+                                 choices=['core',
+                                          'visualization',
+                                          'active',
+                                          'passive',
+                                           'all'],
+                                 help='Category of containers to stop')
+    upload_parser = commands_subparsers.add_parser('upload',
+                                          help='Upload a file to a Vent machine to be processed')
+    upload_parser.set_defaults(which='upload_parser')
+    upload_parser.add_argument('machine',
+                               help='Machine name to upload file to')
+    upload_parser.add_argument('path',
+                               help='Path to file to upload')
+
+    # machines subparsers
+    boot_parser = machines_subparsers.add_parser('boot',
+                                        help='Boot a Vent machine')
+    boot_parser.set_defaults(which='boot_parser')
+    boot_parser.add_argument('machine',
+                             help='Machine name to boot')
+    create_parser = machines_subparsers.add_parser('create',
+                                                   help='Create a new Vent machine')
+    create_parser.set_defaults(which='create_parser')
+    create_parser.add_argument('machine',
+                               help='Machine name to create')
+    create_parser.add_argument('provider',
+                               help='Provider to create machine on')
+    create_parser.add_argument('--iso', '-i', default="/tmp/Vent/Vent.iso", type=str,
+                               help='URL to ISO, if left as default, it will build the ISO from source')
+    create_parser.add_argument('--group', '-g', default="Vent", type=str,
+                               help='Group Vent machine belongs to (default: Vent)')
+    create_parser.add_argument('--labels', '-l', default="", type=str,
+                               help='Additional label pairs for the Vent machine (default: "", examples would be "foo=bar,key=val")')
+    create_parser.add_argument('--cpus', '-c', default=1, type=int,
+                               help='Number of cpus to create the machine with (default: 1)')
+    create_parser.add_argument('--disk-size', '-d', default=20000, type=int,
+                               help='Disk space in MBs to create the machine with (default: 20000)')
+    create_parser.add_argument('--memory', '-m', default=1024, type=int,
+                               help='Memory in MBs to create the machine with (default: 1024)')
+    delete_parser = machines_subparsers.add_parser('delete',
+                                          help='Delete a Vent machine')
+    delete_parser.set_defaults(which='delete_parser')
+    delete_parser.add_argument('machine',
+                               help='Machine name to delete')
+    delete_parser.add_argument('--force', '-f',
+                               action='store_true',
+                               default=False,
+                               help='Force remove machine of Vent')
+    deregister_parser = machines_subparsers.add_parser('deregister',
+                                              help='Deregister a Vent machine')
+    deregister_parser.set_defaults(which='deregister_parser')
+    deregister_parser.add_argument('machine',
+                                   help='Machine name to deregister')
+    hb_machines_parser = machines_subparsers.add_parser('heartbeat',
+                                             help='Send a heartbeat to all machines')
+    hb_machines_parser.set_defaults(which='hb_machines_parser')
+    ls_machines_parser = machines_subparsers.add_parser('list',
+                                                     help='List all Vent machines')
+    ls_machines_parser.set_defaults(which='ls_machines_parser')
+    ls_machines_parser.add_argument('--fast', '-f',
+                                     action='store_true',
+                                     default=False,
+                                     help='Get the list fast, without verifying')
+    reboot_parser = machines_subparsers.add_parser('reboot',
+                                                   help="Reboot a Vent machine")
+    reboot_parser.set_defaults(which='reboot_parser')
+    reboot_parser.add_argument('machine',
+                               help='Machine name to reboot')
+    register_parser = machines_subparsers.add_parser('register',
+                                            help='Register an existing Vent machine')
+    register_parser.set_defaults(which='register_parser')
+    register_parser.add_argument('machine',
+                                 help='Machine name to register')
+    register_parser.add_argument('ip',
+                                 help='IP address of Vent machine to register')
+    register_parser.add_argument('--password', '-p', default='tcuser',
+                                 help='Password to log into docker user on Vent with (default: tcuser)')
+    shutdown_parser = machines_subparsers.add_parser('shutdown',
+                                        help='Shutdown a Vent machine')
+    shutdown_parser.set_defaults(which='shutdown_parser')
+    shutdown_parser.add_argument('machine',
+                             help='Machine name to shutdown')
+    ssh_parser = machines_subparsers.add_parser('ssh',
+                                                help="SSH to a Vent machine")
+    ssh_parser.set_defaults(which='ssh_parser')
+    ssh_parser.add_argument('machine',
+                            help='Machine name to SSH into')
+
+    # providers subparsers
     if privileged:
         add_parser = providers_subparsers.add_parser('add',
                                                      help="Add new infrastructure to run Vent machines on")
@@ -1029,259 +1230,106 @@ def main(daemon, open_d, api_v):
         add_aws_parser = add_subparsers.add_parser('aws',
                                                    help="Public Amazon Web Services")
         add_aws_parser.add_argument('--name', '-n', default='aws',
-                                    help='specify a name for the provider credentials')
+                                    help='Specify a name for the provider credentials')
         add_aws_parser.add_argument('args',
-                                    help='quoted args needed for docker-machine to deploy on aws')
+                                    help='Quoted args needed for docker-machine to deploy on aws')
         add_aws_parser.set_defaults(which='add_aws_parser')
         add_azure_parser = add_subparsers.add_parser('azure',
                                                      help="Public Microsoft cloud")
         add_azure_parser.add_argument('--name', '-n', default='azure',
-                                      help='specify a name for the provider credentials')
+                                      help='Specify a name for the provider credentials')
         add_azure_parser.add_argument('args',
-                                      help='quoted args needed for docker-machine to deploy on azure')
+                                      help='Quoted args needed for docker-machine to deploy on azure')
         add_azure_parser.set_defaults(which='add_azure_parser')
         add_digitalocean_parser = add_subparsers.add_parser('digitalocean',
                                                             help="Public DigitalOcean cloud")
         add_digitalocean_parser.add_argument('--name', '-n', default='digitalocean',
-                                             help='specify a name for the provider credentials')
+                                             help='Specify a name for the provider credentials')
         add_digitalocean_parser.add_argument('args',
-                                             help='quoted args needed for docker-machine to deploy on digitalocean')
+                                             help='Quoted args needed for docker-machine to deploy on digitalocean')
         add_digitalocean_parser.set_defaults(which='add_digitalocean_parser')
         add_exoscale_parser = add_subparsers.add_parser('exoscale',
                                                         help="Public Exoscale cloud")
         add_exoscale_parser.add_argument('--name', '-n', default='exoscale',
-                                         help='specify a name for the provider credentials')
+                                         help='Specify a name for the provider credentials')
         add_exoscale_parser.add_argument('args',
-                                         help='quoted args needed for docker-machine to deploy on exoscale')
+                                         help='Quoted args needed for docker-machine to deploy on exoscale')
         add_exoscale_parser.set_defaults(which='add_exoscale_parser')
         add_google_parser = add_subparsers.add_parser('google',
                                                       help="Public Google cloud")
         add_google_parser.add_argument('--name', '-n', default='google',
-                                       help='specify a name for the provider credentials')
+                                       help='Specify a name for the provider credentials')
         add_google_parser.add_argument('args',
-                                       help='quoted args needed for docker-machine to deploy on google')
+                                       help='Quoted args needed for docker-machine to deploy on google')
         add_google_parser.set_defaults(which='add_google_parser')
         add_openstack_parser = add_subparsers.add_parser('openstack',
                                                          help="Private OpenStack cloud")
         add_openstack_parser.add_argument('--name', '-n', default='openstack',
-                                          help='specify a name for the provider credentials')
+                                          help='Specify a name for the provider credentials')
         add_openstack_parser.add_argument('--max-cpu-usage', '-c', default=80, type=int,
-                                          help='max percentage of cpus that can be used and still create instances (default: 80)')
+                                          help='Max percentage of cpus that can be used and still create machines (default: 80)')
         add_openstack_parser.add_argument('--max-ram-usage', '-r', default=80, type=int,
-                                          help='max percentage of memory that can be used and still create instances (default: 80)')
+                                          help='Max percentage of memory that can be used and still create machines (default: 80)')
         add_openstack_parser.add_argument('--max-disk-usage', '-d', default=80, type=int,
-                                          help='max percentage of disk that can be used and still create instances (default: 80)')
+                                          help='Max percentage of disk that can be used and still create machines (default: 80)')
         add_openstack_parser.add_argument('args',
-                                          help='quoted args needed for docker-machine to deploy on openstack')
+                                          help='Quoted args needed for docker-machine to deploy on openstack')
         add_openstack_parser.set_defaults(which='add_openstack_parser')
         add_rackspace_parser = add_subparsers.add_parser('rackspace',
                                                          help="Public Rackspace cloud")
         add_rackspace_parser.add_argument('--name', '-n', default='rackspace',
-                                          help='specify a name for the provider credentials')
+                                          help='Specify a name for the provider credentials')
         add_rackspace_parser.add_argument('args',
-                                          help='quoted args needed for docker-machine to deploy on rackspace')
+                                          help='Quoted args needed for docker-machine to deploy on rackspace')
         add_rackspace_parser.set_defaults(which='add_rackspace_parser')
         add_softlayer_parser = add_subparsers.add_parser('softlayer',
                                                          help="Public IBM cloud")
         add_softlayer_parser.add_argument('--name', '-n', default='softlayer',
-                                          help='specify a name for the provider credentials')
+                                          help='Specify a name for the provider credentials')
         add_softlayer_parser.add_argument('args',
-                                          help='quoted args needed for docker-machine to deploy on softlayer')
+                                          help='Quoted args needed for docker-machine to deploy on softlayer')
         add_softlayer_parser.set_defaults(which='add_softlayer_parser')
         add_virtualbox_parser = add_subparsers.add_parser('virtualbox',
                                                       help="Virtualbox for testing, run daemon locally not in a Docker container")
         add_virtualbox_parser.add_argument('--name', '-n', default='virtualbox',
-                                       help='specify a name for the local provider')
+                                       help='Specify a name for the local provider')
         add_virtualbox_parser.set_defaults(which='add_virtualbox_parser')
         add_vmware_parser = add_subparsers.add_parser('vmware',
                                                       help="Private VMWare vSphere cloud")
         add_vmware_parser.add_argument('--name', '-n', default='vmware',
-                                       help='specify a name for the provider credentials')
+                                       help='Specify a name for the provider credentials')
         add_vmware_parser.add_argument('args',
-                                       help='quoted args needed for docker-machine to deploy on vmware')
+                                       help='Quoted args needed for docker-machine to deploy on vmware')
         add_vmware_parser.add_argument('--max-cpu-usage', '-c', default=80, type=int,
-                                       help='max percentage of cpus that can be used and still create instances (default: 80)')
+                                       help='Max percentage of cpus that can be used and still create machines (default: 80)')
         add_vmware_parser.add_argument('--max-ram-usage', '-r', default=80, type=int,
-                                       help='max percentage of memory that can be used and still create instances (default: 80)')
+                                       help='Max percentage of memory that can be used and still create machines (default: 80)')
         add_vmware_parser.add_argument('--max-disk-usage', '-d', default=80, type=int,
-                                       help='max percentage of disk that can be used and still create instances (default: 80)')
+                                       help='Max percentage of disk that can be used and still create machines (default: 80)')
         add_vmware_parser.set_defaults(which='add_vmware_parser')
 
-    # !! TODO restructure below
-    cmd_build_parser = commands_subparsers.add_parser('build',
-                                                     help="build all of the containers of a namespace on the vent instance")
-    cmd_build_parser.set_defaults(which='cmd_build_parser')
-    cmd_build_parser.add_argument('machine',
-                                  help='machine name to build containers on')
-    cmd_build_parser.add_argument('namespace',
-                                  help='namespace to build, i.e. core')
-    cmd_build_parser.add_argument('--no-cache',
-                                  action='store_true',
-                                  default=False,
-                                  help='build containers without using cache')
-    cmd_generic_parser = commands_subparsers.add_parser('generic',
-                                                     help="generic command to execute on the vent instance")
-    cmd_generic_parser.set_defaults(which='cmd_generic_parser')
-    cmd_generic_parser.add_argument('machine',
-                                    help='machine name to execute command on')
-    cmd_generic_parser.add_argument('command',
-                                    help='command to execute')
-
-    cmd_start_parser = commands_subparsers.add_parser('start',
-                                                     help="start containers in a category on a vent instance")
-    cmd_start_parser.set_defaults(which='cmd_start_parser')
-    cmd_start_parser.add_argument('machine',
-                                  help='machine name to start containers on')
-    cmd_start_parser.add_argument('containers',
-                                  choices=['core',
-                                           'visualization',
-                                           'active',
-                                           'passive',
-                                           'all'],
-                                  help='category of containers to start')
-    cmd_stop_parser = commands_subparsers.add_parser('stop',
-                                                    help="stop containers in a category on a vent instance")
-    cmd_stop_parser.set_defaults(which='cmd_stop_parser')
-    cmd_stop_parser.add_argument('machine',
-                                 help='machine name to stop containers on')
-    cmd_stop_parser.add_argument('containers',
-                                 choices=['core',
-                                          'visualization',
-                                          'active',
-                                          'passive',
-                                           'all'],
-                                 help='category of containers to stop')
-    deploy_parser = commands_subparsers.add_parser('deploy',
-                                          help='deploy a template to a vent instance')
-    deploy_parser.set_defaults(which='deploy_parser')
-    deploy_parser.add_argument('machine',
-                               help='machine name to deploy template to')
-    deploy_parser.add_argument('path',
-                               help='file path of template to deploy')
-    info_commands_parser = commands_subparsers.add_parser('info',
-                                        help='get info on a Vent machine')
-    info_commands_parser.set_defaults(which='info_commands_parser')
-    info_commands_parser.add_argument('machine',
-                             help='machine name to get info from')
-    stop_parser = commands_subparsers.add_parser('stop',
-                                        help='stop a vent instance')
-    stop_parser.set_defaults(which='stop_parser')
-    stop_parser.add_argument('machine',
-                             help='machine name to stop')
-    start_parser = commands_subparsers.add_parser('start',
-                                         help='start a vent instance')
-    start_parser.set_defaults(which='start_parser')
-    start_parser.add_argument('machine',
-                              help='machine name to start')
-    stats_commands_parser = commands_subparsers.add_parser('stats',
-                                         help='get stats of a vent instance')
-    stats_commands_parser.set_defaults(which='stats_commands_parser')
-    stats_commands_parser.add_argument('machine',
-                              help='machine name to get stats from')
-
-
-
-
-    boot_parser = machines_subparsers.add_parser('boot',
-                                        help='boot a Vent machine')
-    boot_parser.set_defaults(which='boot_parser')
-    boot_parser.add_argument('machine',
-                             help='machine name to boot')
-    create_parser = machines_subparsers.add_parser('create',
-                                                   help='create a new vent instance')
-    create_parser.set_defaults(which='create_parser')
-    create_parser.add_argument('machine',
-                               help='machine name to create')
-    create_parser.add_argument('provider',
-                               help='provider to create machine on')
-    create_parser.add_argument('--iso', '-i', default="/tmp/vent/vent.iso", type=str,
-                               help='URL to ISO, if left as default, it will build the ISO from source')
-    create_parser.add_argument('--group', '-g', default="vent", type=str,
-                               help='group vent instance belongs to (default: vent)')
-    create_parser.add_argument('--labels', '-l', default="", type=str,
-                               help='additional label pairs for the vent instance (default: "", examples would be "foo=bar,key=val")')
-    create_parser.add_argument('--cpus', '-c', default=1, type=int,
-                               help='number of cpus to create the machine with (default: 1)')
-    create_parser.add_argument('--disk-size', '-d', default=20000, type=int,
-                               help='disk space in MBs to create the machine with (default: 20000)')
-    create_parser.add_argument('--memory', '-m', default=1024, type=int,
-                               help='memory in MBs to create the machine with (default: 1024)')
-    delete_parser = machines_subparsers.add_parser('delete',
-                                          help='delete a vent instance')
-    delete_parser.set_defaults(which='delete_parser')
-    delete_parser.add_argument('machine',
-                               help='machine name to delete')
-    delete_parser.add_argument('--force', '-f',
-                               action='store_true',
-                               default=False,
-                               help='force remove instance of vent')
-    deregister_parser = machines_subparsers.add_parser('deregister',
-                                              help='deregister a vent instance')
-    deregister_parser.set_defaults(which='deregister_parser')
-    deregister_parser.add_argument('machine',
-                                   help='machine name to deregister')
-    hb_machines_parser = machines_subparsers.add_parser('heartbeat',
-                                             help='send a heartbeat to all machines')
-    hb_machines_parser.set_defaults(which='hb_machines_parser')
-    ls_machines_parser = machines_subparsers.add_parser('list',
-                                                     help='list all Vent machines')
-    ls_machines_parser.set_defaults(which='ls_machines_parser')
-    ls_machines_parser.add_argument('--fast', '-f',
-                                     action='store_true',
-                                     default=False,
-                                     help='get the list fast, without verifying')
-    cmd_reboot_parser = machines_subparsers.add_parser('reboot',
-                                                      help="reboot a vent instance")
-    cmd_reboot_parser.set_defaults(which='cmd_reboot_parser')
-    cmd_reboot_parser.add_argument('machine',
-                                   help='machine name to reboot')
-    register_parser = machines_subparsers.add_parser('register',
-                                            help='register an existing vent instance')
-    register_parser.set_defaults(which='register_parser')
-    register_parser.add_argument('machine',
-                                 help='machine name to register')
-    register_parser.add_argument('ip',
-                                 help='ip address of vent machine to register')
-    register_parser.add_argument('--password', '-p', default='tcuser',
-                                 help='password to log into docker user on vent with (default: tcuser)')
-    shutdown_parser = machines_subparsers.add_parser('shutdown',
-                                        help='shutdown a Vent machine')
-    shutdown_parser.set_defaults(which='shutdown_parser')
-    shutdown_parser.add_argument('machine',
-                             help='machine name to shutdown')
-    cmd_ssh_parser = machines_subparsers.add_parser('ssh',
-                                                   help="ssh to a vent instance")
-    cmd_ssh_parser.set_defaults(which='cmd_ssh_parser')
-    cmd_ssh_parser.add_argument('machine',
-                                help='machine name to ssh into')
-
-
     hb_providers_parser = providers_subparsers.add_parser('heartbeat',
-                                             help='send a heartbeat to all providers')
+                                             help='Send a heartbeat to all providers')
     hb_providers_parser.set_defaults(which='hb_providers_parser')
     info_providers_parser = providers_subparsers.add_parser('info',
-                                        help='get info on a provider')
+                                        help='Get info on a provider')
     info_providers_parser.set_defaults(which='info_providers_parser')
     info_providers_parser.add_argument('provider',
-                             help='provider name to get info from')
+                             help='Provider name to get info from')
     ls_providers_parser = providers_subparsers.add_parser('list',
-                                                     help='list all providers')
+                                                     help='List all providers')
     ls_providers_parser.set_defaults(which='ls_providers_parser')
     if privileged:
         remove_parser = providers_subparsers.add_parser('remove',
-                                              help='remove a provider')
+                                              help='Remove a provider')
         remove_parser.set_defaults(which='remove_parser')
         remove_parser.add_argument('provider',
-                                   help='provider to remove')
+                                   help='Provider to remove')
     stats_providers_parser = providers_subparsers.add_parser('stats',
-                                         help='get stats of a vent instance')
+                                         help='Get stats of a Vent machine')
     stats_providers_parser.set_defaults(which='stats_providers_parser')
     stats_providers_parser.add_argument('provider',
-                              help='provider name to get stats from')
-
-
-
-
+                              help='Provider name to get stats from')
 
     args = parser.parse_args()
     if args.which != "daemon_parser":
@@ -1317,20 +1365,15 @@ def main(daemon, open_d, api_v):
 
     if args.which == "cmd_build_parser": output = command_build(args, daemon)
     elif args.which == "cmd_generic_parser": output = command_generic(args, daemon)
-    elif args.which == "cmd_reboot_parser": output = command_reboot(args, daemon)
-    elif args.which == "cmd_ssh_parser": output = command_ssh(args, daemon)
+    elif args.which == "reboot_parser": output = command_reboot(args, daemon)
+    elif args.which == "ssh_parser": output = command_ssh(args, daemon)
     elif args.which == "cmd_start_parser": output = command_start(args, daemon)
     elif args.which == "cmd_stop_parser": output = command_stop(args, daemon)
-    elif args.which == "cmd_messages_parser": output = command_messages(args, daemon)
-    elif args.which == "cmd_services_parser": output = command_services(args, daemon)
-    elif args.which == "cmd_tasks_parser": output = command_tasks(args, daemon)
-    elif args.which == "cmd_tools_parser": output = command_tools(args, daemon)
-    elif args.which == "cmd_types_parser": output = command_types(args, daemon)
-    elif args.which == "create_parser": output = create_instance(args, daemon)
+    elif args.which == "create_parser": output = create_machine(args, daemon)
     elif args.which == "daemon_parser": output = daemon_mode(args)
-    elif args.which == "delete_parser": output = delete_instance(args, daemon)
+    elif args.which == "delete_parser": output = delete_machine(args, daemon)
     elif args.which == "deploy_parser": output = deploy_template(args, daemon)
-    elif args.which == "deregister_parser": output = deregister_instance(args, daemon)
+    elif args.which == "deregister_parser": output = deregister_machine(args, daemon)
     elif args.which == "get_template_parser": output = get_template(args, daemon)
     elif args.which == "hb_machines_parser": output = heartbeat_machines(args, daemon)
     elif args.which == "hb_providers_parser": output = heartbeat_providers(args, daemon)
@@ -1338,11 +1381,11 @@ def main(daemon, open_d, api_v):
     elif args.which == "info_providers_parser": output = get_info_providers(args, daemon)
     elif args.which == "ls_machines_parser": output = list_machines(args, daemon)
     elif args.which == "ls_providers_parser": output = list_providers(args, daemon)
-    elif args.which == "register_parser": output = register_instance(args, daemon)
-    elif args.which == "start_parser": output = start_instance(args, daemon)
+    elif args.which == "register_parser": output = register_machine(args, daemon)
+    elif args.which == "start_parser": output = start_machine(args, daemon)
     elif args.which == "stats_commands_parser": output = get_stats_commands(args, daemon)
     elif args.which == "stats_providers_parser": output = get_stats_providers(args, daemon)
-    elif args.which == "stop_parser": output = stop_instance(args, daemon)
+    elif args.which == "stop_parser": output = stop_machine(args, daemon)
     elif args.which == "version_parser": output = version_str(args, daemon)
     elif args.which == "boot_parser": output = boot_machine(args, daemon)
     elif args.which == "shutdown_parser": output = shutdown_machine(args, daemon)
