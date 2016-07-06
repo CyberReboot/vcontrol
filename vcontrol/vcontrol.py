@@ -113,6 +113,28 @@ class w_add_provider:
         else:
             return "must be done from the localhost running vcontrol daemon"
 
+class w_boot_machine:
+    def get(self, machine):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
+        # TODO
+        return 1
+
+class w_shutdown_machine:
+    def get(self, machine):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
+        # TODO
+        return 1
+
 '''
 This endpoint allows for removing a provider such as openstack or vmware.
 A vent instance runs on a provider, this will not remove existing vent instances
@@ -475,7 +497,7 @@ class w_command_ssh:
         return 1
 
 # This endpoint is just a quick way to ensure that providers are still reachable.
-class w_heartbeat_instances:
+class w_heartbeat_machines:
     def GET(self):
         # set allowed origins for api calls
         try:
@@ -499,7 +521,7 @@ class w_heartbeat_providers:
         return 1
 
 # This endpoint lists all of the instances that have been created or registered.
-class w_list_instances:
+class w_list_machines:
     def GET(self):
         # set allowed origins for api calls
         try:
@@ -532,8 +554,8 @@ class w_list_instances:
             print sys.exc_info()
         return str(instance_array)
 
-# This endpoint is for getting stats about an instance.
-class w_get_stats:
+# This endpoint is for getting stats about a provider.
+class w_get_stats_commands:
     def GET(self, machine):
         # set allowed origins for api calls
         try:
@@ -544,8 +566,32 @@ class w_get_stats:
         # TODO
         return 1
 
-# This endpoint is for getting info about an instance.
-class w_get_info:
+# This endpoint is for getting stats about a Vent machine.
+class w_get_stats_providers:
+    def GET(self, provider):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
+        # TODO
+        return 1
+
+# This endpoint is for getting info about an provider.
+class w_get_info_providers:
+    def GET(self, provider):
+        # set allowed origins for api calls
+        try:
+            allow_origin = os.environ["ALLOW_ORIGIN"]
+        except:
+            allow_origin = ''
+        web.header('Access-Control-Allow-Origin', allow_origin)
+        # TODO
+        return 1
+
+# This endpoint is for getting info about a Vent machine.
+class w_get_info_commands:
     def GET(self, machine):
         # set allowed origins for api calls
         try:
@@ -702,6 +748,8 @@ def get_urls():
         '/v1/delete_instance/(.+)', 'w_delete_instance',
         '/v1/start_instance/(.+)', 'w_start_instance',
         '/v1/stop_instance/(.+)', 'w_stop_instance',
+        '/v1/boot_machine/(.+)', 'w_boot_instance',
+        '/v1/shutdown_machine/(.+)', 'w_shutdown_instance',
         '/v1/command_build/(.+)', 'w_command_build',
         '/v1/command_generic/(.+)', 'w_command_generic',
         '/v1/command_reboot/(.+)', 'w_command_reboot',
@@ -712,12 +760,14 @@ def get_urls():
         '/v1/command_tasks/(.+)', 'w_command_tasks',
         '/v1/command_tools/(.+)', 'w_command_tools',
         '/v1/command_types/(.+)', 'w_command_types',
-        '/v1/heartbeat_instances', 'w_heartbeat_instances',
+        '/v1/heartbeat_machines', 'w_heartbeat_machines',
         '/v1/heartbeat_providers', 'w_heartbeat_providers',
-        '/v1/list_instances', 'w_list_instances',
+        '/v1/list_machines', 'w_list_machines',
         '/v1/list_providers', 'w_list_providers',
-        '/v1/get_stats/(.+)', 'w_get_stats',
-        '/v1/get_info/(.+)', 'w_get_info',
+        '/v1/get_stats_commands/(.+)', 'w_get_stats_commands',
+        '/v1/get_stats_providers/(.+)', 'w_get_stats_providers',
+        '/v1/get_info_commands/(.+)', 'w_get_info_commands',
+        '/v1/get_info_providers/(.+)', 'w_get_info_providers',
         '/v1/get_logs/(.+)', 'w_get_logs',
         '/v1/deploy_template/(.+)', 'w_deploy_template',
         '/v1/get_template', 'w_get_template',
@@ -808,6 +858,18 @@ def stop_instance(args, daemon):
     r = requests.get(daemon+"/stop_instance/"+args.machine)
     return r.text
 
+def version_str(args, daemon):
+    r = requests.get(daemon+"/version")
+    return r.text
+
+def boot_machine(args, daemon):
+    r = requests.get(daemon+"/boot_machine/"+args.machine)
+    return r.text
+
+def shutdown_machine(args, daemon):
+    r = requests.get(daemon+"/shutdown_machine/"+args.machine)
+    return r.text
+
 def command_build(args, daemon):
     payload = {'no_cache':args.no_cache}
     r = requests.get(daemon+"/command_build/"+args.machine, params=payload)
@@ -859,29 +921,37 @@ def command_types(args, daemon):
     r = requests.get(daemon+"/command_types/"+args.machine)
     return r.text
 
-def heartbeat_instances(args, daemon):
-    r = requests.get(daemon+"/heartbeat_instances")
+def heartbeat_machines(args, daemon):
+    r = requests.get(daemon+"/heartbeat_machines")
     return r.text
 
 def heartbeat_providers(args, daemon):
     r = requests.get(daemon+"/heartbeat_providers")
     return r.text
 
-def list_instances(args, daemon):
+def list_machines(args, daemon):
     payload = {'fast':args.fast}
-    r = requests.get(daemon+"/list_instances", params=payload)
+    r = requests.get(daemon+"/list_machines", params=payload)
     return r.text
 
 def list_providers(args, daemon):
     r = requests.get(daemon+"/list_providers")
     return r.text
 
-def get_stats(args, daemon):
+def get_stats_commands(args, daemon):
     r = requests.get(daemon+"/get_stats/"+args.machine)
     return r.text
 
-def get_info(args, daemon):
-    r = requests.get(daemon+"/get_info/"+args.machine)
+def get_stats_providers(args, daemon):
+    r = requests.get(daemon+"/get_stats/"+args.provider)
+    return r.text
+
+def get_info_providers(args, daemon):
+    r = requests.get(daemon+"/get_info_providers/"+args.provider)
+    return r.text
+
+def get_info_commands(args, daemon):
+    r = requests.get(daemon+"/get_info_commands/"+args.machine)
     return r.text
 
 def get_logs(args, daemon):
@@ -916,7 +986,7 @@ def deregister_instance(args, daemon):
     r = requests.get(daemon+"/deregister_instance/"+args.machine)
     return r.text
 
-def main(bare_metal_only, daemon, open_d, api_v):
+def main(daemon, open_d, api_v):
     privileged = 0
     try:
         r = requests.get('http://localhost:8080'+api_v)
@@ -927,17 +997,33 @@ def main(bare_metal_only, daemon, open_d, api_v):
     if open_d == "true":
         privileged = 1
 
-    # generate cli and parse args
     try:
         with open('VERSION', 'r') as f: version = f.read().strip()
     except:
         with open('../VERSION', 'r') as f: version = f.read().strip()
+
+    # generate cli and parse args
     parser = argparse.ArgumentParser(description='vcontrol: a command line interface for managing vent instances')
     subparsers = parser.add_subparsers()
+    commands_parser = subparsers.add_parser('commands',
+                                            help='Run commands specific to a Vent machine')
+    commands_subparsers = commands_parser.add_subparsers()
+    daemon_parser = subparsers.add_parser('daemon',
+                                          help='Run the vcontrol daemon for making calls over HTTP')
+    daemon_parser.set_defaults(which='daemon_parser')
+    machines_parser = subparsers.add_parser('machines',
+                                            help='Control the creation of management of Vent machines')
+    machines_subparsers = machines_parser.add_subparsers()
+    providers_parser = subparsers.add_parser('providers',
+                                             help='Control infrastructure for running Vent machines on')
+    providers_subparsers = providers_parser.add_subparsers()
+    version_parser = subparsers.add_parser('version',
+                                           help='Prints out the version of vcontrol')
+    version_parser.set_defaults(which='version_parser')
 
     if privileged:
-        add_parser = subparsers.add_parser('add',
-                                           help="add new infrastructure to run vent instances on")
+        add_parser = providers_subparsers.add_parser('add',
+                                                     help="Add new infrastructure to run Vent machines on")
         add_subparsers = add_parser.add_subparsers()
         # purposefully don't include hyper-v, fusion, etc.
         add_aws_parser = add_subparsers.add_parser('aws',
@@ -1003,7 +1089,7 @@ def main(bare_metal_only, daemon, open_d, api_v):
                                           help='quoted args needed for docker-machine to deploy on softlayer')
         add_softlayer_parser.set_defaults(which='add_softlayer_parser')
         add_virtualbox_parser = add_subparsers.add_parser('virtualbox',
-                                                      help="Virtualbox for testing, can only be run locally not in a Docker container")
+                                                      help="Virtualbox for testing, run daemon locally not in a Docker container")
         add_virtualbox_parser.add_argument('--name', '-n', default='virtualbox',
                                        help='specify a name for the local provider')
         add_virtualbox_parser.set_defaults(which='add_virtualbox_parser')
@@ -1021,61 +1107,27 @@ def main(bare_metal_only, daemon, open_d, api_v):
                                        help='max percentage of disk that can be used and still create instances (default: 80)')
         add_vmware_parser.set_defaults(which='add_vmware_parser')
 
-    command_parser = subparsers.add_parser('command',
-                                           help="command to run on vent instance")
-    command_subparsers = command_parser.add_subparsers()
-    cmd_build_parser = command_subparsers.add_parser('build',
-                                                     help="build all of the containers on the vent instance")
+    # !! TODO restructure below
+    cmd_build_parser = commands_subparsers.add_parser('build',
+                                                     help="build all of the containers of a namespace on the vent instance")
     cmd_build_parser.set_defaults(which='cmd_build_parser')
     cmd_build_parser.add_argument('machine',
                                   help='machine name to build containers on')
+    cmd_build_parser.add_argument('namespace',
+                                  help='namespace to build, i.e. core')
     cmd_build_parser.add_argument('--no-cache',
                                   action='store_true',
                                   default=False,
                                   help='build containers without using cache')
-    cmd_generic_parser = command_subparsers.add_parser('generic',
+    cmd_generic_parser = commands_subparsers.add_parser('generic',
                                                      help="generic command to execute on the vent instance")
     cmd_generic_parser.set_defaults(which='cmd_generic_parser')
     cmd_generic_parser.add_argument('machine',
                                     help='machine name to execute command on')
     cmd_generic_parser.add_argument('command',
                                     help='command to execute')
-    cmd_reboot_parser = command_subparsers.add_parser('reboot',
-                                                      help="reboot a vent instance")
-    cmd_reboot_parser.set_defaults(which='cmd_reboot_parser')
-    cmd_reboot_parser.add_argument('machine',
-                                   help='machine name to reboot')
-    cmd_ssh_parser = command_subparsers.add_parser('ssh',
-                                                   help="ssh to a vent instance")
-    cmd_ssh_parser.set_defaults(which='cmd_ssh_parser')
-    cmd_ssh_parser.add_argument('machine',
-                                help='machine name to ssh into')
-    cmd_messages_parser = command_subparsers.add_parser('messages',
-                                                        help="get messages from a vent instance")
-    cmd_messages_parser.set_defaults(which='cmd_messages_parser')
-    cmd_messages_parser.add_argument('machine',
-                                     help='machine name to get messages from')
-    cmd_services_parser = command_subparsers.add_parser('services',
-                                                        help="get services from a vent instance")
-    cmd_services_parser.set_defaults(which='cmd_services_parser')
-    cmd_services_parser.add_argument('machine',
-                                     help='machine name to get services from')
-    cmd_tasks_parser = command_subparsers.add_parser('tasks',
-                                                     help="get tasks from a vent instance")
-    cmd_tasks_parser.set_defaults(which='cmd_tasks_parser')
-    cmd_tasks_parser.add_argument('machine',
-                                  help='machine name to get tasks from')
-    cmd_tools_parser = command_subparsers.add_parser('tools',
-                                                     help="get tools from a vent instance")
-    cmd_tools_parser.set_defaults(which='cmd_tools_parser')
-    cmd_tools_parser.add_argument('machine',
-                                  help='machine name to get tools from')
-    cmd_types_parser = command_subparsers.add_parser('types',
-                                                     help="get types from a vent instance")
-    cmd_types_parser.set_defaults(which='cmd_types_parser')
-    cmd_types_parser.add_argument('machine',
-                                  help='machine name to get types from')
-    cmd_start_parser = command_subparsers.add_parser('start',
+
+    cmd_start_parser = commands_subparsers.add_parser('start',
                                                      help="start containers in a category on a vent instance")
     cmd_start_parser.set_defaults(which='cmd_start_parser')
     cmd_start_parser.add_argument('machine',
@@ -1084,9 +1136,10 @@ def main(bare_metal_only, daemon, open_d, api_v):
                                   choices=['core',
                                            'visualization',
                                            'active',
-                                           'passive'],
+                                           'passive',
+                                           'all'],
                                   help='category of containers to start')
-    cmd_stop_parser = command_subparsers.add_parser('stop',
+    cmd_stop_parser = commands_subparsers.add_parser('stop',
                                                     help="stop containers in a category on a vent instance")
     cmd_stop_parser.set_defaults(which='cmd_stop_parser')
     cmd_stop_parser.add_argument('machine',
@@ -1095,91 +1148,94 @@ def main(bare_metal_only, daemon, open_d, api_v):
                                  choices=['core',
                                           'visualization',
                                           'active',
-                                          'passive'],
+                                          'passive',
+                                           'all'],
                                  help='category of containers to stop')
-    if not bare_metal_only:
-        create_parser = subparsers.add_parser('create',
-                                              help='create a new vent instance')
-        create_parser.set_defaults(which='create_parser')
-        create_parser.add_argument('machine',
-                                   help='machine name to create')
-        create_parser.add_argument('provider',
-                                   help='provider to create machine on')
-        create_parser.add_argument('--iso', '-i', default="/tmp/vent/vent.iso", type=str,
-                                   help='URL to ISO, if left as default, it will build the ISO from source')
-        create_parser.add_argument('--group', '-g', default="vent", type=str,
-                                   help='group vent instance belongs to (default: vent)')
-        create_parser.add_argument('--labels', '-l', default="", type=str,
-                                   help='additional label pairs for the vent instance (default: "", examples would be "foo=bar,key=val")')
-        create_parser.add_argument('--cpus', '-c', default=1, type=int,
-                                   help='number of cpus to create the machine with (default: 1)')
-        create_parser.add_argument('--disk-size', '-d', default=20000, type=int,
-                                   help='disk space in MBs to create the machine with (default: 20000)')
-        create_parser.add_argument('--memory', '-m', default=1024, type=int,
-                                   help='memory in MBs to create the machine with (default: 1024)')
-    daemon_parser = subparsers.add_parser('daemon',
-                                          help='start the daemon')
-    daemon_parser.set_defaults(which='daemon_parser')
-    if not bare_metal_only:
-        delete_parser = subparsers.add_parser('delete',
-                                              help='delete a vent instance')
-        delete_parser.set_defaults(which='delete_parser')
-        delete_parser.add_argument('machine',
-                                   help='machine name to delete')
-        delete_parser.add_argument('--force', '-f',
-                                   action='store_true',
-                                   default=False,
-                                   help='force remove instance of vent')
-    deploy_parser = subparsers.add_parser('deploy',
+    deploy_parser = commands_subparsers.add_parser('deploy',
                                           help='deploy a template to a vent instance')
     deploy_parser.set_defaults(which='deploy_parser')
     deploy_parser.add_argument('machine',
                                help='machine name to deploy template to')
     deploy_parser.add_argument('path',
                                help='file path of template to deploy')
-    deregister_parser = subparsers.add_parser('deregister',
+    info_commands_parser = commands_subparsers.add_parser('info',
+                                        help='get info on a Vent machine')
+    info_commands_parser.set_defaults(which='info_commands_parser')
+    info_commands_parser.add_argument('machine',
+                             help='machine name to get info from')
+    stop_parser = commands_subparsers.add_parser('stop',
+                                        help='stop a vent instance')
+    stop_parser.set_defaults(which='stop_parser')
+    stop_parser.add_argument('machine',
+                             help='machine name to stop')
+    start_parser = commands_subparsers.add_parser('start',
+                                         help='start a vent instance')
+    start_parser.set_defaults(which='start_parser')
+    start_parser.add_argument('machine',
+                              help='machine name to start')
+    stats_commands_parser = commands_subparsers.add_parser('stats',
+                                         help='get stats of a vent instance')
+    stats_commands_parser.set_defaults(which='stats_commands_parser')
+    stats_commands_parser.add_argument('machine',
+                              help='machine name to get stats from')
+
+
+
+
+    boot_parser = machines_subparsers.add_parser('boot',
+                                        help='boot a Vent machine')
+    boot_parser.set_defaults(which='boot_parser')
+    boot_parser.add_argument('machine',
+                             help='machine name to boot')
+    create_parser = machines_subparsers.add_parser('create',
+                                                   help='create a new vent instance')
+    create_parser.set_defaults(which='create_parser')
+    create_parser.add_argument('machine',
+                               help='machine name to create')
+    create_parser.add_argument('provider',
+                               help='provider to create machine on')
+    create_parser.add_argument('--iso', '-i', default="/tmp/vent/vent.iso", type=str,
+                               help='URL to ISO, if left as default, it will build the ISO from source')
+    create_parser.add_argument('--group', '-g', default="vent", type=str,
+                               help='group vent instance belongs to (default: vent)')
+    create_parser.add_argument('--labels', '-l', default="", type=str,
+                               help='additional label pairs for the vent instance (default: "", examples would be "foo=bar,key=val")')
+    create_parser.add_argument('--cpus', '-c', default=1, type=int,
+                               help='number of cpus to create the machine with (default: 1)')
+    create_parser.add_argument('--disk-size', '-d', default=20000, type=int,
+                               help='disk space in MBs to create the machine with (default: 20000)')
+    create_parser.add_argument('--memory', '-m', default=1024, type=int,
+                               help='memory in MBs to create the machine with (default: 1024)')
+    delete_parser = machines_subparsers.add_parser('delete',
+                                          help='delete a vent instance')
+    delete_parser.set_defaults(which='delete_parser')
+    delete_parser.add_argument('machine',
+                               help='machine name to delete')
+    delete_parser.add_argument('--force', '-f',
+                               action='store_true',
+                               default=False,
+                               help='force remove instance of vent')
+    deregister_parser = machines_subparsers.add_parser('deregister',
                                               help='deregister a vent instance')
     deregister_parser.set_defaults(which='deregister_parser')
     deregister_parser.add_argument('machine',
                                    help='machine name to deregister')
-    get_parser = subparsers.add_parser('get',
-                                       help='get files from a vent instance')
-    get_subparsers = get_parser.add_subparsers()
-    get_template_parser = get_subparsers.add_parser('template',
-                                                    help='get a template from a vent instance')
-    get_template_parser.set_defaults(which='get_template_parser')
-    get_template_parser.add_argument('machine',
-                                     help='machine name to get template from')
-    get_template_parser.add_argument('filename',
-                                     help='filename of template to get')
-    heartbeat_parser = subparsers.add_parser('heartbeat',
-                                             help='send a heartbeat')
-    heartbeat_subparsers = heartbeat_parser.add_subparsers()
-    hb_instances_parser = heartbeat_subparsers.add_parser('instances',
-                                                          help='send a heartbeat to all vent instances')
-    hb_instances_parser.set_defaults(which='hb_instances_parser')
-    hb_providers_parser = heartbeat_subparsers.add_parser('providers',
-                                                          help='send a heartbeat to all providers')
-    hb_providers_parser.set_defaults(which='hb_providers_parser')
-    info_parser = subparsers.add_parser('info',
-                                        help='get info on a vent instance')
-    info_parser.set_defaults(which='info_parser')
-    info_parser.add_argument('machine',
-                             help='machine name to get info from')
-    list_parser = subparsers.add_parser('list',
-                                        help='list all')
-    list_subparsers = list_parser.add_subparsers()
-    ls_instances_parser = list_subparsers.add_parser('instances',
-                                                     help='list all vent instances')
-    ls_instances_parser.set_defaults(which='ls_instances_parser')
-    ls_instances_parser.add_argument('--fast', '-f',
+    hb_machines_parser = machines_subparsers.add_parser('heartbeat',
+                                             help='send a heartbeat to all machines')
+    hb_machines_parser.set_defaults(which='hb_machines_parser')
+    ls_machines_parser = machines_subparsers.add_parser('list',
+                                                     help='list all Vent machines')
+    ls_machines_parser.set_defaults(which='ls_machines_parser')
+    ls_machines_parser.add_argument('--fast', '-f',
                                      action='store_true',
                                      default=False,
                                      help='get the list fast, without verifying')
-    ls_providers_parser = list_subparsers.add_parser('providers',
-                                                     help='list all providers')
-    ls_providers_parser.set_defaults(which='ls_providers_parser')
-    register_parser = subparsers.add_parser('register',
+    cmd_reboot_parser = machines_subparsers.add_parser('reboot',
+                                                      help="reboot a vent instance")
+    cmd_reboot_parser.set_defaults(which='cmd_reboot_parser')
+    cmd_reboot_parser.add_argument('machine',
+                                   help='machine name to reboot')
+    register_parser = machines_subparsers.add_parser('register',
                                             help='register an existing vent instance')
     register_parser.set_defaults(which='register_parser')
     register_parser.add_argument('machine',
@@ -1188,29 +1244,44 @@ def main(bare_metal_only, daemon, open_d, api_v):
                                  help='ip address of vent machine to register')
     register_parser.add_argument('--password', '-p', default='tcuser',
                                  help='password to log into docker user on vent with (default: tcuser)')
+    shutdown_parser = machines_subparsers.add_parser('shutdown',
+                                        help='shutdown a Vent machine')
+    shutdown_parser.set_defaults(which='shutdown_parser')
+    shutdown_parser.add_argument('machine',
+                             help='machine name to shutdown')
+    cmd_ssh_parser = machines_subparsers.add_parser('ssh',
+                                                   help="ssh to a vent instance")
+    cmd_ssh_parser.set_defaults(which='cmd_ssh_parser')
+    cmd_ssh_parser.add_argument('machine',
+                                help='machine name to ssh into')
+
+
+    hb_providers_parser = providers_subparsers.add_parser('heartbeat',
+                                             help='send a heartbeat to all providers')
+    hb_providers_parser.set_defaults(which='hb_providers_parser')
+    info_providers_parser = providers_subparsers.add_parser('info',
+                                        help='get info on a provider')
+    info_providers_parser.set_defaults(which='info_providers_parser')
+    info_providers_parser.add_argument('provider',
+                             help='provider name to get info from')
+    ls_providers_parser = providers_subparsers.add_parser('list',
+                                                     help='list all providers')
+    ls_providers_parser.set_defaults(which='ls_providers_parser')
     if privileged:
-        remove_parser = subparsers.add_parser('remove',
+        remove_parser = providers_subparsers.add_parser('remove',
                                               help='remove a provider')
         remove_parser.set_defaults(which='remove_parser')
         remove_parser.add_argument('provider',
                                    help='provider to remove')
-    if not bare_metal_only:
-        start_parser = subparsers.add_parser('start',
-                                             help='start a vent instance')
-        start_parser.set_defaults(which='start_parser')
-        start_parser.add_argument('machine',
-                                  help='machine name to start')
-    stats_parser = subparsers.add_parser('stats',
+    stats_providers_parser = providers_subparsers.add_parser('stats',
                                          help='get stats of a vent instance')
-    stats_parser.set_defaults(which='stats_parser')
-    stats_parser.add_argument('machine',
-                              help='machine name to get stats from')
-    if not bare_metal_only:
-        stop_parser = subparsers.add_parser('stop',
-                                            help='stop a vent instance')
-        stop_parser.set_defaults(which='stop_parser')
-        stop_parser.add_argument('machine',
-                                 help='machine name to stop')
+    stats_providers_parser.set_defaults(which='stats_providers_parser')
+    stats_providers_parser.add_argument('provider',
+                              help='provider name to get stats from')
+
+
+
+
 
     args = parser.parse_args()
     if args.which != "daemon_parser":
@@ -1261,15 +1332,20 @@ def main(bare_metal_only, daemon, open_d, api_v):
     elif args.which == "deploy_parser": output = deploy_template(args, daemon)
     elif args.which == "deregister_parser": output = deregister_instance(args, daemon)
     elif args.which == "get_template_parser": output = get_template(args, daemon)
-    elif args.which == "hb_instances_parser": output = heartbeat_instances(args, daemon)
+    elif args.which == "hb_machines_parser": output = heartbeat_machines(args, daemon)
     elif args.which == "hb_providers_parser": output = heartbeat_providers(args, daemon)
-    elif args.which == "info_parser": output = get_info(args, daemon)
-    elif args.which == "ls_instances_parser": output = list_instances(args, daemon)
+    elif args.which == "info_commands_parser": output = get_info_commands(args, daemon)
+    elif args.which == "info_providers_parser": output = get_info_providers(args, daemon)
+    elif args.which == "ls_machines_parser": output = list_machines(args, daemon)
     elif args.which == "ls_providers_parser": output = list_providers(args, daemon)
     elif args.which == "register_parser": output = register_instance(args, daemon)
     elif args.which == "start_parser": output = start_instance(args, daemon)
-    elif args.which == "stats_parser": output = get_stats(args, daemon)
+    elif args.which == "stats_commands_parser": output = get_stats_commands(args, daemon)
+    elif args.which == "stats_providers_parser": output = get_stats_providers(args, daemon)
     elif args.which == "stop_parser": output = stop_instance(args, daemon)
+    elif args.which == "version_parser": output = version_str(args, daemon)
+    elif args.which == "boot_parser": output = boot_machine(args, daemon)
+    elif args.which == "shutdown_parser": output = shutdown_machine(args, daemon)
     else: pass # should never get here
 
     print output
@@ -1277,7 +1353,6 @@ def main(bare_metal_only, daemon, open_d, api_v):
     return
 
 if __name__ == '__main__':
-    bare_metal_only = os.environ.get('VENT_CONTROL_BARE_METAL_ONLY')
     daemon = os.environ.get('VENT_CONTROL_DAEMON')
     if not daemon:
         daemon = "http://localhost:8080"
@@ -1285,4 +1360,4 @@ if __name__ == '__main__':
     api_v = os.environ.get('VENT_CONTROL_API_VERSION')
     if not api_v:
         api_v = "/v1"
-    main(bare_metal_only, daemon, open_d, api_v)
+    main(daemon, open_d, api_v)
