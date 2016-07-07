@@ -10,8 +10,26 @@ import subprocess
 import sys
 import web
 
+# cli classes
 from cli.version import VersionC
+
+# rest classes
 from rest.index import IndexR
+from rest.swagger import SwaggerR
+from rest.version import VersionR
+
+# rest commands classes
+
+# rest machines classes
+from rest.machines.boot import BootMachineR
+from rest.machines.create import CreateMachineR
+from rest.machines.delete import DeleteMachineR
+from rest.machines.shutdown import ShutdownMachineR
+
+# rest providers classes
+from rest.providers.add import AddProviderR
+from rest.providers.list_all import ListProvidersR
+from rest.providers.remove import RemoveProviderR
 
 def get_allowed():
     rest_url = ""
@@ -27,22 +45,6 @@ def get_allowed():
 
 allow_origin, rest_url = get_allowed()
 
-# This endpoint returns the version of vcontrol that is currently running this API.
-class version:
-    def GET(self):
-        web.header("Content-Type","text/plain")
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        try:
-            with open('VERSION', 'r') as f: v = f.read().strip()
-        except:
-            with open('../VERSION', 'r') as f: v = f.read().strip()
-        return v
-
 # This endpoint allows for getting the current capacity of a particular provider. Currently only supports VMWare and OpenStack.
 class w_capacity:
     def GET(self, provider):
@@ -54,221 +56,6 @@ class w_capacity:
         web.header('Access-Control-Allow-Origin', allow_origin)
         # TODO for openstack and vmware
         return 1
-
-'''
-This endpoint allows for a new provider such as openstack or vmware to be added.
-A Vent machine runs on a provider. Note that a provider can only be added from localhost
-of the machine running vcontrol unless the environment variable VENT_CONTROL_OPEN=true is set on the server.
-'''
-class w_add_provider:
-    def OPTIONS(self):
-        return self.POST()
-
-    def POST(self):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        web.header('Access-Control-Allow-Headers', "Content-type")
-        open_d = os.environ.get('VENT_CONTROL_OPEN')
-        # TODO is this sufficient? probably not...
-        if web.ctx.env["HTTP_HOST"] == 'localhost:8080' or open_d == "true":
-            data = web.data()
-            payload = {}
-            try:
-                payload = ast.literal_eval(data)
-                if type(payload) != dict:
-                    payload = ast.literal_eval(json.loads(data))
-            except:
-                return "malformed json body"
-
-            try:
-                if os.path.isfile('providers.txt'):
-                    with open('providers.txt', 'r') as f:
-                        for line in f:
-                            if line.split(":")[0] == payload['name']:
-                                return "provider already exists"
-                # only get here if it didn't already return
-                with open('providers.txt', 'a') as f:
-                    if payload['provider'] == 'openstack' or payload['provider'] == 'vmwarevsphere':
-                        f.write(payload['name']+':'+payload['provider']+':'+str(payload['cpu'])+":"+str(payload['ram'])+":"+str(payload['disk'])+":"+str(payload['args'])+'\n')
-                    elif payload['provider'] == 'virtualbox':
-                        f.write(payload['name']+':'+payload['provider']+'\n')
-                    else:
-                        f.write(payload['name']+':'+payload['provider']+':'+str(payload['args'])+'\n')
-                return "successfully added provider"
-            except:
-                return "unable to add provider"
-        else:
-            return "must be done from the localhost running vcontrol daemon"
-
-class w_boot_machine:
-    def get(self, machine):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        # TODO
-        return 1
-
-class w_shutdown_machine:
-    def get(self, machine):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        # TODO
-        return 1
-
-'''
-This endpoint allows for removing a provider such as openstack or vmware.
-A Vent machine runs on a provider, this will not remove existing Vent machines
-on the specified provider. Note that a provider can only be removed from localhost
-of the machine running vcontrol unless the environment variable VENT_CONTROL_OPEN=true is set on the server.
-'''
-class w_remove_provider:
-    def GET(self, provider):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        open_d = os.environ.get('VENT_CONTROL_OPEN')
-        if web.ctx.env["HTTP_HOST"] == 'localhost:8080' or open_d == "true":
-            f = open("providers.txt","r")
-            lines = f.readlines()
-            f.close()
-            flag = 0
-            with open("providers.txt", 'w') as f:
-                for line in lines:
-                    if not line.startswith(provider+":"):
-                        f.write(line)
-                    else:
-                        flag = 1
-            if flag:
-                return "removed " + provider
-            else:
-                return provider + " not found, couldn't remove"
-        else:
-            return "must be done from the localhost running vcontrol daemon"
-
-# This endpoint lists all of the providers that have been added.
-class w_list_providers:
-    def GET(self):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        try:
-            providers = {}
-            if os.path.isfile('providers.txt'):
-                with open('providers.txt', 'r') as f:
-                    for line in f:
-                        providers[line.split(":")[0]] = line.split(":")[1].strip()
-            return providers
-        except:
-            return "unable to get providers"
-
-# This endpoint is for creating a new machine of Vent on a provider.
-class w_create_machine:
-    def OPTIONS(self):
-        return self.POST()
-
-    def POST(self):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        web.header('Access-Control-Allow-Headers', "Content-type")
-        data = web.data()
-        payload = {}
-        try:
-            payload = ast.literal_eval(data)
-            if type(payload) != dict:
-                payload = ast.literal_eval(json.loads(data))
-        except:
-            return "malformed json body"
-
-        # TODO add --engine-label(s) Vent specific labels
-        engine_labels = "--engine-label vcontrol_managed=yes "
-        try:
-            if os.path.isfile('providers.txt'):
-                with open('providers.txt', 'r') as f:
-                    for line in f:
-                        if line.split(":")[0] == payload['provider']:
-                            # add --engine-label for group specified in payload
-                            if "group" in payload:
-                                engine_labels += "--engine-label vcontrol_group="+payload["group"]+" "
-                            # !! TODO add any additional --engine-label(s) in payload
-                            if "labels" in payload:
-                                if payload["labels"] != "":
-                                    labels = payload["labels"].split(",")
-                                    for label in labels:
-                                        engine_labels += "--engine-label "+label+" "
-                            proc = None
-                            cleanup = False
-                            if line.split(":")[1] == 'openstack' or line.split(":")[1] == 'vmwarevsphere':
-                                # TODO check usage stats first and make sure it's not over the limits (capacity)
-                                cmd = "/usr/local/bin/docker-machine create "+engine_labels+"-d "+line.split(":")[1]+" "+line.split(":")[5].strip()
-                            elif line.split(":")[1].strip() == "virtualbox":
-                                cmd = "/usr/local/bin/docker-machine create "+engine_labels+"-d "+line.split(":")[1].strip()
-                                if payload['iso'] == '/tmp/Vent/Vent.iso':
-                                    if not os.path.isfile('/tmp/Vent/Vent.iso'):
-                                        cleanup = True
-                                        os.system("git config --global http.sslVerify false")
-                                        os.system("cd /tmp && git clone https://github.com/CyberReboot/Vent.git")
-                                        os.system("cd /tmp/Vent && make")
-                                    proc = subprocess.Popen(["nohup", "python", "-m", "SimpleHTTPServer"], cwd="/tmp/Vent")
-                                    cmd += ' --virtualbox-boot2docker-url=http://localhost:8000/Vent.iso'
-                                cmd += ' --virtualbox-cpu-count "'+str(payload['cpus'])+'" --virtualbox-disk-size "'+str(payload['disk_size'])+'" --virtualbox-memory "'+str(payload['memory'])+'"'
-                            else:
-                                cmd = "/usr/local/bin/docker-machine create "+engine_labels+"-d "+line.split(":")[1]+" "+line.split(":")[2].strip()
-                            if line.split(":")[1] == "vmwarevsphere":
-                                cmd += ' --vmwarevsphere-cpu-count "'+str(payload['cpus'])+'" --vmwarevsphere-disk-size "'+str(payload['disk_size'])+'" --vmwarevsphere-memory-size "'+str(payload['memory'])+'"'
-                            cmd += ' '+payload['machine']
-                            output = subprocess.check_output(cmd, shell=True)
-                            if proc != None:
-                                os.system("kill -9 "+str(proc.pid))
-                            if cleanup:
-                                shutil.rmtree('/tmp/Vent')
-                            return output
-                return "provider specified was not found"
-            else:
-                return "no providers, please first add a provider"
-        except:
-            return "unable to create machine"
-
-# This endpoint is for delete an existing machine of Vent.
-class w_delete_machine:
-    def GET(self, machine):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        data = web.input()
-        cmd = "/usr/local/bin/docker-machine rm"
-        if 'force' in data:
-            if data['force']:
-                cmd += " -f"
-        cmd += " "+machine
-        try:
-            out = subprocess.check_output(cmd, shell=True)
-        except:
-            out = "unable to delete machine"
-        return str(out)
 
 # This endpoint is for starting a stopped machine.
 class w_start_machine:
@@ -702,45 +489,20 @@ class w_deregister_machine:
             out = "unable to deregister machine"
         return str(out)
 
-class swagger:
-    def GET(self):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        try:
-            with open("swagger.yaml", 'r') as f:
-                filedata = f.read()
-            newdata = filedata.replace("mydomain", rest_url)
-            with open("swagger.yaml", 'w') as f:
-                f.write(newdata)
-            f = open("swagger.yaml", 'r')
-        except:
-            with open("../vcontrol/swagger.yaml", 'r') as f:
-                filedata = f.read()
-            newdata = filedata.replace("mydomain", rest_url)
-            with open("../vcontrol/swagger.yaml", 'w') as f:
-                f.write(newdata)
-            f = open("../vcontrol/swagger.yaml", 'r')
-        web.header("Content-Type","text/yaml")
-        return f.read()
-
 def get_urls():
     urls = (
-        '/swagger.yaml', 'swagger',
+        '/swagger.yaml', SwaggerR,
         '/v1', IndexR,
         '/v1/', IndexR,
-        '/v1/add_provider', 'w_add_provider',
-        '/v1/remove_provider/(.+)', 'w_remove_provider',
+        '/v1/add_provider', AddProviderR,
+        '/v1/remove_provider/(.+)', RemoveProviderR,
         '/v1/capacity/(.+)', 'w_capacity',
-        '/v1/create_machine', 'w_create_machine',
-        '/v1/delete_machine/(.+)', 'w_delete_machine',
+        '/v1/create_machine', CreateMachineR,
+        '/v1/delete_machine/(.+)', DeleteMachineR,
         '/v1/start_machine/(.+)', 'w_start_machine',
         '/v1/stop_machine/(.+)', 'w_stop_machine',
-        '/v1/boot_machine/(.+)', 'w_boot_machine',
-        '/v1/shutdown_machine/(.+)', 'w_shutdown_machine',
+        '/v1/boot_machine/(.+)', BootMachineR,
+        '/v1/shutdown_machine/(.+)', ShutdownMachineR,
         '/v1/command_build/(.+)', 'w_command_build',
         '/v1/command_generic/(.+)', 'w_command_generic',
         '/v1/command_reboot/(.+)', 'w_command_reboot',
@@ -754,7 +516,7 @@ def get_urls():
         '/v1/heartbeat_machines', 'w_heartbeat_machines',
         '/v1/heartbeat_providers', 'w_heartbeat_providers',
         '/v1/list_machines', 'w_list_machines',
-        '/v1/list_providers', 'w_list_providers',
+        '/v1/list_providers', ListProvidersR,
         '/v1/get_stats_commands/(.+)', 'w_get_stats_commands',
         '/v1/get_stats_providers/(.+)', 'w_get_stats_providers',
         '/v1/get_info_commands/(.+)', 'w_get_info_commands',
@@ -764,7 +526,7 @@ def get_urls():
         '/v1/get_template', 'w_get_template',
         '/v1/register_machine', 'w_register_machine',
         '/v1/deregister_machine/(.+)', 'w_deregister_machine',
-        '/v1/version', 'version'
+        '/v1/version', VersionR
     )
     return urls
 
