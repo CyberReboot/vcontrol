@@ -10,6 +10,9 @@ import subprocess
 import sys
 import web
 
+from cli.version import VersionC
+from rest.index import IndexR
+
 def get_allowed():
     rest_url = ""
     if "ALLOW_ORIGIN" in os.environ:
@@ -23,18 +26,6 @@ def get_allowed():
     return allow_origin, rest_url
 
 allow_origin, rest_url = get_allowed()
-
-# This endpoint is just a quick way to ensure that the vcontrol API is up and running properly.
-class index:
-    def GET(self):
-        web.header("Content-Type","text/plain")
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        return "vcontrol"
 
 # This endpoint returns the version of vcontrol that is currently running this API.
 class version:
@@ -739,8 +730,8 @@ class swagger:
 def get_urls():
     urls = (
         '/swagger.yaml', 'swagger',
-        '/v1', 'index',
-        '/v1/', 'index',
+        '/v1', IndexR,
+        '/v1/', IndexR,
         '/v1/add_provider', 'w_add_provider',
         '/v1/remove_provider/(.+)', 'w_remove_provider',
         '/v1/capacity/(.+)', 'w_capacity',
@@ -856,10 +847,6 @@ def stop_machine(args, daemon):
     # first ssh into the machine running vcontrol daemon
     # from there use docker-machine to stop
     r = requests.get(daemon+"/stop_machine/"+args.machine)
-    return r.text
-
-def version_str(args, daemon):
-    r = requests.get(daemon+"/version")
     return r.text
 
 def boot_machine(args, daemon):
@@ -1386,7 +1373,7 @@ def main(daemon, open_d, api_v):
     elif args.which == "stats_commands_parser": output = get_stats_commands(args, daemon)
     elif args.which == "stats_providers_parser": output = get_stats_providers(args, daemon)
     elif args.which == "stop_parser": output = stop_machine(args, daemon)
-    elif args.which == "version_parser": output = version_str(args, daemon)
+    elif args.which == "version_parser": output = VersionC().version(args, daemon)
     elif args.which == "boot_parser": output = boot_machine(args, daemon)
     elif args.which == "shutdown_parser": output = shutdown_machine(args, daemon)
     else: pass # should never get here
