@@ -19,15 +19,30 @@ from rest.swagger import SwaggerR
 from rest.version import VersionR
 
 # rest commands classes
+from rest.commands.build import BuildCommandR
+from rest.commands.deploy import DeployCommandR
+from rest.commands.download import DownloadCommandR
+from rest.commands.generic import GenericCommandR
+from rest.commands.info import InfoCommandR
+from rest.commands.logs import LogsCommandR
+from rest.commands.start import StartCommandR
+from rest.commands.stop import StopCommandR
 
 # rest machines classes
 from rest.machines.boot import BootMachineR
 from rest.machines.create import CreateMachineR
 from rest.machines.delete import DeleteMachineR
+from rest.machines.deregister import DeregisterMachineR
+from rest.machines.heartbeat import HeartbeatMachinesR
+from rest.machines.list_all import ListMachinesR
+from rest.machines.reboot import RebootMachineR
+from rest.machines.register import RegisterMachineR
 from rest.machines.shutdown import ShutdownMachineR
 
 # rest providers classes
 from rest.providers.add import AddProviderR
+from rest.providers.heartbeat import HeartbeatProvidersR
+from rest.providers.info import InfoProviderR
 from rest.providers.list_all import ListProvidersR
 from rest.providers.remove import RemoveProviderR
 
@@ -57,280 +72,12 @@ class w_capacity:
         # TODO for openstack and vmware
         return 1
 
-# This endpoint is for starting a stopped machine.
-class w_start_machine:
-    def GET(self, machine):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        try:
-            out = subprocess.check_output("/usr/local/bin/docker-machine start "+machine, shell=True)
-        except:
-            out = "unable to start machine"
-        return str(out)
-
-# This endpoint is for stopping a running machine.
-class w_stop_machine:
-    def GET(self, machine):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        try:
-            out = subprocess.check_output("/usr/local/bin/docker-machine stop "+machine, shell=True)
-        except:
-            out = "unable to stop machine"
-        return str(out)
-
-# This endpoint is building Docker images on an machine.
-class w_command_build:
-    def GET(self, machine):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        data = web.input()
-        cmd = "/usr/local/bin/docker-machine ssh "+machine+" /bin/sh /data/build_images.sh"
-        # !! TODO test with swagger
-        if 'no_cache' in data:
-            if not data['no_cache']:
-                cmd += " --no-cache"
-        try:
-            out = subprocess.check_output(cmd, shell=True)
-        except:
-            return "failed to build"
-        return "done building"
-
-# This endpoint is for running an arbitrary command on an machine and getting the result back.
-class w_command_generic:
-    def OPTIONS(self, machine):
-        return self.POST(machine)
-
-    def POST(self, machine):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        data = web.data()
-        payload = {}
-        try:
-            payload = ast.literal_eval(data)
-            if type(payload) != dict:
-                payload = ast.literal_eval(json.loads(data))
-        except:
-            return "malformed json body"
-
-        for param in data:
-            p = param.split("=")
-            payload[p[0]] = p[1]
-        out = ""
-        try:
-            command = payload['command']
-        except:
-            out = "you must specify a command"
-            return out
-        try:
-            cmd = "/usr/local/bin/docker-machine ssh "+machine+" \""+command+"\""
-            out = subprocess.check_output(cmd, shell=True)
-        except:
-            out = "unable to execute generic command"
-        return str(out)
-
-# This endpoint is for rebooting a running machine.
-class w_command_reboot:
-    def GET(self, machine):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        try:
-            out = subprocess.check_output("/usr/local/bin/docker-machine restart "+machine, shell=True)
-        except:
-            out = "unable to reboot machine"
-        return str(out)
-
-# This endpoint is for starting a specified category of containers on a specific machine.
-class w_command_start:
-    def GET(self, machine, category):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        # just in case, make sure Vent-management is running first
-        out = ""
-        try:
-            out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"python2.7 /data/template_parser.py "+category+" start\"", shell=True)
-        except:
-            out = "unable to start "+category+" on "+machine
-        return str(out)
-
-# This endpoint is for stopping a specified category of containers on a specific machine.
-class w_command_stop:
-    def GET(self, machine, category):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        try:
-            out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"python2.7 /data/template_parser.py "+category+" stop\"", shell=True)
-        except:
-            out = "unable to stop "+category+" on "+machine
-        return str(out)
-
-# This endpoint is for getting messages that happen on an machine.
-class w_command_messages:
-    def GET(self, machine):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        try:
-            out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/data/info_tools/get_messages.sh\"", shell=True)
-        except:
-            out = "unable to get messages from "+machine
-        return str(out)
-
-# This endpoint is for getting services that are running on an machine.
-class w_command_services:
-    def GET(self, machine):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        try:
-            out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/data/info_tools/get_services.sh\"", shell=True)
-        except:
-            out = "unable to get services from "+machine
-        return str(out)
-
-# This endpoint is for getting tasks that are running on an machine.
-class w_command_tasks:
-    def GET(self, machine):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        try:
-            out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/data/info_tools/get_tasks.sh\"", shell=True)
-        except:
-            out = "unable to get tasks from "+machine
-        return str(out)
-
-# This endpoint is for getting tools on an machine.
-class w_command_tools:
-    def GET(self, machine):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        try:
-            out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/data/info_tools/get_tools.sh\"", shell=True)
-        except:
-            out = "unable to get tools from "+machine
-        return str(out)
-
-# This endpoint is for getting types on an machine.
-class w_command_types:
-    def GET(self, machine):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        try:
-            out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"/data/info_tools/get_types.sh\"", shell=True)
-        except:
-            out = "unable to get types from "+machine
-        return str(out)
-
 # This endpoint is for ssh-ing into an machine.
 # !! TODO
 class w_command_ssh:
     def GET(self, machine):
         # TODO
         return 1
-
-# This endpoint is just a quick way to ensure that providers are still reachable.
-class w_heartbeat_machines:
-    def GET(self):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        # TODO
-        return 1
-
-# This endpoint is just a quick way to ensure that providers are still reachable.
-class w_heartbeat_providers:
-    def GET(self):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        # TODO
-        return 1
-
-# This endpoint lists all of the machines that have been created or registered.
-class w_list_machines:
-    def GET(self):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        data = web.input()
-        machine_array = []
-        try:
-            if 'fast' in data and data['fast'] == 'True':
-                # !! TODO parse out the config.json file for the label
-                # !! TODO use current users home directory instead of /root
-                if os.path.isdir('/root/.docker/machine/machines'):
-                    out = subprocess.check_output("ls -1 /root/.docker/machine/machines", shell=True)
-                    out = str(out)
-                    out = out.split("\n")
-                    for machine in out[:-1]:
-                        machine_array.append(machine)
-                else:
-                    out = ""
-            else:
-                out = subprocess.check_output("/usr/local/bin/docker-machine ls --filter label=vcontrol_managed=yes", shell=True)
-                out = str(out)
-                out = out.split("\n")
-                for machine in out[1:-1]:
-                    i = machine.split(" ")
-                    machine_array.append(i[0])
-        except:
-            print sys.exc_info()
-        return str(machine_array)
 
 # This endpoint is for getting stats about a provider.
 class w_get_stats_commands:
@@ -356,139 +103,6 @@ class w_get_stats_providers:
         # TODO
         return 1
 
-# This endpoint is for getting info about an provider.
-class w_get_info_providers:
-    def GET(self, provider):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        # TODO
-        return 1
-
-# This endpoint is for getting info about a Vent machine.
-class w_get_info_commands:
-    def GET(self, machine):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        # TODO
-        return 1
-
-# This endpoint is for retrieving machine logs.
-class w_get_logs:
-    def GET(self, machine):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        # TODO
-        return 1
-
-# This endpoint is for retrieving the template file of an machine.
-class w_get_template:
-    def GET(self):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        # !! TODO does this work with swagger?
-        data = web.data()
-        data = data.split("&")
-        payload = {}
-        for param in data:
-            p = param.split("=")
-            payload[p[0]] = p[1]
-        print payload
-        return 1
-
-# This endpoint is for uploading a template file to an machine.
-class w_deploy_template:
-    def OPTIONS(self, machine):
-        return self.POST(machine)
-
-    def POST(self, machine):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        # TODO how does this work with swagger
-        x = web.input(myfile={})
-        filedir = '/tmp/templates/'+machine # change this to the directory you want to store the file in.
-        if not os.path.exists(filedir):
-            os.makedirs(filedir)
-        if 'myfile' in x: # to check if the file-object is created
-            filepath=x.myfile.filename.replace('\\','/') # replaces the windows-style slashes with linux ones.
-            filename=filepath.split('/')[-1] # splits the and chooses the last part (the filename with extension)
-            fout = open(filedir +'/'+ filename,'w') # creates the file where the uploaded file should be stored
-            fout.write(x.myfile.file.read()) # writes the uploaded file to the newly created file.
-            fout.close() # closes the file, upload complete.
-        # TODO scp to Vent machine
-        print machine
-        return "successfully deployed"
-
-# This endpoint is for registering an existing Vent machine into vcontrol.
-class w_register_machine:
-    def OPTIONS(self):
-        return self.POST()
-
-    def POST(self):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        # generic driver
-        data = web.data()
-        payload = {}
-        try:
-            payload = ast.literal_eval(data)
-            if type(payload) != dict:
-                payload = ast.literal_eval(json.loads(data))
-        except:
-            return "malformed json body"
-
-        try:
-            # generate ssh keys
-            out = subprocess.check_output('ssh-keygen -t rsa -b 4096 -C "Vent-generic-'+payload['machine']+'" -f /root/.ssh/id_Vent_generic_'+payload['machine']+' -q -N ""', shell=True)
-
-            # upload public key
-            out = subprocess.check_output('sshpass -p "'+payload['password']+'" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -q /root/.ssh/id_Vent_generic_'+payload['machine']+'.pub docker@'+payload['ip']+':/tmp/', shell=True)
-            out = subprocess.check_output('sshpass -p "'+payload['password']+'" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -q docker@'+payload['ip']+' "cat /tmp/id_Vent_generic_'+payload['machine']+'.pub >> /home/docker/.ssh/authorized_keys && rm /tmp/id_Vent_generic_'+payload['machine']+'.pub"', shell=True)
-
-            # add to docker-machine
-            out = subprocess.check_output('docker-machine create -d generic --generic-ip-address "'+payload['ip']+'" --generic-ssh-key "/root/.ssh/id_Vent_generic_'+payload['machine']+'" --generic-ssh-user "docker" '+payload['machine'], shell=True)
-        except:
-            out = "unable to register machine"
-        return str(out)
-
-# This endpoint is for deregistering an machine from vcontrol.
-class w_deregister_machine:
-    def GET(self, machine):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        try:
-            out = subprocess.check_output("/usr/local/bin/docker-machine rm "+machine, shell=True)
-        except:
-            out = "unable to deregister machine"
-        return str(out)
-
 def get_urls():
     urls = (
         '/swagger.yaml', SwaggerR,
@@ -499,33 +113,26 @@ def get_urls():
         '/v1/capacity/(.+)', 'w_capacity',
         '/v1/create_machine', CreateMachineR,
         '/v1/delete_machine/(.+)', DeleteMachineR,
-        '/v1/start_machine/(.+)', 'w_start_machine',
-        '/v1/stop_machine/(.+)', 'w_stop_machine',
         '/v1/boot_machine/(.+)', BootMachineR,
         '/v1/shutdown_machine/(.+)', ShutdownMachineR,
-        '/v1/command_build/(.+)', 'w_command_build',
-        '/v1/command_generic/(.+)', 'w_command_generic',
-        '/v1/command_reboot/(.+)', 'w_command_reboot',
-        '/v1/command_start/(.+)/(.+)', 'w_command_start',
-        '/v1/command_stop/(.+)/(.+)', 'w_command_stop',
-        '/v1/command_messages/(.+)', 'w_command_messages',
-        '/v1/command_services/(.+)', 'w_command_services',
-        '/v1/command_tasks/(.+)', 'w_command_tasks',
-        '/v1/command_tools/(.+)', 'w_command_tools',
-        '/v1/command_types/(.+)', 'w_command_types',
-        '/v1/heartbeat_machines', 'w_heartbeat_machines',
-        '/v1/heartbeat_providers', 'w_heartbeat_providers',
-        '/v1/list_machines', 'w_list_machines',
+        '/v1/command_build/(.+)', BuildCommandR,
+        '/v1/command_generic/(.+)', GenericCommandR,
+        '/v1/command_reboot/(.+)', RebootMachineR,
+        '/v1/command_start/(.+)/(.+)', StartCommandR,
+        '/v1/command_stop/(.+)/(.+)', StopCommandR,
+        '/v1/heartbeat_machines', HeartbeatMachinesR,
+        '/v1/heartbeat_providers', HeartbeatProvidersR,
+        '/v1/list_machines', ListMachinesR,
         '/v1/list_providers', ListProvidersR,
         '/v1/get_stats_commands/(.+)', 'w_get_stats_commands',
         '/v1/get_stats_providers/(.+)', 'w_get_stats_providers',
-        '/v1/get_info_commands/(.+)', 'w_get_info_commands',
-        '/v1/get_info_providers/(.+)', 'w_get_info_providers',
-        '/v1/get_logs/(.+)', 'w_get_logs',
-        '/v1/deploy_template/(.+)', 'w_deploy_template',
-        '/v1/get_template', 'w_get_template',
-        '/v1/register_machine', 'w_register_machine',
-        '/v1/deregister_machine/(.+)', 'w_deregister_machine',
+        '/v1/get_info_commands/(.+)', InfoCommandR,
+        '/v1/get_info_providers/(.+)', InfoProviderR,
+        '/v1/get_logs/(.+)', LogsCommandR,
+        '/v1/deploy_template/(.+)', DeployCommandR,
+        '/v1/get_template', DownloadCommandR,
+        '/v1/register_machine', RegisterMachineR,
+        '/v1/deregister_machine/(.+)', DeregisterMachineR,
         '/v1/version', VersionR
     )
     return urls
