@@ -24,6 +24,8 @@ from rest.version import VersionR
 from rest.machines.boot import BootMachineR
 from rest.machines.create import CreateMachineR
 from rest.machines.delete import DeleteMachineR
+from rest.machines.deregister import DeregisterMachineR
+from rest.machines.register import RegisterMachineR
 from rest.machines.shutdown import ShutdownMachineR
 
 # rest providers classes
@@ -438,57 +440,6 @@ class w_deploy_template:
         print machine
         return "successfully deployed"
 
-# This endpoint is for registering an existing Vent machine into vcontrol.
-class w_register_machine:
-    def OPTIONS(self):
-        return self.POST()
-
-    def POST(self):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        # generic driver
-        data = web.data()
-        payload = {}
-        try:
-            payload = ast.literal_eval(data)
-            if type(payload) != dict:
-                payload = ast.literal_eval(json.loads(data))
-        except:
-            return "malformed json body"
-
-        try:
-            # generate ssh keys
-            out = subprocess.check_output('ssh-keygen -t rsa -b 4096 -C "Vent-generic-'+payload['machine']+'" -f /root/.ssh/id_Vent_generic_'+payload['machine']+' -q -N ""', shell=True)
-
-            # upload public key
-            out = subprocess.check_output('sshpass -p "'+payload['password']+'" scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -q /root/.ssh/id_Vent_generic_'+payload['machine']+'.pub docker@'+payload['ip']+':/tmp/', shell=True)
-            out = subprocess.check_output('sshpass -p "'+payload['password']+'" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -q docker@'+payload['ip']+' "cat /tmp/id_Vent_generic_'+payload['machine']+'.pub >> /home/docker/.ssh/authorized_keys && rm /tmp/id_Vent_generic_'+payload['machine']+'.pub"', shell=True)
-
-            # add to docker-machine
-            out = subprocess.check_output('docker-machine create -d generic --generic-ip-address "'+payload['ip']+'" --generic-ssh-key "/root/.ssh/id_Vent_generic_'+payload['machine']+'" --generic-ssh-user "docker" '+payload['machine'], shell=True)
-        except:
-            out = "unable to register machine"
-        return str(out)
-
-# This endpoint is for deregistering an machine from vcontrol.
-class w_deregister_machine:
-    def GET(self, machine):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        try:
-            out = subprocess.check_output("/usr/local/bin/docker-machine rm "+machine, shell=True)
-        except:
-            out = "unable to deregister machine"
-        return str(out)
-
 def get_urls():
     urls = (
         '/swagger.yaml', SwaggerR,
@@ -524,8 +475,8 @@ def get_urls():
         '/v1/get_logs/(.+)', 'w_get_logs',
         '/v1/deploy_template/(.+)', 'w_deploy_template',
         '/v1/get_template', 'w_get_template',
-        '/v1/register_machine', 'w_register_machine',
-        '/v1/deregister_machine/(.+)', 'w_deregister_machine',
+        '/v1/register_machine', RegisterMachineR,
+        '/v1/deregister_machine/(.+)', DeregisterMachineR,
         '/v1/version', VersionR
     )
     return urls
