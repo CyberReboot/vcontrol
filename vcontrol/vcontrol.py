@@ -20,13 +20,21 @@ from rest.version import VersionR
 
 # rest commands classes
 from rest.commands.build import BuildCommandR
+from rest.commands.clean import CleanCommandR
 from rest.commands.deploy import DeployCommandR
 from rest.commands.download import DownloadCommandR
 from rest.commands.generic import GenericCommandR
 from rest.commands.info import InfoCommandR
 from rest.commands.logs import LogsCommandR
+from rest.commands.plugins.add import AddPluginCommandR
+from rest.commands.plugins.list_all import ListPluginsCommandR
+from rest.commands.plugins.remove import RemovePluginCommandR
+from rest.commands.plugins.update import UpdatePluginCommandR
 from rest.commands.start import StartCommandR
+from rest.commands.stats import StatsCommandR
+from rest.commands.status import StatusCommandR
 from rest.commands.stop import StopCommandR
+from rest.commands.upload import UploadCommandR
 
 # rest machines classes
 from rest.machines.boot import BootMachineR
@@ -38,6 +46,7 @@ from rest.machines.list_all import ListMachinesR
 from rest.machines.reboot import RebootMachineR
 from rest.machines.register import RegisterMachineR
 from rest.machines.shutdown import ShutdownMachineR
+from rest.machines.ssh import SSHMachineR
 
 # rest providers classes
 from rest.providers.add import AddProviderR
@@ -45,72 +54,16 @@ from rest.providers.heartbeat import HeartbeatProvidersR
 from rest.providers.info import InfoProviderR
 from rest.providers.list_all import ListProvidersR
 from rest.providers.remove import RemoveProviderR
-
-def get_allowed():
-    rest_url = ""
-    if "ALLOW_ORIGIN" in os.environ:
-        allow_origin = os.environ["ALLOW_ORIGIN"]
-        host_port = allow_origin.split("//")[1]
-        host = host_port.split(":")[0]
-        port = str(int(host_port.split(":")[1])+1)
-        rest_url = host+":"+port
-    else:
-        allow_origin = ""
-    return allow_origin, rest_url
-
-allow_origin, rest_url = get_allowed()
-
-# This endpoint allows for getting the current capacity of a particular provider. Currently only supports VMWare and OpenStack.
-class w_capacity:
-    def GET(self, provider):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        # TODO for openstack and vmware
-        return 1
-
-# This endpoint is for ssh-ing into an machine.
-# !! TODO
-class w_command_ssh:
-    def GET(self, machine):
-        # TODO
-        return 1
-
-# This endpoint is for getting stats about a provider.
-class w_get_stats_commands:
-    def GET(self, machine):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        # TODO
-        return 1
-
-# This endpoint is for getting stats about a Vent machine.
-class w_get_stats_providers:
-    def GET(self, provider):
-        # set allowed origins for api calls
-        try:
-            allow_origin = os.environ["ALLOW_ORIGIN"]
-        except:
-            allow_origin = ''
-        web.header('Access-Control-Allow-Origin', allow_origin)
-        # TODO
-        return 1
+from rest.providers.stats import StatsProviderR
 
 def get_urls():
+    # !! TODO rewrite urls to make more logical sense, add missing ones
     urls = (
         '/swagger.yaml', SwaggerR,
         '/v1', IndexR,
         '/v1/', IndexR,
         '/v1/add_provider', AddProviderR,
         '/v1/remove_provider/(.+)', RemoveProviderR,
-        '/v1/capacity/(.+)', 'w_capacity',
         '/v1/create_machine', CreateMachineR,
         '/v1/delete_machine/(.+)', DeleteMachineR,
         '/v1/boot_machine/(.+)', BootMachineR,
@@ -124,8 +77,8 @@ def get_urls():
         '/v1/heartbeat_providers', HeartbeatProvidersR,
         '/v1/list_machines', ListMachinesR,
         '/v1/list_providers', ListProvidersR,
-        '/v1/get_stats_commands/(.+)', 'w_get_stats_commands',
-        '/v1/get_stats_providers/(.+)', 'w_get_stats_providers',
+        '/v1/get_stats_commands/(.+)', StatCommandR,
+        '/v1/get_stats_providers/(.+)', StatsProviderR,
         '/v1/get_info_commands/(.+)', InfoCommandR,
         '/v1/get_info_providers/(.+)', InfoProviderR,
         '/v1/get_logs/(.+)', LogsCommandR,
@@ -143,10 +96,6 @@ def daemon_mode(args):
     app = web.application(urls, globals())
     app.run()
     return True
-
-# !! TODO
-def capacity(args, daemon):
-    return False
 
 def add_provider(provider, args, daemon):
     # only privileged can add providers, which currently is only
