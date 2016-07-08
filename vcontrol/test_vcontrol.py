@@ -1,16 +1,13 @@
 from paste.fixture import TestApp
 
-from vcontrol import *
+import vcontrol
 
 import pytest
 import web
 
-def test_get_urls():
-    a = get_urls()
-
 def test_web():
-    urls = get_urls()
-    assert type(urls) == type(())
+    vc_inst = vcontrol.VControl()
+    urls = vc_inst.urls()
     app = web.application(urls, globals())
     testApp = TestApp(app.wsgifunc())
 
