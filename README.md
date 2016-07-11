@@ -32,7 +32,13 @@ That will show the options required, where `args` is just taking options from `d
 
 Once we have those, we can simply throw those all into the `args` field at the end as a string, like so:
 ```
-$ docker exec -it vcontrol vcontrol providers add vmware --name esxihost1 "--vmwarevsphere-datacenter ha-datacenter --vmwarevsphere-datastore datastore1 --vmwarevsphere-network "VM Network" --vmwarevsphere-vcenter 192.168.100.1 --vmwarevsphere-username domain\\\\username --vmwarevsphere-password <mypassword>"
+$ docker exec -it vcontrol vcontrol providers add vmware --name esxihost1 \
+ "--vmwarevsphere-datacenter ha-datacenter \
+  --vmwarevsphere-datastore datastore1 \
+  --vmwarevsphere-network "VM Network" \
+  --vmwarevsphere-vcenter 192.168.100.1 \
+  --vmwarevsphere-username domain\\\\username \
+  --vmwarevsphere-password <mypassword>"
 ```
 
 Now a listing of providers from the client should show that it has been added successfully:
