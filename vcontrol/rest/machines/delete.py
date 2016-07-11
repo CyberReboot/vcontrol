@@ -7,6 +7,7 @@ class DeleteMachineR:
     """
     This endpoint is for delete an existing machine of Vent.
     """
+    allow_origin, rest_url = get_allowed.get_allowed()
     def GET(self, machine):
         web.header('Access-Control-Allow-Origin', self.allow_origin)
         data = web.input()
