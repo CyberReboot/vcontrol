@@ -12,6 +12,8 @@ $ make
 
 ## using the client
 ```
+# get the daemon URL from the output of make
+$ export VENT_CONTROL_DAEMON=http://<dockerhost>:<assignedport>
 $ cd vcontrol/bin
 $ ./vcontrol -h
 ```
