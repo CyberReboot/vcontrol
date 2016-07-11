@@ -47,6 +47,11 @@ class CreateMachineR:
                             if line.split(":")[1] == 'openstack' or line.split(":")[1] == 'vmwarevsphere':
                                 # TODO check usage stats first and make sure it's not over the limits (capacity)
                                 cmd = "/usr/local/bin/docker-machine create "+engine_labels+"-d "+line.split(":")[1]+" "+line.split(":")[5].strip()
+                                if line.split(":")[1] == 'vmwarevsphere':
+                                    if payload['iso'] == '/tmp/vent/vent.iso':
+                                        cmd += ' --vmwarevsphere-boot2docker-url=https://github.com/CyberReboot/vent/releases/download/v0.1.0/vent.iso'
+                                    else:
+                                        cmd += ' --vmwarevsphere-boot2docker-url='+payload['iso']
                             elif line.split(":")[1].strip() == "virtualbox":
                                 cmd = "/usr/local/bin/docker-machine create "+engine_labels+"-d "+line.split(":")[1].strip()
                                 if payload['iso'] == '/tmp/vent/vent.iso':
