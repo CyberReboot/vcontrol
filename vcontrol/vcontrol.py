@@ -108,6 +108,11 @@ class VControlServer(object):
     def __init__(self, port=8080, host="0.0.0.0"): # pragma: no cover
         vc_inst = VControl()
         urls = vc_inst.urls()
+        # remove test results for runtime
+        try:
+            os.remove("../.coverage")
+        except OSError:
+            pass
         app = web.application(urls, globals())
         web.httpserver.runsimple(app.wsgifunc(), (host, port))
 
