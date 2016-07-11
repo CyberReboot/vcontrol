@@ -28,7 +28,7 @@ class VersionR:
             commit_id = subprocess.check_output(cmd, shell=True)
             cmd = 'git -C ../vcontrol diff-index --quiet HEAD --'
             dirty = subprocess.call(cmd, shell=True)
-            if dirty != 0:
+            if dirty != '0':
                 version['commit'] = commit_id.strip() + '-dirty'
             else:
                 version['commit'] = commit_id.strip()
