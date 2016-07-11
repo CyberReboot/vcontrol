@@ -10,6 +10,7 @@ class CreateMachineR:
     """
     This endpoint is for creating a new machine of Vent on a provider.
     """
+    allow_origin, rest_url = get_allowed.get_allowed()
     def OPTIONS(self):
         return self.POST()
 
