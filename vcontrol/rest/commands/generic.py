@@ -10,6 +10,7 @@ class GenericCommandR:
     This endpoint is for running an arbitrary command on an machine and getting
     the result back.
     """
+    allow_origin, rest_url = get_allowed.get_allowed()
     def OPTIONS(self, machine):
         return self.POST(machine)
 
