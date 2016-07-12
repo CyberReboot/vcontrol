@@ -34,7 +34,7 @@ That will show the options required, where `args` is just taking options from `d
 
 Once we have those, we can simply throw those all into the `args` field at the end as a string, like so:
 ```
-$ docker exec -it vcontrol vcontrol providers add vmware --name esxihost1 \
+$ docker exec -it vcontrol-daemon vcontrol providers add vmware --name esxihost1 \
  "--vmwarevsphere-datacenter ha-datacenter \
   --vmwarevsphere-datastore datastore1 \
   --vmwarevsphere-network "VM Network" \
