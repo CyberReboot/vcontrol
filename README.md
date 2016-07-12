@@ -19,7 +19,7 @@ $ ./vcontrol -h
 ```
 First you'll want to add a new provider, for example a VMWare vSphere host (note you'll need to make sure you have licensing to be able to make API calls to it).  Since adding and removing providers are a protected command by default, we're going to execute the command from the container rather than the client (it can be done from the client if both the daemon and the client have the environment variable `VENT_CONTROL_OPEN` set to `true`):
 ```
-$ docker exec -it vcontrol vcontrol providers add -h
+$ docker exec -it vcontrol-daemon vcontrol providers add -h
 ```
 
 That will show the options required, where `args` is just taking options from `docker-machine` and inserting them.  For VMWare we're going to want to use at least the following flags:
