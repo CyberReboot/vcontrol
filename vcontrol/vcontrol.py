@@ -249,19 +249,27 @@ class VControl:
         plugin_subparsers = plugin_parser.add_subparsers()
         add_plugin_parser = plugin_subparsers.add_parser('add',
                                                          help="Add a new plugin")
+        add_plugin_parser.add_argument('machine',
+                                       help='Machine name to add plugin to')
         add_plugin_parser.add_argument('url',
                                        help='Specify an HTTPS Git URL for the repository that containers plugins')
         add_plugin_parser.set_defaults(which='add_plugin_parser')
         list_plugin_parser = plugin_subparsers.add_parser('list',
                                                           help="List installed plugins")
+        list_plugin_parser.add_argument('machine',
+                                       help='Machine name to list plugins installed')
         list_plugin_parser.set_defaults(which='list_plugin_parser')
         remove_plugin_parser = plugin_subparsers.add_parser('remove',
                                                             help="Remove a plugin")
+        remove_plugin_parser.add_argument('machine',
+                                          help='Machine name to remove plugin from')
         remove_plugin_parser.add_argument('url',
                                           help='Specify an HTTPS Git URL for the repository of plugins to remove')
         remove_plugin_parser.set_defaults(which='remove_plugin_parser')
         update_plugin_parser = plugin_subparsers.add_parser('update',
                                                             help="Update a plugin")
+        update_plugin_parser.add_argument('machine',
+                                          help='Machine name to update plugin on')
         update_plugin_parser.add_argument('url',
                                           help='Specify an HTTPS Git URL for the repository of plugins to update')
         update_plugin_parser.set_defaults(which='update_plugin_parser')
