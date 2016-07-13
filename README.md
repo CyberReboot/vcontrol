@@ -3,6 +3,9 @@ Control layer for managing vent instances
 
 # getting started
 
+## dependencies
+* web.py
+
 ## build and run the vcontrol daemon
 ```
 $ git clone https://github.com/CyberReboot/vcontrol.git
