@@ -19,11 +19,10 @@ RUN curl -L https://github.com/vmware/govmomi/releases/download/v0.7.1/govc_linu
 RUN chmod +x /usr/local/bin/govc
 
 # install docker-machine
-RUN curl -L https://github.com/docker/machine/releases/download/v0.7.0/docker-machine-`uname -s`-`uname -m` >/usr/local/bin/docker-machine && \
+RUN curl -L https://github.com/docker/machine/releases/download/v0.8.0-rc2/docker-machine-`uname -s`-`uname -m` >/usr/local/bin/docker-machine && \
     chmod +x /usr/local/bin/docker-machine
 
-# TODO add vent iso
-RUN curl --insecure -L https://github.com/CyberReboot/vent/releases/download/v0.4.2/vent.iso >boot2docker.iso && mkdir -p /root/.docker/machine/ && mv boot2docker.iso /root/.docker/machine/boot2docker.iso
+RUN curl -L https://github.com/CyberReboot/vent/releases/download/v0.1.0/vent.iso >boot2docker.iso && mkdir -p /root/.docker/machine/ && mv boot2docker.iso /root/.docker/machine/boot2docker.iso
 RUN mkdir -p /root/.docker/machine/cache && ln -s /root/.docker/machine/boot2docker.iso /root/.docker/machine/cache/boot2docker.iso
 
 ADD . /vcontrol

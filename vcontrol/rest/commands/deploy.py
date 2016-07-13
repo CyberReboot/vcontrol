@@ -1,0 +1,29 @@
+from ..helpers import get_allowed
+
+import os
+import web
+
+class DeployCommandR:
+    """
+    This endpoint is for uploading a template file to an machine.
+    """
+    allow_origin, rest_url = get_allowed.get_allowed()
+    def OPTIONS(self, machine):
+        return self.POST(machine)
+
+    def POST(self, machine):
+        web.header('Access-Control-Allow-Origin', self.allow_origin)
+        # TODO how does this work with swagger
+        x = web.input(myfile={})
+        filedir = '/tmp/templates/'+machine # change this to the directory you want to store the file in.
+        if not os.path.exists(filedir):
+            os.makedirs(filedir)
+        if 'myfile' in x: # to check if the file-object is created
+            filepath=x.myfile.filename.replace('\\','/') # replaces the windows-style slashes with linux ones.
+            filename=filepath.split('/')[-1] # splits the and chooses the last part (the filename with extension)
+            fout = open(filedir +'/'+ filename,'w') # creates the file where the uploaded file should be stored
+            fout.write(x.myfile.file.read()) # writes the uploaded file to the newly created file.
+            fout.close() # closes the file, upload complete.
+        # TODO scp to Vent machine
+        print machine
+        return "successfully deployed"
