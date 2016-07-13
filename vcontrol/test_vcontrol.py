@@ -2,6 +2,7 @@ from paste.fixture import TestApp
 
 import vcontrol
 
+import ast
 import pytest
 import web
 
@@ -35,4 +36,4 @@ def test_version_r():
     r = testApp.get('/v1/version')
     assert r.status == 200
     with open('VERSION', 'r') as f: v = f.read().strip()
-    assert r.normal_body == v
+    assert ast.literal_eval(r.normal_body)['version'] == v

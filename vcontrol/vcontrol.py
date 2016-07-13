@@ -108,6 +108,11 @@ class VControlServer(object):
     def __init__(self, port=8080, host="0.0.0.0"): # pragma: no cover
         vc_inst = VControl()
         urls = vc_inst.urls()
+        # remove test results for runtime
+        try:
+            os.remove("../.coverage")
+        except OSError:
+            pass
         app = web.application(urls, globals())
         web.httpserver.runsimple(app.wsgifunc(), (host, port))
 
@@ -244,19 +249,27 @@ class VControl:
         plugin_subparsers = plugin_parser.add_subparsers()
         add_plugin_parser = plugin_subparsers.add_parser('add',
                                                          help="Add a new plugin")
+        add_plugin_parser.add_argument('machine',
+                                       help='Machine name to add plugin to')
         add_plugin_parser.add_argument('url',
                                        help='Specify an HTTPS Git URL for the repository that containers plugins')
         add_plugin_parser.set_defaults(which='add_plugin_parser')
         list_plugin_parser = plugin_subparsers.add_parser('list',
                                                           help="List installed plugins")
+        list_plugin_parser.add_argument('machine',
+                                       help='Machine name to list plugins installed')
         list_plugin_parser.set_defaults(which='list_plugin_parser')
         remove_plugin_parser = plugin_subparsers.add_parser('remove',
                                                             help="Remove a plugin")
+        remove_plugin_parser.add_argument('machine',
+                                          help='Machine name to remove plugin from')
         remove_plugin_parser.add_argument('url',
                                           help='Specify an HTTPS Git URL for the repository of plugins to remove')
         remove_plugin_parser.set_defaults(which='remove_plugin_parser')
         update_plugin_parser = plugin_subparsers.add_parser('update',
                                                             help="Update a plugin")
+        update_plugin_parser.add_argument('machine',
+                                          help='Machine name to update plugin on')
         update_plugin_parser.add_argument('url',
                                           help='Specify an HTTPS Git URL for the repository of plugins to update')
         update_plugin_parser.set_defaults(which='update_plugin_parser')
@@ -485,7 +498,7 @@ class VControl:
             remove_parser.add_argument('provider',
                                        help='Provider to remove')
         stats_providers_parser = providers_subparsers.add_parser('stats',
-                                                                 help='Get stats of a Vent machine')
+                                                                 help='Get stats of a provider')
         stats_providers_parser.set_defaults(which='stats_providers_parser')
         stats_providers_parser.add_argument('provider',
                                             help='Provider name to get stats from')
@@ -535,7 +548,7 @@ class VControl:
         elif args.which == "deregister_parser": output = DeregisterMachineC().deregister(args, daemon)
         elif args.which == "get_template_parser": output = DownloadCommandC().download(args, daemon)
         elif args.which == "hb_machines_parser": output = HeartbeatMachinesC().heartbeat(args, daemon)
-        elif args.which == "hb_providers_parser": output = HeartbeatProviderC().heartbeat(args, daemon)
+        elif args.which == "hb_providers_parser": output = HeartbeatProvidersC().heartbeat(args, daemon)
         elif args.which == "info_commands_parser": output = InfoCommandC().info(args, daemon)
         elif args.which == "info_providers_parser": output = InfoProviderC().info(args, daemon)
         elif args.which == "ls_machines_parser": output = ListMachinesC().list_all(args, daemon)
