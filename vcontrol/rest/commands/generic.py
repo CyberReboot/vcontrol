@@ -25,10 +25,6 @@ class GenericCommandR:
         except:
             return "malformed json body"
 
-        for param in data:
-            p = param.split("=")
-            payload[p[0]] = p[1]
-        out = ""
         try:
             command = payload['command']
         except:
