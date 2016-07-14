@@ -2,7 +2,7 @@ import json
 import requests
 
 class RegisterMachineC:
-    def register_machine(self, args, daemon):
+    def register(self, args, daemon):
         """
         use default or supply credentials
         use generic driver from docker-machine

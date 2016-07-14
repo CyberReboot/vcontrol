@@ -1,5 +1,6 @@
 from ..helpers import get_allowed
 
+import os
 import subprocess
 import web
 
@@ -11,13 +12,15 @@ class DeleteMachineR:
     def GET(self, machine):
         web.header('Access-Control-Allow-Origin', self.allow_origin)
         data = web.input()
-        cmd = "/usr/local/bin/docker-machine rm"
+        cmd = "/usr/local/bin/docker-machine rm -y"
         if 'force' in data:
             if data['force']:
                 cmd += " -f"
         cmd += " "+machine
         try:
             out = subprocess.check_output(cmd, shell=True)
+            if os.path.isfile('/root/.ssh/id_vent_generic_'+machine):
+                os.remove('/root/.ssh/id_vent_generic_'+machine)
         except:
             out = "unable to delete machine"
         return str(out)

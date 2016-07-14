@@ -34,7 +34,7 @@ class RegisterMachineR:
             out = subprocess.check_output('sshpass -p "'+payload['password']+'" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -q docker@'+payload['ip']+' "cat /tmp/id_vent_generic_'+payload['machine']+'.pub >> /home/docker/.ssh/authorized_keys && rm /tmp/id_vent_generic_'+payload['machine']+'.pub"', shell=True)
 
             # add to docker-machine
-            out = subprocess.check_output('docker-machine create -d generic --generic-ip-address "'+payload['ip']+'" --generic-ssh-key "/root/.ssh/id_vent_generic_'+payload['machine']+'" --generic-ssh-user "docker" '+payload['machine'], shell=True)
-        except:
+            out = subprocess.check_output('docker-machine create -d generic --generic-ip-address "'+payload['ip']+'" --generic-ssh-key "/root/.ssh/id_vent_generic_'+payload['machine']+'" --generic-ssh-user "docker" --engine-label vcontrol_managed=yes '+payload['machine'], shell=True)
+        except Exception as e:
             out = "unable to register machine"
         return str(out)
