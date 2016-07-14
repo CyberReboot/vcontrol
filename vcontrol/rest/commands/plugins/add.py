@@ -25,8 +25,6 @@ class AddPluginCommandR:
         except:
             return "malformed json body"
 
-        # TODO add --engine-label(s) vent specific labels
-        engine_labels = "--engine-label vcontrol_managed=yes "
         try:
             if "machine" in payload.keys():
                 if "url" in payload.keys():
