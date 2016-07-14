@@ -2,9 +2,9 @@ from ...helpers import get_allowed
 
 import ast
 import json
-import web
 import os
 import subprocess
+import web
 
 class AddPluginCommandR:
     """
@@ -36,13 +36,10 @@ class AddPluginCommandR:
                     output = subprocess.check_output(cmd, shell=True)
                     if output == "":
                         output = "successfully installed "+url
-                    else:
-                        output = "failed to install "+url+"\n"+output
                 else:
                     output = "failed to install "+url+" -- no url specified"
             else:
                 output = "failed to install "+url+" -- no machine specified"
         except Exception as e:
         	output = str(e)
-        # TODO
         return output
