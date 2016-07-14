@@ -4,7 +4,7 @@ import requests
 class AddPluginCommandC:
     def add(self, args, daemon):
     	"""
-    	add plugin to machine
+    	add plugin repository to Vent machine
     	"""
     	payload = {}
     	payload['url'] = args.url
