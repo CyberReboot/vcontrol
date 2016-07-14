@@ -29,7 +29,6 @@ class AddPluginCommandR:
         # TODO add --engine-label(s) vent specific labels
         engine_labels = "--engine-label vcontrol_managed=yes "
         try:
-            print str(payload)
             if "machine" in payload.keys():
                 if "url" in payload.keys():
                     url = payload["url"]
