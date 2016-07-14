@@ -7,7 +7,7 @@ import web
 
 class UpdatePluginCommandR:
     """
-    This endpoint is for updating a existing plugin repository on a Vent machine.
+    This endpoint is for updating an existing plugin repository on a Vent machine.
     """
     allow_origin, rest_url = get_allowed.get_allowed()
     def OPTIONS(self):
