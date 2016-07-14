@@ -132,6 +132,7 @@ class VControl:
             '/v1/command_build/(.+)', BuildCommandR,
             '/v1/command_generic/(.+)', GenericCommandR,
             '/v1/command_reboot/(.+)', RebootMachineR,
+            '/v1/command_clean/(.+)/(.+)', CleanCommandR,
             '/v1/command_start/(.+)/(.+)', StartCommandR,
             '/v1/command_stop/(.+)/(.+)', StopCommandR,
             '/v1/heartbeat_machines', HeartbeatMachinesR,
@@ -541,6 +542,7 @@ class VControl:
         elif args.which == "reboot_parser": output = RebootMachineC().reboot(args, daemon)
         elif args.which == "ssh_parser": output = SSHMachineC().ssh(args, daemon)
         elif args.which == "cmd_start_parser": output = StartCommandC().start(args, daemon)
+        elif args.which == "cmd_clean_parser": output = CleanCommandC().clean(args, daemon)
         elif args.which == "cmd_stop_parser": output = StopCommandC().stop(args, daemon)
         elif args.which == "create_parser": output = CreateMachineC().create(args, daemon)
         elif args.which == "daemon_parser": output = VControlServer().app.run()
