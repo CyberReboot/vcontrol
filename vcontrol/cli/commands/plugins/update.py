@@ -4,7 +4,7 @@ import requests
 class UpdatePluginCommandC:
     def update(self, args, daemon):
         """
-    	update plugin reository on Vent
+    	update plugin repository on Vent
     	"""
     	payload = {}
     	payload['url'] = args.url
