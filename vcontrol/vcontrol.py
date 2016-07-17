@@ -148,7 +148,9 @@ class VControl:
             '/v1/get_template', DownloadCommandR,
             '/v1/register_machine', RegisterMachineR,
             '/v1/deregister_machine/(.+)', DeregisterMachineR,
-            '/v1/version', VersionR
+            '/v1/version', VersionR,
+            '/v1/command_add_plugin', AddPluginCommandR,
+            '/v1/command_update_plugin', UpdatePluginCommandR
         )
         return urls
 
@@ -561,6 +563,8 @@ class VControl:
         elif args.which == "version_parser": output = VersionC().version(args, daemon)
         elif args.which == "boot_parser": output = BootMachineC().boot(args, daemon)
         elif args.which == "shutdown_parser": output = ShutdownMachineC().shutdown(args, daemon)
+        elif args.which == "add_plugin_parser": output = AddPluginCommandC().add(args, daemon)
+        elif args.which == "update_plugin_parser": output = UpdatePluginCommandC().update(args, daemon)
         else: pass # should never get here
 
         print output
