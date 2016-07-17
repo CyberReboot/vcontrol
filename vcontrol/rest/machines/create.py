@@ -49,7 +49,7 @@ class CreateMachineR:
                                 cmd = "/usr/local/bin/docker-machine create "+engine_labels+"-d "+line.split(":")[1]+" "+line.split(":")[5].strip()
                                 if line.split(":")[1] == 'vmwarevsphere':
                                     if payload['iso'] == '/tmp/vent/vent.iso':
-                                        cmd += ' --vmwarevsphere-boot2docker-url=https://github.com/CyberReboot/vent/releases/download/v0.1.0/vent.iso'
+                                        cmd += ' --vmwarevsphere-boot2docker-url=https://github.com/CyberReboot/vent/releases/download/v0.1.1/vent.iso'
                                     else:
                                         cmd += ' --vmwarevsphere-boot2docker-url='+payload['iso']
                             elif line.split(":")[1].strip() == "virtualbox":
@@ -58,7 +58,7 @@ class CreateMachineR:
                                     if not os.path.isfile('/tmp/vent/vent.iso'): 
                                         cleanup = True
                                         os.system("git config --global http.sslVerify false")
-                                        os.system("cd /tmp && git clone https://github.com/CyberReboot/vent.git")
+                                        os.system("cd /tmp && git clone --recursive https://github.com/CyberReboot/vent.git")
                                         os.system("cd /tmp/vent && make")
                                     proc = subprocess.Popen(["nohup", "python", "-m", "SimpleHTTPServer"], cwd="/tmp/vent")
                                     cmd += ' --virtualbox-boot2docker-url=http://localhost:8000/vent.iso'
