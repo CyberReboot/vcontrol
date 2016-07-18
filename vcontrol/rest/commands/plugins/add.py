@@ -34,9 +34,9 @@ class AddPluginCommandR:
                     if output == "":
                         output = "successfully installed "+url
                 else:
-                    output = "failed to install "+url+" -- no url specified"
+                    output = "failed to install plugin -- no url specified"
             else:
-                output = "failed to install "+url+" -- no machine specified"
+                output = "failed to install plugin -- no machine specified"
         except Exception as e:
         	output = str(e)
         return output
