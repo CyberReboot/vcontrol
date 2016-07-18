@@ -248,6 +248,8 @@ class VControl:
                                           help='Machine name to get info from')
         logs_commands_parser = commands_subparsers.add_parser('logs',
                                                               help='Get logs on a Vent machine')
+        logs_commands_parser.add_argument('machine',
+                                          help='Machine name to get logs from')
         logs_commands_parser.set_defaults(which='logs_commands_parser')
         plugin_parser = commands_subparsers.add_parser('plugins',
                                                        help="Perform operations on plugins")
@@ -567,6 +569,7 @@ class VControl:
         elif args.which == "shutdown_parser": output = ShutdownMachineC().shutdown(args, daemon)
         elif args.which == "add_plugin_parser": output = AddPluginCommandC().add(args, daemon)
         elif args.which == "update_plugin_parser": output = UpdatePluginCommandC().update(args, daemon)
+        elif args.which == "logs_commands_parser": output = LogsCommandC().logs(args, daemon)
         else: pass # should never get here
 
         print output
