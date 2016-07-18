@@ -5,6 +5,7 @@ import ast
 import json
 import os
 import subprocess
+import uuid
 import web
 
 class CreateMachineR:
