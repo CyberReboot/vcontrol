@@ -1,4 +1,5 @@
 from ..helpers import get_allowed
+from ..helpers import json_yield
 
 import ast
 import json
@@ -11,6 +12,40 @@ class CreateMachineR:
     This endpoint is for creating a new machine of Vent on a provider.
     """
     allow_origin, rest_url = get_allowed.get_allowed()
+
+    INDEX_HTML = """
+    <html>
+    <head>
+    <script src="http://code.jquery.com/jquery-3.1.0.min.js"></script>
+    <script>
+    $(function() {
+
+      function update() {
+        $.getJSON('/v1/create/%s/%s', {}, function(data) {
+          if (data.state != 'done') {
+    """
+    INDEX_HTML_TYPE_A = """
+            $('#status').append($('<div>'+data.content+'</div>'));
+    """
+    INDEX_HTML_TYPE_B = """
+            $('#status').text(data.content);
+    """
+    INDEX_HTML_END = """
+            setTimeout(update, 0);
+          }
+        });
+      }
+
+      update();
+    });
+    </script>
+    </head>
+    <body>
+    <div id="status">Creating machine, please wait...</div>
+    </body>
+    </html>
+    """
+
     def OPTIONS(self):
         return self.POST()
 
@@ -49,7 +84,7 @@ class CreateMachineR:
                                 cmd = "/usr/local/bin/docker-machine create "+engine_labels+"-d "+line.split(":")[1]+" "+line.split(":")[5].strip()
                                 if line.split(":")[1] == 'vmwarevsphere':
                                     if payload['iso'] == '/tmp/vent/vent.iso':
-                                        cmd += ' --vmwarevsphere-boot2docker-url=https://github.com/CyberReboot/vent/releases/download/v0.1.0/vent.iso'
+                                        cmd += ' --vmwarevsphere-boot2docker-url=https://github.com/CyberReboot/vent/releases/download/v0.1.1/vent.iso'
                                     else:
                                         cmd += ' --vmwarevsphere-boot2docker-url='+payload['iso']
                             elif line.split(":")[1].strip() == "virtualbox":
@@ -58,7 +93,7 @@ class CreateMachineR:
                                     if not os.path.isfile('/tmp/vent/vent.iso'): 
                                         cleanup = True
                                         os.system("git config --global http.sslVerify false")
-                                        os.system("cd /tmp && git clone https://github.com/CyberReboot/vent.git")
+                                        os.system("cd /tmp && git clone --recursive https://github.com/CyberReboot/vent.git")
                                         os.system("cd /tmp/vent && make")
                                     proc = subprocess.Popen(["nohup", "python", "-m", "SimpleHTTPServer"], cwd="/tmp/vent")
                                     cmd += ' --virtualbox-boot2docker-url=http://localhost:8000/vent.iso'
