@@ -58,6 +58,7 @@ from rest.version import VersionR
 
 # rest commands classes
 from rest.commands.build import BuildCommandR
+from rest.commands.build import BuildCommandOutputR
 from rest.commands.clean import CleanCommandR
 from rest.commands.deploy import DeployCommandR
 from rest.commands.download import DownloadCommandR
@@ -129,7 +130,8 @@ class VControl:
             '/v1/delete_machine/(.+)', DeleteMachineR,
             '/v1/boot_machine/(.+)', BootMachineR,
             '/v1/shutdown_machine/(.+)', ShutdownMachineR,
-            '/v1/command_build/(.+)', BuildCommandR,
+            '/v1/command_build/(.+)/(.+)', BuildCommandR,
+            '/v1/build/(.+)/(.+)', BuildCommandOutputR,
             '/v1/command_generic/(.+)', GenericCommandR,
             '/v1/command_reboot/(.+)', RebootMachineR,
             '/v1/command_clean/(.+)/(.+)', CleanCommandR,
