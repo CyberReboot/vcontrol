@@ -43,6 +43,7 @@ class BuildCommandR:
     </body>
     </html>
     """
+
     def GET(self, machine, o_type):
         web.header('Access-Control-Allow-Origin', self.allow_origin)
 
@@ -69,7 +70,7 @@ class BuildCommandOutputR:
     """
     This endpoint rendering the output of building Docker images on an machine.
     """
-    json_yield = json_yield.json_yield
+    json_yield = json_yield.json_yield_one
     json_yield._gen_dict = {}
     json_yield._fn_id = 0
 

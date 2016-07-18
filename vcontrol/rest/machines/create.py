@@ -1,4 +1,5 @@
 from ..helpers import get_allowed
+from ..helpers import json_yield
 
 import ast
 import json
@@ -11,6 +12,40 @@ class CreateMachineR:
     This endpoint is for creating a new machine of Vent on a provider.
     """
     allow_origin, rest_url = get_allowed.get_allowed()
+
+    INDEX_HTML = """
+    <html>
+    <head>
+    <script src="http://code.jquery.com/jquery-3.1.0.min.js"></script>
+    <script>
+    $(function() {
+
+      function update() {
+        $.getJSON('/v1/create/%s/%s', {}, function(data) {
+          if (data.state != 'done') {
+    """
+    INDEX_HTML_TYPE_A = """
+            $('#status').append($('<div>'+data.content+'</div>'));
+    """
+    INDEX_HTML_TYPE_B = """
+            $('#status').text(data.content);
+    """
+    INDEX_HTML_END = """
+            setTimeout(update, 0);
+          }
+        });
+      }
+
+      update();
+    });
+    </script>
+    </head>
+    <body>
+    <div id="status">Creating machine, please wait...</div>
+    </body>
+    </html>
+    """
+
     def OPTIONS(self):
         return self.POST()
 
