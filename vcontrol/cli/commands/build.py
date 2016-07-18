@@ -1,7 +1,28 @@
+import ast
+import os
 import requests
 
 class BuildCommandC:
     def build(self, args, daemon):
+        print "Building, please wait..."
         payload = {'no_cache':args.no_cache}
-        r = requests.get(daemon+"/command_build/"+args.machine, params=payload)
-        return r.text
+        r = requests.get(daemon+"/command_build/"+args.machine+"/b", params=payload)
+        key = ""
+        for line in r.text.split("\n"):
+            if "getJSON" in line:
+                key = line.split("/")[-1].split("'")[0]
+        partial = True
+        while partial:
+            r = requests.get(daemon+"/build/"+args.machine+"/"+key)
+            try:
+                output = r.text
+                if '"content": null,' in output:
+                    output = output.replace('"content": null', '"content": "null"')
+                if ast.literal_eval(output)['state'] == 'done':
+                    partial = False
+                else:
+                    print ast.literal_eval(output)['content'],
+            except Exception as e:
+                print e
+                partial = False
+        return ""
