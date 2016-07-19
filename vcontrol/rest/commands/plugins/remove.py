@@ -1,7 +1,6 @@
 from ...helpers import get_allowed
 import ast
 import json
-import os
 import subprocess
 import web
 
