@@ -25,8 +25,8 @@ class UpdatePluginCommandR:
             return "malformed json body"
 
         try:
-            if "machine" in payload.keys():
-                if "url" in payload.keys():
+            if "machine" in payload:
+                if "url" in payload:
                     url = payload["url"]
                     cmd = "/usr/local/bin/docker-machine ssh "+payload["machine"]+" \"python2.7 /data/plugin_parser.py update_plugins "+url+"\""
                     output = subprocess.check_output(cmd, shell=True)
