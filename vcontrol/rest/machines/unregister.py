@@ -4,9 +4,9 @@ import os
 import subprocess
 import web
 
-class DeregisterMachineR:
+class UnregisterMachineR:
     """
-    This endpoint is for deregistering an machine from vcontrol.
+    This endpoint is for unregistering an machine from vcontrol.
     """
     allow_origin, rest_url = get_allowed.get_allowed()
     def GET(self, machine):
@@ -16,5 +16,5 @@ class DeregisterMachineR:
             if os.path.isfile('/root/.ssh/id_vent_generic_'+machine):
                 os.remove('/root/.ssh/id_vent_generic_'+machine)
         except Exception as e:
-            out = "unable to deregister machine"
+            out = "unable to unregister machine"
         return str(out)

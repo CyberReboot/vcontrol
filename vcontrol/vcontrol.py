@@ -35,13 +35,13 @@ from cli.commands.upload import UploadCommandC
 from cli.machines.boot import BootMachineC
 from cli.machines.create import CreateMachineC
 from cli.machines.delete import DeleteMachineC
-from cli.machines.deregister import DeregisterMachineC
 from cli.machines.heartbeat import HeartbeatMachinesC
 from cli.machines.list_all import ListMachinesC
 from cli.machines.reboot import RebootMachineC
 from cli.machines.register import RegisterMachineC
 from cli.machines.shutdown import ShutdownMachineC
 from cli.machines.ssh import SSHMachineC
+from cli.machines.unregister import UnregisterMachineC
 
 # cli providers classes
 from cli.providers.add import AddProviderC
@@ -79,13 +79,13 @@ from rest.commands.upload import UploadCommandR
 from rest.machines.boot import BootMachineR
 from rest.machines.create import CreateMachineR
 from rest.machines.delete import DeleteMachineR
-from rest.machines.deregister import DeregisterMachineR
 from rest.machines.heartbeat import HeartbeatMachinesR
 from rest.machines.list_all import ListMachinesR
 from rest.machines.reboot import RebootMachineR
 from rest.machines.register import RegisterMachineR
 from rest.machines.shutdown import ShutdownMachineR
 from rest.machines.ssh import SSHMachineR
+from rest.machines.unregister import UnregisterMachineR
 
 # rest providers classes
 from rest.providers.add import AddProviderR
@@ -149,7 +149,7 @@ class VControl:
             '/v1/deploy_template/(.+)', DeployCommandR,
             '/v1/get_template', DownloadCommandR,
             '/v1/register_machine', RegisterMachineR,
-            '/v1/deregister_machine/(.+)', DeregisterMachineR,
+            '/v1/unregister_machine/(.+)', UnregisterMachineR,
             '/v1/version', VersionR,
             '/v1/command_add_plugin', AddPluginCommandR,
             '/v1/command_remove_plugin', RemovePluginCommandR,
@@ -174,7 +174,8 @@ class VControl:
             with open('../VERSION', 'r') as f: version = f.read().strip()
 
         # generate cli and parse args
-        parser = argparse.ArgumentParser(description='vcontrol: a command line interface for managing Vent machines')
+        parser = argparse.ArgumentParser(prog='vcontrol',
+                                         description='vcontrol: a command line interface for managing Vent machines')
         subparsers = parser.add_subparsers()
         commands_parser = subparsers.add_parser('commands',
                                                 help='Run commands specific to a Vent machine')
@@ -249,6 +250,8 @@ class VControl:
                                           help='Machine name to get info from')
         logs_commands_parser = commands_subparsers.add_parser('logs',
                                                               help='Get logs on a Vent machine')
+        logs_commands_parser.add_argument('machine',
+                                          help='Machine name to get logs from')
         logs_commands_parser.set_defaults(which='logs_commands_parser')
         plugin_parser = commands_subparsers.add_parser('plugins',
                                                        help="Perform operations on plugins")
@@ -359,11 +362,6 @@ class VControl:
                                    action='store_true',
                                    default=False,
                                    help='Force remove machine of Vent')
-        deregister_parser = machines_subparsers.add_parser('deregister',
-                                                           help='Deregister a Vent machine')
-        deregister_parser.set_defaults(which='deregister_parser')
-        deregister_parser.add_argument('machine',
-                                       help='Machine name to deregister')
         hb_machines_parser = machines_subparsers.add_parser('heartbeat',
                                                             help='Send a heartbeat to all machines')
         hb_machines_parser.set_defaults(which='hb_machines_parser')
@@ -398,6 +396,11 @@ class VControl:
         ssh_parser.set_defaults(which='ssh_parser')
         ssh_parser.add_argument('machine',
                                 help='Machine name to SSH into')
+        unregister_parser = machines_subparsers.add_parser('unregister',
+                                                           help='Unregister a Vent machine')
+        unregister_parser.set_defaults(which='unregister_parser')
+        unregister_parser.add_argument('machine',
+                                       help='Machine name to unregister')
 
         # providers subparsers
         if privileged:
@@ -552,7 +555,7 @@ class VControl:
         elif args.which == "daemon_parser": output = VControlServer().app.run()
         elif args.which == "delete_parser": output = DeleteMachineC().delete(args, daemon)
         elif args.which == "deploy_parser": output = DeployCommandC().deploy(args, daemon)
-        elif args.which == "deregister_parser": output = DeregisterMachineC().deregister(args, daemon)
+        elif args.which == "unregister_parser": output = UnregisterMachineC().unregister(args, daemon)
         elif args.which == "get_template_parser": output = DownloadCommandC().download(args, daemon)
         elif args.which == "hb_machines_parser": output = HeartbeatMachinesC().heartbeat(args, daemon)
         elif args.which == "hb_providers_parser": output = HeartbeatProvidersC().heartbeat(args, daemon)
@@ -569,6 +572,7 @@ class VControl:
         elif args.which == "add_plugin_parser": output = AddPluginCommandC().add(args, daemon)
         elif args.which == "remove_plugin_parser": output = RemovePluginCommandC().remove(args, daemon)
         elif args.which == "update_plugin_parser": output = UpdatePluginCommandC().update(args, daemon)
+        elif args.which == "logs_commands_parser": output = LogsCommandC().logs(args, daemon)
         else: pass # should never get here
 
         print output
