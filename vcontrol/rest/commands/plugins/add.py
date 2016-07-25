@@ -26,17 +26,17 @@ class AddPluginCommandR:
             return "malformed json body"
 
         try:
-            if "machine" in payload.keys():
-                if "url" in payload.keys():
+            if "machine" in payload:
+                if "url" in payload:
                     url = payload["url"]
                     cmd = "/usr/local/bin/docker-machine ssh "+payload["machine"]+" \"python2.7 /data/plugin_parser.py add_plugins "+url+"\""
                     output = subprocess.check_output(cmd, shell=True)
                     if output == "":
                         output = "successfully installed "+url
                 else:
-                    output = "failed to install "+url+" -- no url specified"
+                    output = "failed to install plugin -- no url specified"
             else:
-                output = "failed to install "+url+" -- no machine specified"
+                output = "failed to install plugin -- no machine specified"
         except Exception as e:
         	output = str(e)
         return output
