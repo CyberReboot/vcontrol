@@ -152,13 +152,9 @@ class VControl:
             '/v1/unregister_machine/(.+)', UnregisterMachineR,
             '/v1/version', VersionR,
             '/v1/command_add_plugin', AddPluginCommandR,
-<<<<<<< HEAD
+            '/v1/command_remove_plugin', RemovePluginCommandR,
             '/v1/command_update_plugin', UpdatePluginCommandR,
             '/v1/command_status_plugin/(.+)', StatusCommandR
-=======
-            '/v1/command_remove_plugin', RemovePluginCommandR,
-            '/v1/command_update_plugin', UpdatePluginCommandR
->>>>>>> f39d8a3661f0c66b30a9325d1b6ebb815b865c46
         )
         return urls
 
