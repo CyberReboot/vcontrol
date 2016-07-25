@@ -173,7 +173,8 @@ class VControl:
             with open('../VERSION', 'r') as f: version = f.read().strip()
 
         # generate cli and parse args
-        parser = argparse.ArgumentParser(description='vcontrol: a command line interface for managing Vent machines')
+        parser = argparse.ArgumentParser(prog='vcontrol',
+                                         description='vcontrol: a command line interface for managing Vent machines')
         subparsers = parser.add_subparsers()
         commands_parser = subparsers.add_parser('commands',
                                                 help='Run commands specific to a Vent machine')
