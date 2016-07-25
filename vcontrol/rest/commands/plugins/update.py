@@ -25,13 +25,11 @@ class UpdatePluginCommandR:
             return "malformed json body"
 
         try:
-            if "machine" in payload.keys():
-                if "url" in payload.keys():
+            if "machine" in payload:
+                if "url" in payload:
                     url = payload["url"]
-                    cmd1 = "/usr/local/bin/docker-machine ssh "+payload["machine"]+" \"python2.7 /data/plugin_parser.py remove_plugins "+url+"\""
-                    cmd2 = "/usr/local/bin/docker-machine ssh "+payload["machine"]+" \"python2.7 /data/plugin_parser.py add_plugins "+url+"\""
-                    output = subprocess.check_output(cmd1, shell=True)
-                    output = output + subprocess.check_output(cmd2, shell=True)
+                    cmd = "/usr/local/bin/docker-machine ssh "+payload["machine"]+" \"python2.7 /data/plugin_parser.py update_plugins "+url+"\""
+                    output = subprocess.check_output(cmd, shell=True)
                     if output == "":
                         output = "successfully updated "+url
                 else:
