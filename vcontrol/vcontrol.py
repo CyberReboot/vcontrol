@@ -348,7 +348,7 @@ class VControl:
         create_parser.add_argument('provider',
                                    help='Provider to create machine on')
         create_parser.add_argument('--iso', '-i', default="/tmp/vent/vent.iso", type=str,
-                                   help='URL to ISO, if left as default, it will build the ISO from source')
+                                   help='URL to ISO, if left as default, it will pull down the lastest release from GitHub')
         create_parser.add_argument('--group', '-g', default="Vent", type=str,
                                    help='Group Vent machine belongs to (default: Vent)')
         create_parser.add_argument('--labels', '-l', default="", type=str,
