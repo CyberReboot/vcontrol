@@ -7,5 +7,5 @@ class ShutdownMachineC:
         first ssh into the machine running vcontrol daemon
         from there use docker-machine to stop
         """
-        r = requests.get(daemon+"/shutdown_machine/"+args.machine)
+        r = requests.get(daemon+"/machines/shutdown/"+args.machine)
         return r.text

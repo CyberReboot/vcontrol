@@ -12,5 +12,5 @@ class RegisterMachineC:
         payload['machine'] = args.machine
         payload['ip'] = args.ip
         payload['password'] = args.password
-        r = requests.post(daemon+"/register_machine", data=json.dumps(payload))
+        r = requests.post(daemon+"/machines/register", data=json.dumps(payload))
         return r.text
