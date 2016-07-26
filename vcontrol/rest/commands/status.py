@@ -30,11 +30,11 @@ class StatusCommandR:
                 out = output
             elif category == "running_containers":
                 out = running
-            elif category == "nr_containers":
+            elif category == "not_running_containers":
                 out = nrunning
             elif category == "built_images":
                 out = built
-            elif category == "nb_images":
+            elif category == "not_built_images":
                 out = nbuilt
             elif category == "disabled_containers":
                 out = disabled_containers

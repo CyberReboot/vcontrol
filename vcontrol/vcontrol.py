@@ -154,7 +154,7 @@ class VControl:
             '/v1/command_add_plugin', AddPluginCommandR,
             '/v1/command_remove_plugin', RemovePluginCommandR,
             '/v1/command_update_plugin', UpdatePluginCommandR,
-            '/v1/command_status_plugin/(.+)/(.+)', StatusCommandR
+            '/v1/command_status_plugin/(.+)/(.+)', StatusCommandR,
             '/v1/command_list_plugins/(.+)', ListPluginsCommandR
         )
         return urls
@@ -309,9 +309,9 @@ class VControl:
         status_parser.add_argument('category',
                                     choices=['all',
                                              'running_containers',
-                                             'nr_containers',
+                                             'not_running_containers',
                                              'built_images',
-                                             'nb_images',
+                                             'not_built_images',
                                              'disabled_containers',
                                              'disabled_images',
                                              'errors'],
