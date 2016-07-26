@@ -8,5 +8,5 @@ class DeleteMachineC:
         from there use docker-machine to delete
         """
         payload = {'force':args.force}
-        r = requests.get(daemon+"/delete_machine/"+args.machine, params=payload)
+        r = requests.get(daemon+"/machines/delete/"+args.machine, params=payload)
         return r.text

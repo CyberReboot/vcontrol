@@ -2,5 +2,5 @@ import requests
 
 class StatusCommandC:
     def status(self, args, daemon):
-        r = requests.get(daemon+"/command_status_plugin/"+args.machine+"/"+args.category)
+        r = requests.get(daemon+"/commands/status/"+args.machine+"/"+args.category)
         return r.text

@@ -2,5 +2,5 @@ import requests
 
 class UnregisterMachineC:
     def unregister(self, args, daemon):
-        r = requests.get(daemon+"/unregister_machine/"+args.machine)
+        r = requests.get(daemon+"/machines/unregister/"+args.machine)
         return r.text

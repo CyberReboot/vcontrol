@@ -2,6 +2,6 @@ import requests
 
 class HeartbeatMachinesC:
     def heartbeat(self, args, daemon):
-        r = requests.get(daemon+"/heartbeat_machines")
+        r = requests.get(daemon+"/machines/heartbeat")
         return r.text
 

@@ -5,5 +5,5 @@ class DownloadCommandC:
         payload = {}
         payload['machine'] = args.machine
         payload['filename'] = args.filename
-        r = requests.get(daemon+"/get_template", data=payload)
+        r = requests.get(daemon+"/commands/download", data=payload)
         return r.text

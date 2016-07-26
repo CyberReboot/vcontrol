@@ -4,5 +4,5 @@ import requests
 class GenericCommandC:
     def generic(self, args, daemon):
         payload = {'command':args.command}
-        r = requests.post(daemon+"/command_generic/"+args.machine, data=json.dumps(payload))
+        r = requests.post(daemon+"/commands/generic/"+args.machine, data=json.dumps(payload))
         return r.text

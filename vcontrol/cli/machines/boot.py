@@ -7,5 +7,5 @@ class BootMachineC:
         first ssh into the machine running vcontrol daemon
         from there use docker-machine to start
         """
-        r = requests.get(daemon+"/boot_machine/"+args.machine)
+        r = requests.get(daemon+"/machines/boot/"+args.machine)
         return r.text
