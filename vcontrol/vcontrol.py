@@ -155,6 +155,7 @@ class VControl:
             '/v1/command_remove_plugin', RemovePluginCommandR,
             '/v1/command_update_plugin', UpdatePluginCommandR,
             '/v1/command_status_plugin/(.+)/(.+)', StatusCommandR
+            '/v1/command_list_plugins/(.+)', ListPluginsCommandR
         )
         return urls
 
@@ -580,6 +581,7 @@ class VControl:
         elif args.which == "remove_plugin_parser": output = RemovePluginCommandC().remove(args, daemon)
         elif args.which == "update_plugin_parser": output = UpdatePluginCommandC().update(args, daemon)
         elif args.which == "status_parser": output = StatusCommandC().status(args, daemon)
+        elif args.which == "list_plugin_parser": output = ListPluginsCommandC().list_all(args, daemon)
         elif args.which == "logs_commands_parser": output = LogsCommandC().logs(args, daemon)
         else: pass # should never get here
 
