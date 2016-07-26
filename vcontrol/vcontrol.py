@@ -308,12 +308,9 @@ class VControl:
                                     help='Machine name to get status of plugins on')
         status_parser.add_argument('category',
                                     choices=['all',
-                                             'running_containers',
-                                             'not_running_containers',
-                                             'built_images',
-                                             'not_built_images',
-                                             'disabled_containers',
-                                             'disabled_images',
+                                             'containers',
+                                             'images',
+                                             'disabled',
                                              'errors'],
                                     help='Category of statuses')
         status_parser.set_defaults(which='status_parser')
