@@ -13,8 +13,10 @@ class StatusCommandR:
     def GET(self, machine, category):
         web.header('Access-Control-Allow-Origin', self.allow_origin)
         try:
+            # get all plugin info
             out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"python2.7 /data/info_tools/get_status.py all\"", shell=True)
             output = ast.literal_eval(out)
+            # break up into relevant information
             running = output['Running']
             nrunning = output['Not Running']
             built = output['Built']
@@ -23,23 +25,25 @@ class StatusCommandR:
             disabled_images = output['Disabled Images']
             errors = {key:output[key] for key in ['Running Errors', 'Not Running Errors', 'Built Errors']}
 
+            # return relevant information
             if category == "all":
-                out = str(output)
+                out = output
             elif category == "running_containers":
-                out = str(running)
+                out = running
             elif category == "nr_containers":
-                out = str(nrunning)
+                out = nrunning
             elif category == "built_images":
-                out = str(built)
+                out = built
             elif category == "nb_images":
-                out = str(nbuilt)
+                out = nbuilt
             elif category == "disabled_containers":
-                out = str(disabled_containers)
+                out = disabled_containers
             elif category == "disabled_images":
-                out = str(disabled_images)
+                out = disabled_images
             elif category == "errors":
-                out = str(errors)
+                out = errors
             else:
+                # should never get here
                 out = "Invalid category for plugin status"
         except:
             out = "unable to retrieve plugin statuses on "+machine

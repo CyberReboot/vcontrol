@@ -301,6 +301,7 @@ class VControl:
         stats_commands_parser.set_defaults(which='stats_commands_parser')
         stats_commands_parser.add_argument('machine',
                                            help='Machine name to get stats from')
+        # plugin status parser
         status_parser = commands_subparsers.add_parser('status',
                                                        help="Status of containers and images")
         status_parser.add_argument('machine',
