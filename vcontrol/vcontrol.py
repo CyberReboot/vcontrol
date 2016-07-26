@@ -140,6 +140,7 @@ class VControl:
             '/v1/commands/stats/(.+)', StatsCommandR,
             '/v1/commands/status/(.+)/(.+)', StatusCommandR,
             '/v1/commands/stop/(.+)/(.+)', StopCommandR,
+            '/v1/commands/upload/(.+)', UploadCommandR,
             '/v1/machines/boot/(.+)', BootMachineR,
             '/v1/machines/create', CreateMachineR,
             '/v1/machines/delete/(.+)', DeleteMachineR,
@@ -581,6 +582,7 @@ class VControl:
         elif args.which == "status_parser": output = StatusCommandC().status(args, daemon)
         elif args.which == "list_plugin_parser": output = ListPluginsCommandC().list_all(args, daemon)
         elif args.which == "logs_commands_parser": output = LogsCommandC().logs(args, daemon)
+        elif args.which == "upload_parser": output = UploadCommandC().upload(args, daemon)
         else: pass # should never get here
 
         print output
