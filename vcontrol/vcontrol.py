@@ -154,6 +154,7 @@ class VControl:
             '/v1/command_add_plugin', AddPluginCommandR,
             '/v1/command_remove_plugin', RemovePluginCommandR,
             '/v1/command_update_plugin', UpdatePluginCommandR,
+            '/v1/command_status_plugin/(.+)/(.+)', StatusCommandR,
             '/v1/command_list_plugins/(.+)', ListPluginsCommandR
         )
         return urls
@@ -300,15 +301,19 @@ class VControl:
         stats_commands_parser.set_defaults(which='stats_commands_parser')
         stats_commands_parser.add_argument('machine',
                                            help='Machine name to get stats from')
+        # plugin status parser
         status_parser = commands_subparsers.add_parser('status',
                                                        help="Status of containers and images")
-        status_subparsers = status_parser.add_subparsers()
-        containers_status_parser = status_subparsers.add_parser('containers',
-                                                                help="Status of containers")
-        containers_status_parser.set_defaults(which='containers_status_parser')
-        images_status_parser = status_subparsers.add_parser('images',
-                                                            help="Status of images")
-        images_status_parser.set_defaults(which='images_status_parser')
+        status_parser.add_argument('machine',
+                                    help='Machine name to get status of plugins on')
+        status_parser.add_argument('category',
+                                    choices=['all',
+                                             'containers',
+                                             'images',
+                                             'disabled',
+                                             'errors'],
+                                    help='Category of statuses')
+        status_parser.set_defaults(which='status_parser')
         cmd_stop_parser = commands_subparsers.add_parser('stop',
                                                          help="Stop containers in a category on a Vent machine")
         cmd_stop_parser.set_defaults(which='cmd_stop_parser')
@@ -573,6 +578,7 @@ class VControl:
         elif args.which == "add_plugin_parser": output = AddPluginCommandC().add(args, daemon)
         elif args.which == "remove_plugin_parser": output = RemovePluginCommandC().remove(args, daemon)
         elif args.which == "update_plugin_parser": output = UpdatePluginCommandC().update(args, daemon)
+        elif args.which == "status_parser": output = StatusCommandC().status(args, daemon)
         elif args.which == "list_plugin_parser": output = ListPluginsCommandC().list_all(args, daemon)
         elif args.which == "logs_commands_parser": output = LogsCommandC().logs(args, daemon)
         else: pass # should never get here
