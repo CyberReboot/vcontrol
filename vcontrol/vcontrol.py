@@ -154,7 +154,7 @@ class VControl:
             '/v1/command_add_plugin', AddPluginCommandR,
             '/v1/command_remove_plugin', RemovePluginCommandR,
             '/v1/command_update_plugin', UpdatePluginCommandR,
-            '/v1/command_status_plugin/(.+)', StatusCommandR
+            '/v1/command_status_plugin/(.+)/(.+)', StatusCommandR
         )
         return urls
 
@@ -306,21 +306,15 @@ class VControl:
                                     help='Machine name to get status of plugins on')
         status_parser.add_argument('category',
                                     choices=['all',
-                                             'running containers'
-                                             'not running containers'
-                                             'built images'
-                                             'not built images'
-                                             'disabled containers'
-                                             'disabled images'
+                                             'running_containers',
+                                             'nr_containers',
+                                             'built_images',
+                                             'nb_images',
+                                             'disabled_containers',
+                                             'disabled_images',
                                              'errors'],
                                     help='Category of statuses')
-        # status_subparsers = status_parser.add_subparsers()
-        # containers_status_parser = status_subparsers.add_parser('containers',
-        #                                                         help="Status of containers")
-        # containers_status_parser.set_defaults(which='containers_status_parser')
-        # images_status_parser = status_subparsers.add_parser('images',
-        #                                                     help="Status of images")
-        # images_status_parser.set_defaults(which='images_status_parser')
+        status_parser.set_defaults(which='status_parser')
         cmd_stop_parser = commands_subparsers.add_parser('stop',
                                                          help="Stop containers in a category on a Vent machine")
         cmd_stop_parser.set_defaults(which='cmd_stop_parser')
