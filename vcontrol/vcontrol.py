@@ -522,7 +522,7 @@ class VControl:
         args = parser.parse_args()
         if args.which != "daemon_parser":
             if not daemon:
-                print "Environment variable VENT_CONTROL_DAEMON not set, defaulting to http://localhost:8080"
+                print "Environment variable VCONTROL_DAEMON not set, defaulting to http://localhost:8080"
                 daemon = 'http://localhost:8080'
             try:
                 r = requests.get(daemon+api_v)
@@ -532,7 +532,7 @@ class VControl:
                 else:
                     sys.exit()
             except:
-                print "unable to reach the daemon, please start one and set VENT_CONTROL_DAEMON in your environment"
+                print "unable to reach the daemon, please start one and set VCONTROL_DAEMON in your environment"
                 sys.exit()
 
         daemon = daemon+api_v
@@ -590,11 +590,11 @@ class VControl:
         return
 
 if __name__ == '__main__': # pragma: no cover
-    daemon = os.environ.get('VENT_CONTROL_DAEMON')
+    daemon = os.environ.get('VCONTROL_DAEMON')
     if not daemon:
         daemon = "http://localhost:8080"
-    open_d = os.environ.get('VENT_CONTROL_OPEN')
-    api_v = os.environ.get('VENT_CONTROL_API_VERSION')
+    open_d = os.environ.get('VCONTROL_OPEN')
+    api_v = os.environ.get('VCONTROL_API_VERSION')
     if not api_v:
         api_v = "/v1"
     vc_inst = VControl()

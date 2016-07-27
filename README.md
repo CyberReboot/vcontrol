@@ -16,11 +16,11 @@ $ make
 ## using the client
 ```
 # get the daemon URL from the output of make
-$ export VENT_CONTROL_DAEMON=http://<dockerhost>:<assignedport>
+$ export VCONTROL_DAEMON=http://<dockerhost>:<assignedport>
 $ cd vcontrol/bin
 $ ./vcontrol -h
 ```
-First you'll want to add a new provider, for example a VMWare vSphere host (note you'll need to make sure you have licensing to be able to make API calls to it).  Since adding and removing providers are a protected command by default, we're going to execute the command from the container rather than the client (it can be done from the client if both the daemon and the client have the environment variable `VENT_CONTROL_OPEN` set to `true`):
+First you'll want to add a new provider, for example a VMWare vSphere host (note you'll need to make sure you have licensing to be able to make API calls to it).  Since adding and removing providers are a protected command by default, we're going to execute the command from the container rather than the client (it can be done from the client if both the daemon and the client have the environment variable `VCONTROL_OPEN` set to `true`):
 ```
 $ docker exec -it vcontrol-daemon vcontrol providers add -h
 ```
