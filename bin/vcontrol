@@ -1,27 +1,32 @@
 #!/bin/bash
 
-# check if DOCKER_HOST is set
-flag=false
-if [ ! -z "$DOCKER_HOST" ]; then
-    echo "Found DOCKER_HOST: \"$DOCKER_HOST\""
-    # grab possible machines to connect to
-    docker_machines=$(docker-machine ls --filter State=Running | grep -v URL | awk "{print \$5}")
-    # check if DOCKER_HOST matches a running machine
-    for machine in $docker_machines; do
-        if [ "$DOCKER_HOST" = "$machine" ]; then
-            machine_name=$(docker-machine ls | grep $machine | awk "{print \$1}")
-            echo "Found docker-machine \"$machine_name\" matching DOCKER_HOST."
-            flag=true
-        fi;
-    done;
+# check if daemon is being run locally
+if [ ! "$VENT_CONTROL_DAEMON" = "http://localhost:8080" ]; then
+    # check if DOCKER_HOST is set
+    flag=false
+    if [ ! -z "$DOCKER_HOST" ]; then
+        echo "Found DOCKER_HOST: \"$DOCKER_HOST\""
+        # grab possible machines to connect to
+        docker_machines=$(docker-machine ls --filter State=Running | grep -v URL | awk "{print \$5}")
+        # check if DOCKER_HOST matches a running machine
+        for machine in $docker_machines; do
+	    if [ "$DOCKER_HOST" = "$machine" ]; then
+	        machine_name=$(docker-machine ls | grep $machine | awk "{print \$1}")
+	        echo "Found docker-machine \"$machine_name\" matching DOCKER_HOST."
+	        flag=true
+	    fi;
+        done;
+    else
+        echo "No DOCKER_HOST environment variable set."
+        exit 1;
+    fi;
+    # only execute following code if we have some docker_host & it is a valid host
+    if [ "$flag" = true ]; then
+        python ../vcontrol/vcontrol.py "${@:1}"
+    else
+        echo "No docker-machine found matching DOCKER_HOST: \""$DOCKER_HOST"\"."
+        exit 1
+    fi;
 else
-    echo "No DOCKER_HOST environment variable set."
-    exit 1;
-fi;
-# only execute following code if we have some docker_host & it is a valid host
-if [ "$flag" = true ]; then
     python ../vcontrol/vcontrol.py "${@:1}"
-else
-    echo "No docker-machine found matching DOCKER_HOST: \""$DOCKER_HOST"\"."
-    exit 1
 fi;
