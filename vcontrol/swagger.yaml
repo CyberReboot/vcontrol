@@ -42,7 +42,7 @@ paths:
         This endpoint allows for a new provider such as openstack or vmware to be
         added.  A vent instance runs on a provider.  Note that a provider can
         only be added from `localhost` of the machine running `vcontrol`
-        unless the environment variable `VENT_CONTROL_OPEN=true` is set on the
+        unless the environment variable `VCONTROL_OPEN=true` is set on the
         server.
       tags:
         - Providers
@@ -107,7 +107,7 @@ paths:
         vmware.  A vent instance runs on a provider, this will not remove
         existing vent instances on the specified provider.  Note that a provider
         can only be removed from `localhost` of the machine running
-        `vcontrol` unless the environment variable `VENT_CONTROL_OPEN=true`
+        `vcontrol` unless the environment variable `VCONTROL_OPEN=true`
         is set on the server.
       tags:
         - Providers

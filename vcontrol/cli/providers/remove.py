@@ -7,7 +7,7 @@ class RemoveProviderC:
         only privileged can remove providers, which currently is only
         accessible from the server running the vcontrol daemon
         """
-        open_d = os.environ.get('VENT_CONTROL_OPEN')
+        open_d = os.environ.get('VCONTROL_OPEN')
         if open_d != "true":
             # daemon as passed in is: 'http:..../'+api_v
             # split and get the end and append
