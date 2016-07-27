@@ -1,3 +1,5 @@
+import base64
+import getpass
 import json
 import os
 import requests
@@ -16,7 +18,15 @@ class AddProviderC:
             daemon = 'http://localhost:8080/'+api_v
         if provider == "virtualbox":
             payload = {'name': args.name, 'provider': provider}
+        elif provider == "vmwarevsphere" and not "password" in args.args:
+            raw_pw = getpass.getpass()
+            pw = base64.b64encode(raw_pw)
+            args.args = args.args+" --vmwarevsphere-password "+pw
+            payload = {'name': args.name, 'provider': provider, 'args': args.args}
         else:
+            raw_pw = args.args.split("password ")[-1]
+            pw = base64.b64encode(raw_pw)
+            args.args = (" ").join(args.args.split(" ")[:-1])+" "+pw
             payload = {'name': args.name, 'provider': provider, 'args': args.args}
         if provider == "openstack" or provider == "vmwarevsphere":
             payload['cpu'] = str(args.max_cpu_usage)

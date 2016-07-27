@@ -2,8 +2,10 @@ from ..helpers import get_allowed
 from ..helpers import json_yield
 
 import ast
+import base64
 import json
 import os
+import re
 import subprocess
 import uuid
 import web
@@ -82,6 +84,8 @@ class CreateMachineR:
                             cleanup = False
                             if line.split(":")[1] == 'openstack' or line.split(":")[1] == 'vmwarevsphere':
                                 # TODO check usage stats first and make sure it's not over the limits (capacity)
+                                password = re.escape(base64.b64decode(line.split(" ")[-1]))
+                                line = (" ").join(line.split(" ")[:-1])+" "+password
                                 cmd = "/usr/local/bin/docker-machine create "+engine_labels+"-d "+line.split(":")[1]+" "+line.split(":")[5].strip()
                                 if line.split(":")[1] == 'vmwarevsphere':
                                     if payload['iso'] == '/tmp/vent/vent.iso':
