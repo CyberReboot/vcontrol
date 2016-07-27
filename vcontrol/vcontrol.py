@@ -139,8 +139,8 @@ class VControlServer(object):
         # test for dependencies if run locally
         env = None
         try:
-            # if set (in Dockerfile) should be VENT_CONTROL_ENV=docker
-            env = subprocess.check_output("env | grep VENT_CONTROL_ENV | tee", shell=True).strip('\n')
+            # if set (in Dockerfile) should be VCONTROL_ENV=docker
+            env = subprocess.check_output("env | grep VCONTROL_ENV | tee", shell=True).strip('\n')
             if '=' in env:
                 env = env.split('=')[1]
         except Exception:
@@ -431,7 +431,7 @@ class VControl:
                                    help='Provider to create machine on')
         create_parser.add_argument('--iso', '-i', default="/tmp/vent/vent.iso", type=str,
                                    help='URL to ISO, if left as default, it will pull down the lastest release from GitHub')
-        create_parser.add_argument('--group', '-g', default="Vent", type=str,
+        create_parser.add_argument('--group', '-g', default="vent", type=str,
                                    help='Group Vent machine belongs to (default: Vent)')
         create_parser.add_argument('--labels', '-l', default="", type=str,
                                    help='Additional label pairs for the Vent machine (default: "", examples would be "foo=bar,key=val")')
@@ -603,7 +603,7 @@ class VControl:
         args = parser.parse_args()
         if args.which != "daemon_parser":
             if not daemon:
-                print "Environment variable VENT_CONTROL_DAEMON not set, defaulting to http://localhost:8080"
+                print "Environment variable VCONTROL_DAEMON not set, defaulting to http://localhost:8080"
                 daemon = 'http://localhost:8080'
             try:
                 r = requests.get(daemon+api_v)
@@ -613,7 +613,7 @@ class VControl:
                 else:
                     sys.exit()
             except:
-                print "unable to reach the daemon, please start one and set VENT_CONTROL_DAEMON in your environment"
+                print "unable to reach the daemon, please start one and set VCONTROL_DAEMON in your environment"
                 sys.exit()
 
         daemon = daemon+api_v
@@ -644,7 +644,7 @@ class VControl:
         elif args.which == "delete_parser": output = DeleteMachineC().delete(args, daemon)
         elif args.which == "deploy_parser": output = DeployCommandC().deploy(args, daemon)
         elif args.which == "unregister_parser": output = UnregisterMachineC().unregister(args, daemon)
-        elif args.which == "get_template_parser": output = DownloadCommandC().download(args, daemon)
+        elif args.which == "download_parser": output = DownloadCommandC().download(args, daemon)
         elif args.which == "hb_machines_parser": output = HeartbeatMachinesC().heartbeat(args, daemon)
         elif args.which == "hb_providers_parser": output = HeartbeatProvidersC().heartbeat(args, daemon)
         elif args.which == "info_commands_parser": output = InfoCommandC().info(args, daemon)
@@ -671,11 +671,11 @@ class VControl:
         return
 
 if __name__ == '__main__': # pragma: no cover
-    daemon = os.environ.get('VENT_CONTROL_DAEMON')
+    daemon = os.environ.get('VCONTROL_DAEMON')
     if not daemon:
         daemon = "http://localhost:8080"
-    open_d = os.environ.get('VENT_CONTROL_OPEN')
-    api_v = os.environ.get('VENT_CONTROL_API_VERSION')
+    open_d = os.environ.get('VCONTROL_OPEN')
+    api_v = os.environ.get('VCONTROL_API_VERSION')
     if not api_v:
         api_v = "/v1"
     vc_inst = VControl()

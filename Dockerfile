@@ -34,9 +34,9 @@ RUN py.test -v --cov=vcontrol --cov-report term-missing
 VOLUME /var/lib/docker
 VOLUME /root/.docker
 ENV PATH "$PATH":/vcontrol/bin
-ENV VENT_CONTROL_DAEMON http://localhost:8080
-ENV VENT_CONTROL_API_VERSION /v1
-ENV VENT_CONTROL_ENV docker
+ENV VCONTROL_DAEMON http://localhost:8080
+ENV VCONTROL_API_VERSION /v1
+ENV VCONTROL_ENV docker
 WORKDIR /vcontrol/bin
 
 EXPOSE 8080

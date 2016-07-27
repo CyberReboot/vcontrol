@@ -9,12 +9,12 @@ class RemoveProviderR:
     A Vent machine runs on a provider, this will not remove existing Vent
     machines on the specified provider. Note that a provider can only be
     removed from localhost of the machine running vcontrol unless the
-    environment variable VENT_CONTROL_OPEN=true is set on the server.
+    environment variable VCONTROL_OPEN=true is set on the server.
     """
     allow_origin, rest_url = get_allowed.get_allowed()
     def GET(self, provider):
         web.header('Access-Control-Allow-Origin', self.allow_origin)
-        open_d = os.environ.get('VENT_CONTROL_OPEN')
+        open_d = os.environ.get('VCONTROL_OPEN')
         if web.ctx.env["HTTP_HOST"] == 'localhost:8080' or open_d == "true":
             f = open("providers.txt","r")
             lines = f.readlines()

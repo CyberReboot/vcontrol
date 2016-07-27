@@ -9,7 +9,7 @@ class AddProviderR:
     """
     This endpoint allows for a new provider such as openstack or vmware to be added.
     A Vent machine runs on a provider. Note that a provider can only be added from localhost
-    of the machine running vcontrol unless the environment variable VENT_CONTROL_OPEN=true is set on the server.
+    of the machine running vcontrol unless the environment variable VCONTROL_OPEN=true is set on the server.
     """
     allow_origin, rest_url = get_allowed.get_allowed()
     def OPTIONS(self):
@@ -18,7 +18,7 @@ class AddProviderR:
     def POST(self):
         web.header('Access-Control-Allow-Origin', self.allow_origin)
         web.header('Access-Control-Allow-Headers', "Content-type")
-        open_d = os.environ.get('VENT_CONTROL_OPEN')
+        open_d = os.environ.get('VCONTROL_OPEN')
         # TODO is this sufficient? probably not...
         if web.ctx.env["HTTP_HOST"] == 'localhost:8080' or open_d == "true":
             data = web.data()
