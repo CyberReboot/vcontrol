@@ -563,7 +563,7 @@ class VControl:
         elif args.which == "delete_parser": output = DeleteMachineC().delete(args, daemon)
         elif args.which == "deploy_parser": output = DeployCommandC().deploy(args, daemon)
         elif args.which == "unregister_parser": output = UnregisterMachineC().unregister(args, daemon)
-        elif args.which == "get_template_parser": output = DownloadCommandC().download(args, daemon)
+        elif args.which == "download_parser": output = DownloadCommandC().download(args, daemon)
         elif args.which == "hb_machines_parser": output = HeartbeatMachinesC().heartbeat(args, daemon)
         elif args.which == "hb_providers_parser": output = HeartbeatProvidersC().heartbeat(args, daemon)
         elif args.which == "info_commands_parser": output = InfoCommandC().info(args, daemon)
