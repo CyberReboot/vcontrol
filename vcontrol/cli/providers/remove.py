@@ -13,5 +13,5 @@ class RemoveProviderC:
             # split and get the end and append
             api_v = daemon.split('/')[-1]
             daemon = 'http://localhost:8080/'+api_v
-        r = requests.get(daemon+"/remove_provider/"+args.provider)
+        r = requests.get(daemon+"/providers/remove/"+args.provider)
         return r.text

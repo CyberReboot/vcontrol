@@ -124,37 +124,39 @@ class VControl:
             '/swagger.yaml', SwaggerR,
             '/v1', IndexR,
             '/v1/', IndexR,
-            '/v1/add_provider', AddProviderR,
-            '/v1/remove_provider/(.+)', RemoveProviderR,
-            '/v1/create_machine', CreateMachineR,
-            '/v1/delete_machine/(.+)', DeleteMachineR,
-            '/v1/boot_machine/(.+)', BootMachineR,
-            '/v1/shutdown_machine/(.+)', ShutdownMachineR,
-            '/v1/command_build/(.+)/(.+)', BuildCommandR,
-            '/v1/build/(.+)/(.+)', BuildCommandOutputR,
-            '/v1/command_generic/(.+)', GenericCommandR,
-            '/v1/command_reboot/(.+)', RebootMachineR,
-            '/v1/command_clean/(.+)/(.+)', CleanCommandR,
-            '/v1/command_start/(.+)/(.+)', StartCommandR,
-            '/v1/command_stop/(.+)/(.+)', StopCommandR,
-            '/v1/heartbeat_machines', HeartbeatMachinesR,
-            '/v1/heartbeat_providers', HeartbeatProvidersR,
-            '/v1/list_machines', ListMachinesR,
-            '/v1/list_providers', ListProvidersR,
-            '/v1/get_stats_commands/(.+)', StatsCommandR,
-            '/v1/get_stats_providers/(.+)', StatsProviderR,
-            '/v1/get_info_commands/(.+)', InfoCommandR,
-            '/v1/get_info_providers/(.+)', InfoProviderR,
-            '/v1/get_logs/(.+)', LogsCommandR,
-            '/v1/deploy_template/(.+)', DeployCommandR,
-            '/v1/get_template', DownloadCommandR,
-            '/v1/register_machine', RegisterMachineR,
-            '/v1/unregister_machine/(.+)', UnregisterMachineR,
-            '/v1/version', VersionR,
-            '/v1/command_add_plugin', AddPluginCommandR,
-            '/v1/command_remove_plugin', RemovePluginCommandR,
-            '/v1/command_update_plugin', UpdatePluginCommandR,
-            '/v1/command_list_plugins/(.+)', ListPluginsCommandR
+            '/v1/commands/build/(.+)/(.+)', BuildCommandR,
+            '/v1/commands/build_output/(.+)/(.+)', BuildCommandOutputR,
+            '/v1/commands/clean/(.+)/(.+)', CleanCommandR,
+            '/v1/commands/deploy/(.+)', DeployCommandR,
+            '/v1/commands/download', DownloadCommandR,
+            '/v1/commands/generic/(.+)', GenericCommandR,
+            '/v1/commands/info/(.+)', InfoCommandR,
+            '/v1/commands/logs/(.+)', LogsCommandR,
+            '/v1/commands/plugins/list/(.+)', ListPluginsCommandR,
+            '/v1/commands/plugin/add', AddPluginCommandR,
+            '/v1/commands/plugin/remove', RemovePluginCommandR,
+            '/v1/commands/plugin/update', UpdatePluginCommandR,
+            '/v1/commands/start/(.+)/(.+)', StartCommandR,
+            '/v1/commands/stats/(.+)', StatsCommandR,
+            '/v1/commands/status/(.+)/(.+)', StatusCommandR,
+            '/v1/commands/stop/(.+)/(.+)', StopCommandR,
+            '/v1/commands/upload/(.+)', UploadCommandR,
+            '/v1/machines/boot/(.+)', BootMachineR,
+            '/v1/machines/create', CreateMachineR,
+            '/v1/machines/delete/(.+)', DeleteMachineR,
+            '/v1/machines/heartbeat', HeartbeatMachinesR,
+            '/v1/machines/list', ListMachinesR,
+            '/v1/machines/reboot/(.+)', RebootMachineR,
+            '/v1/machines/register', RegisterMachineR,
+            '/v1/machines/shutdown/(.+)', ShutdownMachineR,
+            '/v1/machines/unregister/(.+)', UnregisterMachineR,
+            '/v1/providers/add', AddProviderR,
+            '/v1/providers/heartbeat', HeartbeatProvidersR,
+            '/v1/providers/info/(.+)', InfoProviderR,
+            '/v1/providers/list', ListProvidersR,
+            '/v1/providers/remove/(.+)', RemoveProviderR,
+            '/v1/providers/stats/(.+)', StatsProviderR,
+            '/v1/version', VersionR
         )
         return urls
 
@@ -300,15 +302,19 @@ class VControl:
         stats_commands_parser.set_defaults(which='stats_commands_parser')
         stats_commands_parser.add_argument('machine',
                                            help='Machine name to get stats from')
+        # plugin status parser
         status_parser = commands_subparsers.add_parser('status',
                                                        help="Status of containers and images")
-        status_subparsers = status_parser.add_subparsers()
-        containers_status_parser = status_subparsers.add_parser('containers',
-                                                                help="Status of containers")
-        containers_status_parser.set_defaults(which='containers_status_parser')
-        images_status_parser = status_subparsers.add_parser('images',
-                                                            help="Status of images")
-        images_status_parser.set_defaults(which='images_status_parser')
+        status_parser.add_argument('machine',
+                                    help='Machine name to get status of plugins on')
+        status_parser.add_argument('category',
+                                    choices=['all',
+                                             'containers',
+                                             'images',
+                                             'disabled',
+                                             'errors'],
+                                    help='Category of statuses')
+        status_parser.set_defaults(which='status_parser')
         cmd_stop_parser = commands_subparsers.add_parser('stop',
                                                          help="Stop containers in a category on a Vent machine")
         cmd_stop_parser.set_defaults(which='cmd_stop_parser')
@@ -343,7 +349,7 @@ class VControl:
         create_parser.add_argument('provider',
                                    help='Provider to create machine on')
         create_parser.add_argument('--iso', '-i', default="/tmp/vent/vent.iso", type=str,
-                                   help='URL to ISO, if left as default, it will build the ISO from source')
+                                   help='URL to ISO, if left as default, it will pull down the lastest release from GitHub')
         create_parser.add_argument('--group', '-g', default="Vent", type=str,
                                    help='Group Vent machine belongs to (default: Vent)')
         create_parser.add_argument('--labels', '-l', default="", type=str,
@@ -573,8 +579,10 @@ class VControl:
         elif args.which == "add_plugin_parser": output = AddPluginCommandC().add(args, daemon)
         elif args.which == "remove_plugin_parser": output = RemovePluginCommandC().remove(args, daemon)
         elif args.which == "update_plugin_parser": output = UpdatePluginCommandC().update(args, daemon)
+        elif args.which == "status_parser": output = StatusCommandC().status(args, daemon)
         elif args.which == "list_plugin_parser": output = ListPluginsCommandC().list_all(args, daemon)
         elif args.which == "logs_commands_parser": output = LogsCommandC().logs(args, daemon)
+        elif args.which == "upload_parser": output = UploadCommandC().upload(args, daemon)
         else: pass # should never get here
 
         print output

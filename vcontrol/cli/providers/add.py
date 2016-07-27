@@ -22,5 +22,5 @@ class AddProviderC:
             payload['cpu'] = str(args.max_cpu_usage)
             payload['ram'] = str(args.max_ram_usage)
             payload['disk'] = str(args.max_disk_usage)
-        r = requests.post(daemon+"/add_provider", data=json.dumps(payload))
+        r = requests.post(daemon+"/providers/add", data=json.dumps(payload))
         return r.text

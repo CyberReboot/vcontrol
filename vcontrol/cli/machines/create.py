@@ -17,5 +17,5 @@ class CreateMachineC:
         payload['group'] = args.group
         payload['labels'] = args.labels
 
-        r = requests.post(daemon+"/create_machine", data=json.dumps(payload))
+        r = requests.post(daemon+"/machines/create", data=json.dumps(payload))
         return r.text
