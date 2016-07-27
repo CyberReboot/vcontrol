@@ -22,7 +22,8 @@ RUN chmod +x /usr/local/bin/govc
 RUN curl -L https://github.com/docker/machine/releases/download/v0.8.0-rc2/docker-machine-`uname -s`-`uname -m` >/usr/local/bin/docker-machine && \
     chmod +x /usr/local/bin/docker-machine
 
-RUN curl -L https://github.com/CyberReboot/vent/releases/download/v0.1.0/vent.iso >boot2docker.iso && mkdir -p /root/.docker/machine/ && mv boot2docker.iso /root/.docker/machine/boot2docker.iso
+# install vent
+RUN curl -L https://github.com/CyberReboot/vent/releases/download/v0.1.2/vent.iso >boot2docker.iso && mkdir -p /root/.docker/machine/ && mv boot2docker.iso /root/.docker/machine/boot2docker.iso
 RUN mkdir -p /root/.docker/machine/cache && ln -s /root/.docker/machine/boot2docker.iso /root/.docker/machine/cache/boot2docker.iso
 
 ADD . /vcontrol
@@ -35,6 +36,7 @@ VOLUME /root/.docker
 ENV PATH "$PATH":/vcontrol/bin
 ENV VENT_CONTROL_DAEMON http://localhost:8080
 ENV VENT_CONTROL_API_VERSION /v1
+ENV VENT_CONTROL_ENV docker
 WORKDIR /vcontrol/bin
 
 EXPOSE 8080
