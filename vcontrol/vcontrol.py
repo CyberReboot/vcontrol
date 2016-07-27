@@ -9,33 +9,40 @@ import subprocess
 import sys
 
 # import dependencies
-dependencies = True
 # check for requests module
 try:
     import requests
 except ImportError:
     print "requests not found, installing..."
-    status = subprocess.call("pip install requests", shell=True)
-    if status == 0:
+    try:
+        subprocess.call("pip install requests", shell=True)
+        import requests
         print "requests is now installed."
-        print "If you continue to run into this error, please install requests manually."
         print "\n------\n"
-    dependencies = False
+    except Exception as e:
+        print "requests failed to install", str(e)
+        print "Please try installing requests manually."
+        sys.exit(1)
+
+# importing globally
+import requests
+    
 # check for web.py module
 try:
     import web
 except ImportError:
     print "web.py not found, installing..."
-    status = subprocess.call("pip install web.py", shell=True)
-    if status == 0:
+    try:
+        subprocess.call("pip install web.py", shell=True)
         print "web.py is now installed."
-        print "If you continue to run into this error, please install web.py manually."
         print "\n------\n"
-        dependencies = False
+    except Exception as e:
+        print "web.py failed to install", str(e)
+        print "Please try installing web.py manually."
+        sys.exit(1)
 
-if dependencies == False:
-    print "Dependencies are now installed, please try running vcontrol again.\n"
-    sys.exit(1)
+# importing globally
+import web
 
 # cli classes
 from cli.version import VersionC
