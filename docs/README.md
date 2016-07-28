@@ -1,84 +1,19 @@
-Vcontrol Documentation
-====
+# Vcontrol API Documentation
 
-Summary of stuff.
+## Introduction
 
-Install instructions
-====
+vcontrol is the control layer for managing [vent](https://github.com/CyberReboot/vent) instances. It makes programmatically controlling vent possible. vcontrol lets users manage and run multiple instances of vent, accessible through a RESTful Interface and/or a CLI.
 
-Summary of stuff.
+The API endpoints allow you to create, start, configure, and run multiple vent instances from one location.
 
-Download the release
-----
+##Accessing the API
 
-Summary of stuff.
+After `vcontrol-daemon` is created and running (which is done so by running `make`), use the base URL generated and printed during the `make` process, which looks something like:
 
-Dependencies
-----
+`The vcontrol daemon can be accessed here: http://192.168.100.1:29019`
 
-Summary of stuff.
+NOTE: This is an example. Your URL may be different from what is printed in this doc.
 
-Compiling from source
-----
+Copy and paste the URL onto your browser, which in this example is `http://192.168.100.1:29019`.
 
-Summary of stuff.
 
-Getting Started
-====
-
-Summary of stuff.
-
-Demo
-----
-
-Summary of stuff.
-
-Tutorial
-----
-
-Summary of stuff.
-
-Usage
-----
-
-Summary of stuff.
-
-Use cases
-----
-
-Summary of stuff.
-
-Advanced Usage
-====
-
-Summary of stuff.
-
-Commands
-----
-
-Summary of stuff.
-
-Developers
-====
-
-Summary of stuff.
-
-API
-----
-
-Summary of stuff.
-
-Customizing
-----
-
-Summary of stuff.
-
-Contributing
-----
-
-Summary of stuff.
-
-Ecosystem
-====
-
-Summary of stuff.
