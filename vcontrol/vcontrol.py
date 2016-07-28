@@ -4,11 +4,40 @@ import argparse
 import ast
 import json
 import os
-import requests
 import shutil
 import subprocess
 import sys
-import web
+
+# import dependencies
+# check for requests module
+try:
+    import requests
+except ImportError:
+    print "requests not found, installing..."
+    try:
+        subprocess.call("pip install requests", shell=True)
+        import requests
+        print "requests is now installed."
+        print "\n------\n"
+    except Exception as e:
+        print "requests failed to install", str(e)
+        print "Please try installing requests manually."
+        sys.exit(1)
+    
+# check for web.py module
+try:
+    import web
+except ImportError:
+    print "web.py not found, installing..."
+    try:
+        subprocess.call("pip install web.py", shell=True)
+        import web
+        print "web.py is now installed."
+        print "\n------\n"
+    except Exception as e:
+        print "web.py failed to install", str(e)
+        print "Please try installing web.py manually."
+        sys.exit(1)
 
 # cli classes
 from cli.version import VersionC
@@ -109,6 +138,60 @@ class VControlServer(object):
     def __init__(self, port=8080, host="0.0.0.0"): # pragma: no cover
         vc_inst = VControl()
         urls = vc_inst.urls()
+        # test for dependencies if run locally
+        env = None
+        try:
+            # if set (in Dockerfile) should be VCONTROL_ENV=docker
+            env = subprocess.check_output("env | grep VCONTROL_ENV | tee", shell=True).strip('\n')
+            if '=' in env:
+                env = env.split('=')[1]
+        except Exception:
+            print "Error loading environment."
+            sys.exit(1)
+
+        if not env in ['docker']:
+            # check for docker
+            try:
+                print "...found docker"
+                docker = subprocess.call("which docker", shell=True)
+                if docker != 0:
+                    print "You must have docker to run vcontrol. Please install docker."
+                    sys.exit(1)
+            except Exception:
+                print "Error checking for docker. Do you have docker installed?"
+                sys.exit(1)
+
+            # check for docker-machine
+            try:
+                print "...found docker-machine"
+                docker_machine = subprocess.call("which docker-machine", shell=True)
+                if docker_machine != 0:
+                    print "You must have docker-machine to run vcontrol. Please install docker."
+                    sys.exit(1)
+            except Exception:
+                print "Error checking for docker-machine. Do you have docker-machine installed?"
+            # check that docker env is configured
+            try:
+                print "...found DOCKER_HOST"
+                docker_env = subprocess.call("env | grep DOCKER_HOST", shell=True)
+                if docker_env != 0:
+                    print "No DOCKER_HOST environment variable set. Please set DOCKER_HOST."
+                    sys.exit(1)
+                else:
+                    docker_host = subprocess.check_output("env | grep DOCKER_HOST", shell=True).strip('\n')
+                    docker_urls = subprocess.check_output("docker-machine ls --filter State=Running | grep -v URL | awk \"{print \$5}\"", shell=True).rstrip('\n').split('\n')
+                    docker_machine = False
+                    for url in docker_urls:
+                        if url in docker_host:
+                            docker_machine = True
+                    if not docker_machine:
+                        print "A DOCKER_HOST is specified, but no docker-machine was found matching the host."
+                        print "DOCKER_HOST=", docker_host
+                        print "DOCKER-MACHINE URLs=", docker_urls
+                        sys.exit(1)
+            except Exception:
+                print "Error comparing provided DOCKER_HOST against running hosts on localhost."
+                sys.exit(1)
         # remove test results for runtime
         try:
             os.remove("../.coverage")
