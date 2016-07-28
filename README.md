@@ -63,6 +63,13 @@ $ docker exec -it vcontrol-daemon vcontrol providers add vmware --name esxihost1
   --vmwarevsphere-username domain\\\\username \
   --vmwarevsphere-password <mypassword>"
 ```
+
+**A note on passwords**
+
+The optional argument `--vmwarevsphere-password` is optional, and if it is omitted, the cli will prompt for a password. Whether or not the optional argument is present, passwords must:
+* escape any special characters (e.g. pass?word -> pass\?word) with the exception of single quotes('), which are treated as literal without escaping
+* contain no spaces
+
 ### List all providers
 
 Now a listing of providers from the client should show that it has been added successfully:
