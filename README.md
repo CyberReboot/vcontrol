@@ -8,7 +8,7 @@ vcontrol makes programmatically controlling vent possible. vcontrol lets users m
 ### Dependencies
 * Docker
 * Make
-* If running vcontrol locally:
+* Additionally if running vcontrol locally:
  * Docker-Machine
  * pip
  * Python
@@ -20,11 +20,11 @@ $ cd vcontrol
 $ make
 ```
 
-From here, it is possible to use the RESTful interface in a browser. To access the it, follow the URL listed in the output when running `make`:
+From here, it is possible to use the RESTful interface in a browser. To access oit, follow the URL listed in the output when running `make`:
 
 e.g.: `The API can be accessed here: https://192.168.100.1:27209`
 
-Copy and paste the link onto a browser, and a Swagger UI will pop up with a menu of all vcontrol commands.
+Copy and paste the link into a browser, and a Swagger UI will pop up with a menu of all vcontrol commands.
 
 ## Using the client
 
