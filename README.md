@@ -94,3 +94,13 @@ $ ./vcontrol machines register vent2 192.168.100.1
 ```
 
 `192.168.100.1` is the host machine ip where `vent2` is stored. `vent2` is then registered with vcontrol, and commands executed on vcontrol can affect that instance.
+
+
+## Documentation
+- [Docs](https://github.com/CyberReboot/vcontrol/tree/master/docs)
+- [Vent Docs](https://github.com/CyberReboot/vent/tree/master/docs)
+- [Vent Diagrams](https://github.com/CyberReboot/vent/tree/master/docs/images)
+
+## Contributing to Vcontrol
+
+Want to contribute?  Awesome!  Issue a pull request or see more details [here](https://github.com/CyberReboot/vcontrol/blob/master/CONTRIBUTING.md).
