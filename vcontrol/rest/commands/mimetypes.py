@@ -15,10 +15,12 @@ class MimetypesCommandR:
         web.header('Access-Control-Allow-Origin', self.allow_origin)
         try:
             out = ""
+            output = None
             # get all mimetypes supported by this vent instance
             if command == "mimetypes":
                 out = subprocess.check_output("/usr/local/bin/docker-machine ssh "+machine+" \"python2.7 /data/info_tools/get_namespaces.py -m\"", shell=True)
-            # output = ast.literal_eval(out)
+                output = ast.literal_eval(out)
+                output = {'mimetypes': output}
         except:
             print sys.exc_info()
             output = "Invalid command: "+command+" for retrieving mimetypes on "+machine
