@@ -16,15 +16,4 @@ NOTE: This is an example. Your URL may be different from what is printed in this
 
 Copy and paste the URL onto your browser, which in this example is `http://192.168.100.1:29019`.
 
-Documentation
-====
-- [Docs](https://github.com/CyberReboot/vcontrol/tree/master/docs)
-- [Vent Docs](https://github.com/CyberReboot/vent/tree/master/docs)
-- [Vent Diagrams](https://github.com/CyberReboot/vent/tree/master/docs/images)
-
-Contributing to Vcontrol
-====
-
-Want to contribute?  Awesome!  Issue a pull request or see more details [here](https://github.com/CyberReboot/vcontrol/blob/master/CONTRIBUTING.md).
-
 
