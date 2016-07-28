@@ -23,9 +23,6 @@ except ImportError:
         print "requests failed to install", str(e)
         print "Please try installing requests manually."
         sys.exit(1)
-
-# importing globally
-import requests
     
 # check for web.py module
 try:
@@ -34,15 +31,13 @@ except ImportError:
     print "web.py not found, installing..."
     try:
         subprocess.call("pip install web.py", shell=True)
+        import web
         print "web.py is now installed."
         print "\n------\n"
     except Exception as e:
         print "web.py failed to install", str(e)
         print "Please try installing web.py manually."
         sys.exit(1)
-
-# importing globally
-import web
 
 # cli classes
 from cli.version import VersionC
