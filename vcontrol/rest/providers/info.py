@@ -9,4 +9,4 @@ class InfoProviderR:
     def GET(self, machine):
         web.header('Access-Control-Allow-Origin', self.allow_origin)
         # TODO
-        return 1
+        return "not implemented yet"

@@ -4,11 +4,40 @@ import argparse
 import ast
 import json
 import os
-import requests
 import shutil
 import subprocess
 import sys
-import web
+
+# import dependencies
+# check for requests module
+try:
+    import requests
+except ImportError:
+    print "requests not found, installing..."
+    try:
+        subprocess.call("pip install requests", shell=True)
+        import requests
+        print "requests is now installed."
+        print "\n------\n"
+    except Exception as e:
+        print "requests failed to install", str(e)
+        print "Please try installing requests manually."
+        sys.exit(1)
+    
+# check for web.py module
+try:
+    import web
+except ImportError:
+    print "web.py not found, installing..."
+    try:
+        subprocess.call("pip install web.py", shell=True)
+        import web
+        print "web.py is now installed."
+        print "\n------\n"
+    except Exception as e:
+        print "web.py failed to install", str(e)
+        print "Please try installing web.py manually."
+        sys.exit(1)
 
 # cli classes
 from cli.version import VersionC
@@ -18,6 +47,7 @@ from cli.commands.build import BuildCommandC
 from cli.commands.clean import CleanCommandC
 from cli.commands.deploy import DeployCommandC
 from cli.commands.download import DownloadCommandC
+from cli.commands.mimetypes import MimetypesCommandC
 from cli.commands.generic import GenericCommandC
 from cli.commands.info import InfoCommandC
 from cli.commands.logs import LogsCommandC
@@ -62,6 +92,7 @@ from rest.commands.build import BuildCommandOutputR
 from rest.commands.clean import CleanCommandR
 from rest.commands.deploy import DeployCommandR
 from rest.commands.download import DownloadCommandR
+from rest.commands.mimetypes import MimetypesCommandR
 from rest.commands.generic import GenericCommandR
 from rest.commands.info import InfoCommandR
 from rest.commands.logs import LogsCommandR
@@ -109,6 +140,60 @@ class VControlServer(object):
     def __init__(self, port=8080, host="0.0.0.0"): # pragma: no cover
         vc_inst = VControl()
         urls = vc_inst.urls()
+        # test for dependencies if run locally
+        env = None
+        try:
+            # if set (in Dockerfile) should be VCONTROL_ENV=docker
+            env = subprocess.check_output("env | grep VCONTROL_ENV | tee", shell=True).strip('\n')
+            if '=' in env:
+                env = env.split('=')[1]
+        except Exception:
+            print "Error loading environment."
+            sys.exit(1)
+
+        if not env in ['docker']:
+            # check for docker
+            try:
+                print "...found docker"
+                docker = subprocess.call("which docker", shell=True)
+                if docker != 0:
+                    print "You must have docker to run vcontrol. Please install docker."
+                    sys.exit(1)
+            except Exception:
+                print "Error checking for docker. Do you have docker installed?"
+                sys.exit(1)
+
+            # check for docker-machine
+            try:
+                print "...found docker-machine"
+                docker_machine = subprocess.call("which docker-machine", shell=True)
+                if docker_machine != 0:
+                    print "You must have docker-machine to run vcontrol. Please install docker."
+                    sys.exit(1)
+            except Exception:
+                print "Error checking for docker-machine. Do you have docker-machine installed?"
+            # check that docker env is configured
+            try:
+                print "...found DOCKER_HOST"
+                docker_env = subprocess.call("env | grep DOCKER_HOST", shell=True)
+                if docker_env != 0:
+                    print "No DOCKER_HOST environment variable set. Please set DOCKER_HOST."
+                    sys.exit(1)
+                else:
+                    docker_host = subprocess.check_output("env | grep DOCKER_HOST", shell=True).strip('\n')
+                    docker_urls = subprocess.check_output("docker-machine ls --filter State=Running | grep -v URL | awk \"{print \$5}\"", shell=True).rstrip('\n').split('\n')
+                    docker_machine = False
+                    for url in docker_urls:
+                        if url in docker_host:
+                            docker_machine = True
+                    if not docker_machine:
+                        print "A DOCKER_HOST is specified, but no docker-machine was found matching the host."
+                        print "DOCKER_HOST=", docker_host
+                        print "DOCKER-MACHINE URLs=", docker_urls
+                        sys.exit(1)
+            except Exception:
+                print "Error comparing provided DOCKER_HOST against running hosts on localhost."
+                sys.exit(1)
         # remove test results for runtime
         try:
             os.remove("../.coverage")
@@ -129,6 +214,7 @@ class VControl:
             '/v1/commands/clean/(.+)/(.+)', CleanCommandR,
             '/v1/commands/deploy/(.+)', DeployCommandR,
             '/v1/commands/download', DownloadCommandR,
+            '/v1/commands/mimetypes/(.+)/(.+)', MimetypesCommandR,
             '/v1/commands/generic/(.+)', GenericCommandR,
             '/v1/commands/info/(.+)', InfoCommandR,
             '/v1/commands/logs/(.+)', LogsCommandR,
@@ -256,6 +342,13 @@ class VControl:
         logs_commands_parser.add_argument('machine',
                                           help='Machine name to get logs from')
         logs_commands_parser.set_defaults(which='logs_commands_parser')
+        # parser for retrieving supported mimetypes or installed namespaces in vent
+        mimetypes_parser = commands_subparsers.add_parser('mimetypes', help='Mimetypes a container can process')
+        mimetypes_parser.set_defaults(which='mimetypes_parser')
+        mimetypes_parser.add_argument('machine', help='Machine name to get mimetypes from')
+        mimetypes_parser.add_argument('command',
+                                      choices=['mimetypes'],
+                                      help='Print from installed namespaces, mimetypes supported, or more...')
         plugin_parser = commands_subparsers.add_parser('plugins',
                                                        help="Perform operations on plugins")
         plugin_subparsers = plugin_parser.add_subparsers()
@@ -334,7 +427,6 @@ class VControl:
                                    help='Machine name to upload file to')
         upload_parser.add_argument('path',
                                    help='Path to file to upload')
-
         # machines subparsers
         boot_parser = machines_subparsers.add_parser('boot',
                                                      help='Boot a Vent machine')
@@ -350,7 +442,7 @@ class VControl:
                                    help='Provider to create machine on')
         create_parser.add_argument('--iso', '-i', default="/tmp/vent/vent.iso", type=str,
                                    help='URL to ISO, if left as default, it will pull down the lastest release from GitHub')
-        create_parser.add_argument('--group', '-g', default="Vent", type=str,
+        create_parser.add_argument('--group', '-g', default="vent", type=str,
                                    help='Group Vent machine belongs to (default: Vent)')
         create_parser.add_argument('--labels', '-l', default="", type=str,
                                    help='Additional label pairs for the Vent machine (default: "", examples would be "foo=bar,key=val")')
@@ -563,7 +655,7 @@ class VControl:
         elif args.which == "delete_parser": output = DeleteMachineC().delete(args, daemon)
         elif args.which == "deploy_parser": output = DeployCommandC().deploy(args, daemon)
         elif args.which == "unregister_parser": output = UnregisterMachineC().unregister(args, daemon)
-        elif args.which == "get_template_parser": output = DownloadCommandC().download(args, daemon)
+        elif args.which == "download_parser": output = DownloadCommandC().download(args, daemon)
         elif args.which == "hb_machines_parser": output = HeartbeatMachinesC().heartbeat(args, daemon)
         elif args.which == "hb_providers_parser": output = HeartbeatProvidersC().heartbeat(args, daemon)
         elif args.which == "info_commands_parser": output = InfoCommandC().info(args, daemon)
@@ -583,6 +675,7 @@ class VControl:
         elif args.which == "list_plugin_parser": output = ListPluginsCommandC().list_all(args, daemon)
         elif args.which == "logs_commands_parser": output = LogsCommandC().logs(args, daemon)
         elif args.which == "upload_parser": output = UploadCommandC().upload(args, daemon)
+        elif args.which == "mimetypes_parser": output = MimetypesCommandC().retrieve(args, daemon)
         else: pass # should never get here
 
         print output
