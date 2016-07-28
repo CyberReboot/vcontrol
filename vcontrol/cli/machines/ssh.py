@@ -1,3 +1,5 @@
+import requests
+
 class SSHMachineC:
     def ssh(self, args, daemon):
         """
@@ -7,4 +9,5 @@ class SSHMachineC:
         # docker exec into vcontrol-daemon and ssh from there? ssh in ssh ?
         #subprocess.call(["docker-machine ssh "+args.machine+" \"], shell=True)
         # !! TODO
-        return True
+        r = requests.get(daemon+"/machines/ssh/"+args.machine)
+        return r.text

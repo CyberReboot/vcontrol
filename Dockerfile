@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -qqy \
     ca-certificates \
     curl \
     iptables \
+    iputils-ping \
     lxc \
     python-dev \
     python-pip \
