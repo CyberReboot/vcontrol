@@ -47,6 +47,7 @@ from cli.commands.build import BuildCommandC
 from cli.commands.clean import CleanCommandC
 from cli.commands.deploy import DeployCommandC
 from cli.commands.download import DownloadCommandC
+from cli.commands.mimetypes import MimetypesCommandC
 from cli.commands.generic import GenericCommandC
 from cli.commands.info import InfoCommandC
 from cli.commands.logs import LogsCommandC
@@ -91,6 +92,7 @@ from rest.commands.build import BuildCommandOutputR
 from rest.commands.clean import CleanCommandR
 from rest.commands.deploy import DeployCommandR
 from rest.commands.download import DownloadCommandR
+from rest.commands.mimetypes import MimetypesCommandR
 from rest.commands.generic import GenericCommandR
 from rest.commands.info import InfoCommandR
 from rest.commands.logs import LogsCommandR
@@ -212,6 +214,7 @@ class VControl:
             '/v1/commands/clean/(.+)/(.+)', CleanCommandR,
             '/v1/commands/deploy/(.+)', DeployCommandR,
             '/v1/commands/download', DownloadCommandR,
+            '/v1/commands/mimetypes/(.+)/(.+)', MimetypesCommandR,
             '/v1/commands/generic/(.+)', GenericCommandR,
             '/v1/commands/info/(.+)', InfoCommandR,
             '/v1/commands/logs/(.+)', LogsCommandR,
@@ -339,6 +342,13 @@ class VControl:
         logs_commands_parser.add_argument('machine',
                                           help='Machine name to get logs from')
         logs_commands_parser.set_defaults(which='logs_commands_parser')
+        # parser for retrieving supported mimetypes or installed namespaces in vent
+        mimetypes_parser = commands_subparsers.add_parser('mimetypes', help='Mimetypes a container can process')
+        mimetypes_parser.set_defaults(which='mimetypes_parser')
+        mimetypes_parser.add_argument('machine', help='Machine name to get mimetypes from')
+        mimetypes_parser.add_argument('command',
+                                      choices=['mimetypes'],
+                                      help='Print from installed namespaces, mimetypes supported, or more...')
         plugin_parser = commands_subparsers.add_parser('plugins',
                                                        help="Perform operations on plugins")
         plugin_subparsers = plugin_parser.add_subparsers()
@@ -417,7 +427,6 @@ class VControl:
                                    help='Machine name to upload file to')
         upload_parser.add_argument('path',
                                    help='Path to file to upload')
-
         # machines subparsers
         boot_parser = machines_subparsers.add_parser('boot',
                                                      help='Boot a Vent machine')
@@ -666,6 +675,7 @@ class VControl:
         elif args.which == "list_plugin_parser": output = ListPluginsCommandC().list_all(args, daemon)
         elif args.which == "logs_commands_parser": output = LogsCommandC().logs(args, daemon)
         elif args.which == "upload_parser": output = UploadCommandC().upload(args, daemon)
+        elif args.which == "mimetypes_parser": output = MimetypesCommandC().retrieve(args, daemon)
         else: pass # should never get here
 
         print output
