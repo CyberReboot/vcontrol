@@ -20,7 +20,7 @@ $ cd vcontrol
 $ make
 ```
 
-From here, it is possible to use the RESTful interface in a browser. To access oit, follow the URL listed in the output when running `make`:
+From here, it is possible to use the RESTful interface in a browser. To access it, follow the URL listed in the output when running `make`:
 
 e.g.: `The API can be accessed here: https://192.168.100.1:27209`
 
