@@ -1,5 +1,4 @@
 import ast
-import os
 import requests
 
 class BuildCommandC:
