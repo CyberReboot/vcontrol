@@ -90,6 +90,7 @@ from rest.version import VersionR
 from rest.commands.build import BuildCommandR
 from rest.commands.build import BuildCommandOutputR
 from rest.commands.clean import CleanCommandR
+from rest.commands.clean import CleanCommandOutputR
 from rest.commands.deploy import DeployCommandR
 from rest.commands.download import DownloadCommandR
 from rest.commands.mimetypes import MimetypesCommandR
@@ -211,7 +212,8 @@ class VControl:
             '/v1/', IndexR,
             '/v1/commands/build/(.+)/(.+)', BuildCommandR,
             '/v1/commands/build_output/(.+)/(.+)', BuildCommandOutputR,
-            '/v1/commands/clean/(.+)/(.+)', CleanCommandR,
+            '/v1/commands/clean/(.+)/(.+)/(.+)', CleanCommandR,
+            '/v1/commands/clean_output/(.+)/(.+)/(.+)', CleanCommandOutputR,
             '/v1/commands/deploy/(.+)', DeployCommandR,
             '/v1/commands/download', DownloadCommandR,
             '/v1/commands/mimetypes/(.+)/(.+)', MimetypesCommandR,

@@ -19,7 +19,7 @@ class BuildCommandR:
     $(function() {
 
       function update() {
-        $.getJSON('/v1/build/%s/%s', {}, function(data) {
+        $.getJSON('/v1/commands/build/%s/%s', {}, function(data) {
           if (data.state != 'done') {
     """
     INDEX_HTML_TYPE_A = """
@@ -68,7 +68,7 @@ class BuildCommandR:
 
 class BuildCommandOutputR:
     """
-    This endpoint rendering the output of building Docker images on an machine.
+    This endpoint is for rendering the output of building Docker images on an machine.
     """
     json_yield = json_yield.json_yield_one
     json_yield._gen_dict = {}
@@ -77,6 +77,7 @@ class BuildCommandOutputR:
     allow_origin, rest_url = get_allowed.get_allowed()
     @json_yield
     def GET(self, machine, key):
+        web.header('Access-Control-Allow-Origin', self.allow_origin)
         cmd = "/usr/local/bin/docker-machine ssh "+machine+" /bin/sh /data/build_images.sh"
         try:
             proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
