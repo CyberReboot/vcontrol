@@ -110,6 +110,7 @@ from rest.commands.upload import UploadCommandR
 # rest machines classes
 from rest.machines.boot import BootMachineR
 from rest.machines.create import CreateMachineR
+from rest.machines.create import CreateMachineOutputR
 from rest.machines.delete import DeleteMachineR
 from rest.machines.heartbeat import HeartbeatMachinesR
 from rest.machines.list_all import ListMachinesR
@@ -230,7 +231,8 @@ class VControl:
             '/v1/commands/stop/(.+)/(.+)', StopCommandR,
             '/v1/commands/upload/(.+)', UploadCommandR,
             '/v1/machines/boot/(.+)', BootMachineR,
-            '/v1/machines/create', CreateMachineR,
+            '/v1/machines/create/(.+)', CreateMachineR,
+            '/v1/machines/create_output/(.+)', CreateMachineOutputR,
             '/v1/machines/delete/(.+)', DeleteMachineR,
             '/v1/machines/heartbeat', HeartbeatMachinesR,
             '/v1/machines/list', ListMachinesR,

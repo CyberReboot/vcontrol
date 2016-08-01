@@ -1,3 +1,4 @@
+import ast
 import json
 import requests
 
@@ -17,5 +18,24 @@ class CreateMachineC:
         payload['group'] = args.group
         payload['labels'] = args.labels
 
-        r = requests.post(daemon+"/machines/create", data=json.dumps(payload))
-        return r.text
+        print "Creating machine, please wait..."
+        r = requests.post(daemon+"/machines/create/b", data=json.dumps(payload))
+        key = ""
+        for line in r.text.split("\n"):
+            if ".post" in line:
+                key = line.split("/", 3)[-1].split("'")[0]
+        partial = True
+        while partial:
+            r = requests.post(daemon+"/machines/create_output/"+key, data=json.dumps(payload))
+            try:
+                output = r.text
+                if '"content": null,' in output:
+                    output = output.replace('"content": null', '"content": "null"')
+                if ast.literal_eval(output)['state'] == 'done':
+                    partial = False
+                else:
+                    print ast.literal_eval(output)['content'],
+            except Exception as e:
+                print("Error:",e)
+                partial = False
+        return ""

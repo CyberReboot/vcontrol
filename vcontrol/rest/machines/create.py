@@ -24,7 +24,7 @@ class CreateMachineR:
     $(function() {
 
       function update() {
-        $.getJSON('/v1/create/%s/%s', {}, function(data) {
+        $.post('/v1/machines/create/%s', %s, function(data) {
           if (data.state != 'done') {
     """
     INDEX_HTML_TYPE_A = """
@@ -36,7 +36,7 @@ class CreateMachineR:
     INDEX_HTML_END = """
             setTimeout(update, 0);
           }
-        });
+        }, 'json');
       }
 
       update();
@@ -48,11 +48,10 @@ class CreateMachineR:
     </body>
     </html>
     """
+    def OPTIONS(self, o_type):
+        return self.POST(o_type)
 
-    def OPTIONS(self):
-        return self.POST()
-
-    def POST(self):
+    def POST(self, o_type):
         web.header('Access-Control-Allow-Origin', self.allow_origin)
         web.header('Access-Control-Allow-Headers', "Content-type")
         data = web.data()
@@ -63,6 +62,43 @@ class CreateMachineR:
                 payload = ast.literal_eval(json.loads(data))
         except:
             return "malformed json body"
+
+        client_session_id = uuid.uuid4().hex
+        out = ""
+        if o_type == 'a':
+            out = self.INDEX_HTML%(client_session_id, payload) + \
+                  self.INDEX_HTML_TYPE_A + \
+                  self.INDEX_HTML_END
+        elif o_type == 'b':
+            out = self.INDEX_HTML%(client_session_id, payload) + \
+                  self.INDEX_HTML_TYPE_B + \
+                  self.INDEX_HTML_END
+        return out
+
+class CreateMachineOutputR:
+    """
+    This endpoint is for rendering the output of creating a new Vent machine.
+    """
+    json_yield = json_yield.json_yield_none
+    json_yield._gen_dict = {}
+    json_yield._fn_id = 0
+
+    allow_origin, rest_url = get_allowed.get_allowed()
+    def OPTIONS(self, key):
+        return self.POST(key)
+
+    @json_yield
+    def POST(self, key):
+        web.header('Access-Control-Allow-Origin', self.allow_origin)
+        web.header('Access-Control-Allow-Headers', "Content-type")
+        data = web.data()
+        payload = {}
+        try:
+            payload = ast.literal_eval(data)
+            if type(payload) != dict:
+                payload = ast.literal_eval(json.loads(data))
+        except:
+            pass
 
         # TODO add --engine-label(s) vent specific labels
         engine_labels = "--engine-label vcontrol_managed=yes "
@@ -108,14 +144,16 @@ class CreateMachineR:
                             if line.split(":")[1] == "vmwarevsphere":
                                 cmd += ' --vmwarevsphere-cpu-count "'+str(payload['cpus'])+'" --vmwarevsphere-disk-size "'+str(payload['disk_size'])+'" --vmwarevsphere-memory-size "'+str(payload['memory'])+'"'
                             cmd += ' '+payload['machine']
-                            output = subprocess.check_output(cmd, shell=True)
+                            try:
+                                proc2 = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                                for line in iter(proc2.stdout.readline, b''):
+                                    yield line
+                                yield "\n\n-----\nFinished creating machine."
+                            except:
+                                pass
                             if proc != None:
                                 os.system("kill -9 "+str(proc.pid))
                             if cleanup:
                                 shutil.rmtree('/tmp/vent')
-                            return output
-                return "provider specified was not found"
-            else:
-                return "no providers, please first add a provider"
         except:
-            return "unable to create machine"
+            pass
