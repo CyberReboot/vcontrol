@@ -3,8 +3,8 @@ run: build clean
 		docker_host=$$(env | grep DOCKER_HOST | cut -d':' -f2 | cut -c 3-); \
 		docker_url=http://$$docker_host; \
 	else \
-		echo "No DOCKER_HOST environment variable set."; \
-		exit 1; \
+		echo "No DOCKER_HOST environment variable set, using localhost"; \
+		docker_url=http://localhost; \
 	fi; \
 	docker run --name vcontrol-api -dP vcontrol-api >/dev/null; \
 	port=$$(docker port vcontrol-api 8080/tcp | sed 's/^.*://'); \
