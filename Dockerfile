@@ -20,7 +20,7 @@ RUN curl -L https://github.com/vmware/govmomi/releases/download/v0.7.1/govc_linu
 RUN chmod +x /usr/local/bin/govc
 
 # install docker-machine
-RUN curl -L https://github.com/docker/machine/releases/download/v0.8.0-rc2/docker-machine-`uname -s`-`uname -m` >/usr/local/bin/docker-machine && \
+RUN curl -L https://github.com/docker/machine/releases/download/v0.8.0/docker-machine-`uname -s`-`uname -m` >/usr/local/bin/docker-machine && \
     chmod +x /usr/local/bin/docker-machine
 
 # install vent
