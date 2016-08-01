@@ -65,7 +65,6 @@ class BuildCommandR:
                   self.INDEX_HTML_END
         return out
 
-
 class BuildCommandOutputR:
     """
     This endpoint is for rendering the output of building Docker images on an machine.
