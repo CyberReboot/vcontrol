@@ -41,6 +41,5 @@ depends:
 	@echo "checking dependencies"
 	@echo
 	docker -v
-	docker-machine -v
 
 .PHONY: clean depends clean-all build test run
