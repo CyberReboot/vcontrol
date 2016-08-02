@@ -16,7 +16,13 @@ run: build clean
 	echo "The vcontrol daemon can be accessed here: $$vcontrol_url"; \
 	echo
 
-test: build
+test:
+	@echo
+	@echo "checking dependencies"
+	@echo
+	pip -V
+	pip install -r vcontrol/requirements.txt
+	py.test -v --cov=vcontrol --cov-report term-missing
 
 build: depends
 	cd api && docker build -t vcontrol-api .
