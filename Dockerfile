@@ -30,7 +30,6 @@ RUN mkdir -p /root/.docker/machine/cache && ln -s /root/.docker/machine/boot2doc
 ADD . /vcontrol
 WORKDIR /vcontrol
 RUN pip install -r vcontrol/requirements.txt
-RUN py.test -v --cov=vcontrol --cov-report term-missing
 
 VOLUME /var/lib/docker
 VOLUME /root/.docker
