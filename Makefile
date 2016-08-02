@@ -6,6 +6,20 @@ run: build clean
 		echo "No DOCKER_HOST environment variable set, using localhost"; \
 		docker_url=http://localhost; \
 	fi; \
+	docker run --name vcontrol-daemon -dP vcontrol >/dev/null; \
+	port=$$(docker port vcontrol-daemon 8080/tcp | sed 's/^.*://'); \
+	vcontrol_url=$$docker_url:$$port; \
+	echo "The vcontrol daemon can be accessed here: $$vcontrol_url"; \
+	echo
+
+api: build-api clean
+	@ if [ ! -z "${DOCKER_HOST}" ]; then \
+		docker_host=$$(env | grep DOCKER_HOST | cut -d':' -f2 | cut -c 3-); \
+		docker_url=http://$$docker_host; \
+	else \
+		echo "No DOCKER_HOST environment variable set, using localhost"; \
+		docker_url=http://localhost; \
+	fi; \
 	docker run --name vcontrol-api -dP vcontrol-api >/dev/null; \
 	port=$$(docker port vcontrol-api 8080/tcp | sed 's/^.*://'); \
 	api_url=$$docker_url:$$port; \
@@ -25,8 +39,10 @@ test:
 	py.test -v --cov=vcontrol --cov-report term-missing
 
 build: depends
-	cd api && docker build -t vcontrol-api .
 	docker build -t vcontrol .
+
+build-api: depends
+	cd api && docker build -t vcontrol-api .
 
 clean-all: clean
 	@docker rmi vcontrol
