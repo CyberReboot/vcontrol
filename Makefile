@@ -45,12 +45,12 @@ build-api: depends
 	cd api && docker build -t vcontrol-api .
 
 clean-all: clean
-	@docker rmi vcontrol >/dev/null
-	@docker rmi vcontrol-api >/dev/null
+	@docker rmi vcontrol || true
+	@docker rmi vcontrol-api || true
 
 clean: depends
-	@docker ps -aqf "name=vcontrol-daemon" | xargs docker rm -f >/dev/null
-	@docker ps -aqf "name=vcontrol-api" | xargs docker rm -f >/dev/null
+	@docker ps -aqf "name=vcontrol-daemon" | xargs docker rm -f || true
+	@docker ps -aqf "name=vcontrol-api" | xargs docker rm -f || true
 
 depends:
 	@echo
