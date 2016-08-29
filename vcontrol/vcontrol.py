@@ -23,7 +23,7 @@ except ImportError:
         print "requests failed to install", str(e)
         print "Please try installing requests manually."
         sys.exit(1)
-    
+
 # check for web.py module
 try:
     import web
@@ -226,7 +226,7 @@ class VControl:
             '/v1/commands/plugin/remove', RemovePluginCommandR,
             '/v1/commands/plugin/update', UpdatePluginCommandR,
             '/v1/commands/start/(.+)/(.+)', StartCommandR,
-            '/v1/commands/stats/(.+)', StatsCommandR,
+            '/v1/commands/stats/(.+)/(.+)/(.+)', StatsCommandR,
             '/v1/commands/status/(.+)/(.+)', StatusCommandR,
             '/v1/commands/stop/(.+)/(.+)', StopCommandR,
             '/v1/commands/upload/(.+)', UploadCommandR,
@@ -399,6 +399,12 @@ class VControl:
         stats_commands_parser.set_defaults(which='stats_commands_parser')
         stats_commands_parser.add_argument('machine',
                                            help='Machine name to get stats from')
+        stats_commands_parser.add_argument('category',
+                                           choices=['all', 'running'],
+                                           help='Set of containers to get stats of')
+        stats_commands_parser.add_argument('format',
+                                           choices=['regular', 'json'],
+                                           help='Format of output')
         # plugin status parser
         status_parser = commands_subparsers.add_parser('status',
                                                        help="Status of containers and images")
