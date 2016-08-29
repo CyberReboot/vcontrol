@@ -61,9 +61,9 @@ Attributes:   machine - name of machine to get info for
 
 Request:
 ```
-URL:          /commands/stats/{machine}
+URL:          /commands/stats/{machine}/{category}/{format}
 HTTP Method:  GET
-Attributes:   machine - name of machine to get stats for
+Attributes:   machine - name of machine to get stats for, category - status of containers to get stats of: [all, running], format - how the output should be formatted: [regular, json]
 ```
 
 ### Logs
