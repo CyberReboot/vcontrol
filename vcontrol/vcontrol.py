@@ -23,7 +23,7 @@ except ImportError:
         print "requests failed to install", str(e)
         print "Please try installing requests manually."
         sys.exit(1)
-    
+
 # check for web.py module
 try:
     import web
@@ -362,6 +362,10 @@ class VControl:
                                        help='Machine name to add plugin to')
         add_plugin_parser.add_argument('url',
                                        help='Specify an HTTPS Git URL for the repository that containers plugins')
+        add_plugin_parser.add_argument('--username', '-u',
+                                          help='Specify your git username for private repos. Without --password arg, you will be prompted for your password')
+        add_plugin_parser.add_argument('--password', '-p',
+                                          help='Specify your git password for private repos')
         add_plugin_parser.set_defaults(which='add_plugin_parser')
         list_plugin_parser = plugin_subparsers.add_parser('list',
                                                           help="List installed plugins")
@@ -381,6 +385,10 @@ class VControl:
                                           help='Machine name to update plugin on')
         update_plugin_parser.add_argument('url',
                                           help='Specify an HTTPS Git URL for the repository of plugins to update')
+        update_plugin_parser.add_argument('--username', '-u',
+                                          help='Specify your git username for private repos. Without --password arg, you will be prompted for your password')
+        update_plugin_parser.add_argument('--password', '-p',
+                                          help='Specify your git password for private repos')
         update_plugin_parser.set_defaults(which='update_plugin_parser')
         cmd_start_parser = commands_subparsers.add_parser('start',
                                                          help="Start containers in a category on a Vent machine")
