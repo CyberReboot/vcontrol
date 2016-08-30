@@ -1,8 +1,8 @@
 from ..helpers import get_allowed
 
 import subprocess
-import web
 import sys
+import web
 
 class StatsCommandR:
     """
