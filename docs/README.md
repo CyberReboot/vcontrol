@@ -33,6 +33,29 @@ $ ./vcontrol -h
 
 ## Commands
 
+### Build
+
+*Description*: This endpoint is for building the core and plugins on a machine.
+
+Request:
+```
+URL:          /commands/build/{machine}
+HTTP Method:  GET
+Attributes:   machine - name of machine to build core + plugins on
+```
+
+### Clean
+
+*Description*: This endpoint is for cleaning the core + plugin services on a machine.
+
+Request:
+```
+URL:          /commands/clean/{machine}/{namespace}
+HTTP Method:  GET
+Attributes:   machine - name of machine to clean services on
+              namespace - type of services to clean: [core, passive, active, visualization, all]
+```
+
 ### Deploy
 
 *Description*: This endpoint is for uploading a template file to a machine.
@@ -42,6 +65,31 @@ Request:
 URL:          /commands/deploy/{machine}
 HTTP Method:  POST
 Attributes:   machine - name of machine to deploy template to
+              path - path to the file to upload
+```
+
+### Download
+
+*Description*: This endpoint is for retrieving the template file of a machine.
+
+Request:
+```
+URL:          /commands/download
+HTTP Method:  POST
+Attributes:   machine - name of the machine to download template from
+              template - name of the template to download
+```
+
+### Generic
+
+*Description*: This endpoint is for running an arbitrary command on an machine and getting the result back.
+
+Request:
+```
+URL:          /commands/generic/machine
+HTTP Method:  POST
+Attributes:   machine - name of the machine to run the generic command on
+              command - the command to run on the machine
 ```
 
 ### Info
@@ -55,20 +103,9 @@ HTTP Method:  GET
 Attributes:   machine - name of machine to get info for
 ```
 
-### Stats
-
-*Description*: This endpoint is for getting stats about a machine.
-
-Request:
-```
-URL:          /commands/stats/{machine}/{category}/{format}
-HTTP Method:  GET
-Attributes:   machine - name of machine to get stats for, category - status of containers to get stats of: [all, running], format - how the output should be formatted: [regular, json]
-```
-
 ### Logs
 
-*Description*: This endpoint is for retrieving logs from a machine.
+*Description*: This endpoint is for retrieving machine logs.
 
 Request:
 ```
@@ -77,29 +114,19 @@ HTTP Method:  GET
 Attributes:   machine - name of machine to get logs from
 ```
 
-### Build
+### Mimetypes
 
-*Description*: This endpoint is building Docker images on a machine.
+*Description*: This endpoint is for getting the mimetypes and installed namespaces on a Vent machine.
 
 Request:
 ```
-URL:          /commands/build/{machine}
+URL:          /commands/mimetypes/{machine}/{command}
 HTTP Method:  GET
-Attributes:   machine - name of machine to build images on
+Attributes:   machine - name of the machine to get the mimetypes from
+              command - the command to run: [mimetypes, namespaces] (currently only mimetypes supported)
 ```
 
-### Generic
-
-*Description*: This endpoint is for running an arbitrary command on a machine and getting the result back.
-
-Request:
-```
-URL:          /commands/generic/{machine}
-HTTP Method:  POST
-Attributes:   machine - name of machine to execute the command on
-```
-
-### Start Containers
+### Start (Containers)
 
 *Description*: This endpoint is for starting a specified category of containers on a specific machine.
 
@@ -111,7 +138,20 @@ Attributes:   machine - name of machine to start containers on
               category - name of category of containers to start
 ```
 
-### Stop Containers
+### Stats
+
+*Description*: This endpoint is for getting stats about a machine.
+
+Request:
+```
+URL:          /commands/stats/{machine}/{category}/{format}
+HTTP Method:  GET
+Attributes:   machine - name of machine to get stats for
+              category - status of containers to get stats of: [all, running]
+              format - how the output should be formatted: [regular, json]
+```
+
+### Stop (Containers)
 
 *Description*: This endpoint is for stopping a specified category of containers on a specific machine.
 
@@ -121,6 +161,67 @@ URL:          /commands/stop/{machine}/{category}
 HTTP Method:  GET
 Attributes:   machine - name of machine to stop containers on
               category - name of category of containers to stop
+```
+
+### Upload
+
+*Description*: This endpoint is for getting uploading a file to a Vent machine to be processed.
+
+Request:
+```
+URL:          /commands/upload/{machine}
+HTTP Method:  POST
+Attributes:   machine - name of the machine to upload the file to
+              path - the path to the file to upload
+```
+
+### Plugins APIs
+
+#### Add
+
+*Description*: This endpoint is for adding a new plugin repository on a Vent machine.
+
+Request:
+```
+URL:          /commands/plugin/add
+HTTP Method:  POST
+Attributes:   machine - machine to add plugin repository to
+              url - url to the repository the plugin is stored at
+```
+
+#### List
+
+*Description*: This endpoint is for listing plugins installed on a Vent machine.
+
+Request:
+```
+URL:          /commands/plugin/list/{machine}
+HTTP Method:  GET
+Attributes:   machine - the name of the machine to list the installed plugins on 
+```
+
+#### Remove
+
+*Description*:  This endpoint is for removing a new plugin repository on a Vent machine.
+
+Request:
+```
+URL:          /commands/plugin/remove
+HTTP Method:  POST
+Attributes:   machine - the name of the machine to remove the plugin repository from
+              url - the url of the plugin repository to be removed
+```
+
+#### Update
+
+*Description*: This endpoint is for updating an existing plugin repository on a Vent machine.
+
+Request:
+```
+URL:          /commands/plugin/update
+HTTP Method:  POST
+Attributes:   machine - name of the machine to update the plugin on
+              url - the url of the plugin repository to be updated
 ```
 
 ## Machines
