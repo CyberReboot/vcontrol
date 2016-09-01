@@ -24,7 +24,7 @@ RUN curl -L https://github.com/docker/machine/releases/download/v0.8.0/docker-ma
     chmod +x /usr/local/bin/docker-machine
 
 # install vent
-RUN curl -L https://github.com/CyberReboot/vent/releases/download/v0.1.3/vent.iso >boot2docker.iso && mkdir -p /root/.docker/machine/ && mv boot2docker.iso /root/.docker/machine/boot2docker.iso
+RUN curl -L https://github.com/CyberReboot/vent/releases/download/v0.2.0/vent.iso >boot2docker.iso && mkdir -p /root/.docker/machine/ && mv boot2docker.iso /root/.docker/machine/boot2docker.iso
 RUN mkdir -p /root/.docker/machine/cache && ln -s /root/.docker/machine/boot2docker.iso /root/.docker/machine/cache/boot2docker.iso
 
 ADD . /vcontrol
