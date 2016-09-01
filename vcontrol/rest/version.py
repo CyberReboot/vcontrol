@@ -20,7 +20,7 @@ class VersionR:
         # get version number
         try:
             import pkg_resources
-            version = pkg_resources.get_distribution('vcontrol').version
+            version['version'] = pkg_resources.get_distribution('vcontrol').version
         except:
             pass
 

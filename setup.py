@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
   name='vcontrol',
-  version='0.2.0',
+  version='0.2.0.post2',
   author='Chiraag Prafullchandra',
   author_email='cprafullchandra@iqt.org',
   maintainer='Charlie Lewis',
@@ -16,6 +16,7 @@ setup(
             'vcontrol.rest.commands', 'vcontrol.rest.commands.plugins', 'vcontrol.rest.helpers',
             'vcontrol.rest.machines', 'vcontrol.rest.providers'],
   scripts=['bin/vcontrol'],
+  include_package_data=True,
   data_files=[('vcontrol/api', ['api/Dockerfile', 'api/index.html', 'api/swagger-ui.js']),
               ('vcontrol/docs', ['docs/README.md']),
               ('vcontrol', ['AUTHORS', 'CHANGELOG.md', 'CONTRIBUTING.md', 'Dockerfile',
