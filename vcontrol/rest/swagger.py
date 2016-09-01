@@ -15,10 +15,14 @@ class SwaggerR:
                 f.write(newdata)
             f = open("swagger.yaml", 'r')
         except:
-            with open("../vcontrol/swagger.yaml", 'r') as f:
-                filedata = f.read()
-            newdata = filedata.replace("mydomain", self.rest_url)
-            with open("../vcontrol/swagger.yaml", 'w') as f:
-                f.write(newdata)
-            f = open("../vcontrol/swagger.yaml", 'r')
+            try:
+                with open("../vcontrol/swagger.yaml", 'r') as f:
+                    filedata = f.read()
+                newdata = filedata.replace("mydomain", self.rest_url)
+                with open("../vcontrol/swagger.yaml", 'w') as f:
+                    f.write(newdata)
+                f = open("../vcontrol/swagger.yaml", 'r')
+            except:
+                # using python path, don't allow write-back
+                pass
         return f.read()
