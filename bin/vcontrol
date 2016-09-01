@@ -1,3 +1,22 @@
-#!/bin/bash
+#!/usr/bin/env python2.7
 
-python ../vcontrol/vcontrol.py "${@:1}"
+import os
+import sys
+from vcontrol.vcontrol import VControl
+
+class VControlInst():
+    daemon = os.environ.get('VCONTROL_DAEMON')
+    open_d = os.environ.get('VCONTROL_OPEN')
+    api_v = os.environ.get('VCONTROL_API_VERSION')
+
+    """ Wrapper for VControlServer """
+    def __init__(self):
+        if not self.daemon:
+            self.daemon = 'http://localhost:8000' 
+        if not self.api_v:
+            self.api_v = "/v1"
+        vc_inst = VControl()
+        vc_inst.main(self.daemon, self.open_d, self.api_v)
+
+if __name__ == '__main__':
+    VControlInst()

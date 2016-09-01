@@ -23,7 +23,7 @@ except ImportError:
         print "requests failed to install", str(e)
         print "Please try installing requests manually."
         sys.exit(1)
-    
+
 # check for web.py module
 try:
     import web
@@ -226,7 +226,7 @@ class VControl:
             '/v1/commands/plugin/remove', RemovePluginCommandR,
             '/v1/commands/plugin/update', UpdatePluginCommandR,
             '/v1/commands/start/(.+)/(.+)', StartCommandR,
-            '/v1/commands/stats/(.+)', StatsCommandR,
+            '/v1/commands/stats/(.+)/(.+)/(.+)', StatsCommandR,
             '/v1/commands/status/(.+)/(.+)', StatusCommandR,
             '/v1/commands/stop/(.+)/(.+)', StopCommandR,
             '/v1/commands/upload/(.+)', UploadCommandR,
@@ -262,9 +262,14 @@ class VControl:
             privileged = 1
 
         try:
-            with open('VERSION', 'r') as f: version = f.read().strip()
+            import pkg_resources
+            file_path = pkg_resources.resource_filename(__name__, 'VERSION')
+            with open(file_path) as f: version = f.read().strip()
         except:
-            with open('../VERSION', 'r') as f: version = f.read().strip()
+            try:
+                with open('VERSION', 'r') as f: version = f.read().strip()
+            except:
+                with open('../VERSION', 'r') as f: version = f.read().strip()
 
         # generate cli and parse args
         parser = argparse.ArgumentParser(prog='vcontrol',
@@ -362,6 +367,10 @@ class VControl:
                                        help='Machine name to add plugin to')
         add_plugin_parser.add_argument('url',
                                        help='Specify an HTTPS Git URL for the repository that containers plugins')
+        add_plugin_parser.add_argument('--username', '-u',
+                                          help='Specify your git username for private repos. Without --password arg, you will be prompted for your password')
+        add_plugin_parser.add_argument('--password', '-p',
+                                          help='Specify your git password for private repos')
         add_plugin_parser.set_defaults(which='add_plugin_parser')
         list_plugin_parser = plugin_subparsers.add_parser('list',
                                                           help="List installed plugins")
@@ -381,6 +390,10 @@ class VControl:
                                           help='Machine name to update plugin on')
         update_plugin_parser.add_argument('url',
                                           help='Specify an HTTPS Git URL for the repository of plugins to update')
+        update_plugin_parser.add_argument('--username', '-u',
+                                          help='Specify your git username for private repos. Without --password arg, you will be prompted for your password')
+        update_plugin_parser.add_argument('--password', '-p',
+                                          help='Specify your git password for private repos')
         update_plugin_parser.set_defaults(which='update_plugin_parser')
         cmd_start_parser = commands_subparsers.add_parser('start',
                                                          help="Start containers in a category on a Vent machine")
@@ -399,6 +412,12 @@ class VControl:
         stats_commands_parser.set_defaults(which='stats_commands_parser')
         stats_commands_parser.add_argument('machine',
                                            help='Machine name to get stats from')
+        stats_commands_parser.add_argument('category',
+                                           choices=['all', 'running'],
+                                           help='Set of containers to get stats of')
+        stats_commands_parser.add_argument('format',
+                                           choices=['regular', 'json'],
+                                           help='Format of output')
         # plugin status parser
         status_parser = commands_subparsers.add_parser('status',
                                                        help="Status of containers and images")
