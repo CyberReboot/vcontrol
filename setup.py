@@ -25,7 +25,7 @@ setup(
   license='LICENSE',
   classifiers=[
     'Programming Language :: Python',
-    'Operating System :: POSIX :: Linux :: Boot2Docker',
+    'Operating System :: POSIX :: Linux',
     'Topic :: Software Development :: Libraries :: Application Frameworks',
     'Environment :: Other Environment'
   ],
