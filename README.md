@@ -30,7 +30,7 @@ $ make api
 # optional - "make install" to install vcontrol to your python path
 ```
 
-From here, it is possible to use the RESTful interface in a browser. To access it, follow the URL listed in the output when running `make api`:
+If `vcontrol` was installed via option `2`: it is possible to use the RESTful interface in a browser. To access it, follow the URL listed in the output when running `make api`:
 
 e.g.: `The API can be accessed here: https://192.168.100.1:27209`
 
