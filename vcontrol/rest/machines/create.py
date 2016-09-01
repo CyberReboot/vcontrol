@@ -151,7 +151,7 @@ class CreateMachineOutputR:
                                 yield "\n\n-----\nFinished creating machine."
                             except:
                                 pass
-                            if proc != None:
+                            if proc is not None:
                                 os.system("kill -9 "+str(proc.pid))
                             if cleanup:
                                 shutil.rmtree('/tmp/vent')

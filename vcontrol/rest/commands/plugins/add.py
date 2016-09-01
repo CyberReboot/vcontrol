@@ -29,7 +29,12 @@ class AddPluginCommandR:
             if "machine" in payload:
                 if "url" in payload:
                     url = payload["url"]
-                    cmd = "/usr/local/bin/docker-machine ssh "+payload["machine"]+" \"python2.7 /data/plugin_parser.py add_plugins "+url+"\""
+                    if "user" and "pw" in payload:
+                        user = payload["user"]
+                        pw = payload["pw"]
+                        cmd = "/usr/local/bin/docker-machine ssh "+payload["machine"]+" \"python2.7 /data/plugin_parser.py add_plugins "+url+" "+user+" "+pw+" private\""
+                    else:
+                        cmd = "/usr/local/bin/docker-machine ssh "+payload["machine"]+" \"python2.7 /data/plugin_parser.py add_plugins "+url+"\""
                     output = subprocess.check_output(cmd, shell=True)
                     if output == "":
                         output = "successfully installed "+url

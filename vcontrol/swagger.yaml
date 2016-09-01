@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   title: vcontrol API
   description: This contains the documentation and a functional vcontrol API testing sandbox.
-  version: v0.1.4-dev
+  version: v0.2.0
 host: mydomain
 schemes:
   - http
@@ -343,7 +343,7 @@ paths:
           format: string
       responses:
         '200':
-          description: Returns string result of the command 
+          description: Returns string result of the command
   '/machines/reboot/{machine}':
     get:
       summary: Reboot a machine
@@ -389,7 +389,7 @@ paths:
     get:
       summary: Stop a category of containers on a machine
       description: >
-        This endpoint is for stopping a specified category of containers on a 
+        This endpoint is for stopping a specified category of containers on a
         specific machine.
       tags:
         - Commands
