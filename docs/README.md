@@ -6,28 +6,51 @@ vcontrol is the control layer for managing [vent](https://github.com/CyberReboot
 
 The API endpoints allow you to create, start, configure, and run multiple vent instances from one location.
 
+## Installing vcontrol
+
+First of all, there are several ways to install vcontrol. For basic usage as a `user`, we recommend `1` For more advanced usage, i.e - as a `developer`, we recommend `2`.
+
+1. To install vcontrol simply run:
+```
+$ pip install vcontrol
+```
+
+After, you should be able to run `vcontrol -h` and verify vcontrol has installed correctly.
+
+2. Alternatively, you can:
+```
+$ git clone
+$ cd vcontrol
+$ make api
+# optionally - "make install" to add vcontrol to your python path
+```
+
+## Accessing the CLI
+
+There is a CLI which, when called, makes the REST calls for the user. Ultimately, both the RESTful interface and the CLI make REST calls, but the CLI is a nice way to make programmatic calls to the REST API.
+
+After install vcontrol either through `pip install vcontrol` or `make api` in the outer-most directory of the repository, execute these commands:
+
+```
+# get the daemon URL from the output of make
+$ export VCONTROL_DAEMON=http://<dockerhost>:<assignedport>
+# if you installed via pip then run vcontrol -h from anywhere
+# if you have not installed or run make install to add vcontrol to your python path do:
+$ cd vcontrol/bin
+$ ./vcontrol -h
+```
+
 ## Accessing the Swagger UI
 
-After `vcontrol-daemon` is created and running (which is done so by running `make`), use the base URL generated and printed during the `make` process, which looks something like:
+*Note* - the `vcontrol-daemon` is only available inside a running container, which can be generated via `make api`. The UI is unsupported for pip installations.
+
+After `vcontrol-daemon` is created and running (via `make api`), use the base URL generated and printed during the `make api` process, which looks something like:
 
 `The API can be accessed here: http://192.168.100.1:29019`
 
 NOTE: This is an example. Your URL may be different from what is printed in this doc.
 
 Copy and paste the URL onto your browser, which in this example is `http://192.168.100.1:29019`.
-
-## Accessing the CLI
-
-There is a CLI which, when called, makes the REST calls for the user. Ultimately, both the RESTful interface and the CLI make REST calls, but the CLI is a nice way to make programmatic calls to the REST API.
-
-After running make in the outer-most directory of the repository, execute these commands:
-
-```
-# get the daemon URL from the output of make
-$ export VCONTROL_DAEMON=http://<dockerhost>:<assignedport>
-$ cd vcontrol/bin
-$ ./vcontrol -h
-```
 
 # API Endpoints - CLI & rAPI
 
