@@ -262,14 +262,14 @@ class VControl:
             privileged = 1
 
         try:
-            with open('VERSION', 'r') as f: version = f.read().strip()
+            import pkg_resources
+            file_path = pkg_resources.resource_filename(__name__, 'VERSION')
+            with open(file_path) as f: version = f.read().strip()
         except:
             try:
-                with open('../VERSION', 'r') as f: version = f.read().strip()
+                with open('VERSION', 'r') as f: version = f.read().strip()
             except:
-                import pkg_resources
-                file_path = pkg_resources.resource_filename(__name__, 'VERSION')
-                with open(file_path) as f: version = f.read().strip()
+                with open('../VERSION', 'r') as f: version = f.read().strip()
 
         # generate cli and parse args
         parser = argparse.ArgumentParser(prog='vcontrol',

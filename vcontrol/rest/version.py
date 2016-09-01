@@ -18,9 +18,14 @@ class VersionR:
 
         # get version number
         try:
-            with open('VERSION', 'r') as f: version['version'] = f.read().strip()
+            import pkg_resources
+            file_path = pkg_resources.resource_filename('vcontrol', 'VERSION')
+            with open(file_path) as f: version = f.read().strip()
         except:
-            with open('../VERSION', 'r') as f: version['version'] = f.read().strip()
+            try:
+                with open('VERSION', 'r') as f: version['version'] = f.read().strip()
+            except:
+                with open('../VERSION', 'r') as f: version['version'] = f.read().strip()
 
         # get commit id
         try:
