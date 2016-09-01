@@ -1,4 +1,4 @@
-run: build clean
+run: install build clean ## builds and run the vcontrol daemon
 	@ if [ ! -z "${DOCKER_HOST}" ]; then \
 		docker_host=$$(env | grep DOCKER_HOST | cut -d':' -f2 | cut -c 3-); \
 		docker_url=http://$$docker_host; \
@@ -12,7 +12,13 @@ run: build clean
 	echo "The vcontrol daemon can be accessed here: $$vcontrol_url"; \
 	echo
 
-api: build-api clean
+install: ## installs vcontrol as an executable
+	@echo
+	@echo "installing..."
+	@echo
+	python2.7 setup.py install
+
+api: install build-api clean ## builds and runs the vcontrol-api container
 	@ if [ ! -z "${DOCKER_HOST}" ]; then \
 		docker_host=$$(env | grep DOCKER_HOST | cut -d':' -f2 | cut -c 3-); \
 		docker_url=http://$$docker_host; \
@@ -30,7 +36,7 @@ api: build-api clean
 	echo "The vcontrol daemon can be accessed here: $$vcontrol_url"; \
 	echo
 
-test:
+test: ## runs tests
 	@echo
 	@echo "checking dependencies"
 	@echo
@@ -38,24 +44,28 @@ test:
 	pip install -r vcontrol/requirements.txt
 	py.test -v --cov=vcontrol --cov-report term-missing
 
-build: depends
+build: depends ## builds the daemon image
 	docker build -t vcontrol .
 
-build-api: depends
+build-api: depends # builds the api image
 	cd api && docker build -t vcontrol-api .
 
-clean-all: clean
+clean-all: clean ## cleans containers and image
 	@docker rmi vcontrol || true
 	@docker rmi vcontrol-api || true
 
-clean: depends
+clean: depends ## cleans vcontrol containers
 	@docker ps -aqf "name=vcontrol-daemon" | xargs docker rm -f || true
 	@docker ps -aqf "name=vcontrol-api" | xargs docker rm -f || true
 
-depends:
+depends: ## checks that docker is installed
 	@echo
 	@echo "checking dependencies"
 	@echo
 	docker -v
 
-.PHONY: clean depends clean-all build test run
+help:
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
+
+.DEFAULT_GOAL := help
+.PHONY: clean depends clean-all build test run install

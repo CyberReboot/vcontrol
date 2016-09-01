@@ -29,9 +29,38 @@ $ cd vcontrol/bin
 $ ./vcontrol -h
 ```
 
-# API Endpoints
+# API Endpoints - CLI & rAPI
 
 ## Commands
+
+### Build
+
+*Description*: This endpoint is for building the core and plugins on a machine.
+
+Request:
+```
+URL:          /commands/build/{machine}/{output_type}
+HTTP Method:  GET
+Attributes:   machine - name of machine to build core + plugins on
+              output_type - a for html-friendly output feed, b for plain-text output feed
+              body =
+              {
+                no_cache - option to build with cache or without cache
+              }
+```
+
+### Clean
+
+*Description*: This endpoint is for cleaning the core + plugin services on a machine.
+
+Request:
+```
+URL:          /commands/clean/{machine}/{namespace}/{output_type}
+HTTP Method:  GET
+Attributes:   machine - name of machine to clean services on
+              namespace - type of services to clean: [core, passive, active, visualization, all]
+              output_type - a for html-friendly output feed, b for plain-text output feed
+```
 
 ### Deploy
 
@@ -42,6 +71,40 @@ Request:
 URL:          /commands/deploy/{machine}
 HTTP Method:  POST
 Attributes:   machine - name of machine to deploy template to
+              body =
+              {
+                path - path to the file to upload
+              }
+```
+
+### Download
+
+*Description*: This endpoint is for retrieving the template file of a machine.
+
+Request:
+```
+URL:          /commands/download
+HTTP Method:  POST
+Attributes:   body =
+              {
+                machine - name of the machine to download template from,
+                template - name of the template to download
+              }
+```
+
+### Generic
+
+*Description*: This endpoint is for running an arbitrary command on an machine and getting the result back.
+
+Request:
+```
+URL:          /commands/generic/machine
+HTTP Method:  POST
+Attributes:   machine - name of the machine to run the generic command on
+              body =
+              {
+                command - the command to run on the machine
+              }
 ```
 
 ### Info
@@ -55,20 +118,9 @@ HTTP Method:  GET
 Attributes:   machine - name of machine to get info for
 ```
 
-### Stats
-
-*Description*: This endpoint is for getting stats about a machine.
-
-Request:
-```
-URL:          /commands/stats/{machine}
-HTTP Method:  GET
-Attributes:   machine - name of machine to get stats for
-```
-
 ### Logs
 
-*Description*: This endpoint is for retrieving logs from a machine.
+*Description*: This endpoint is for retrieving machine logs.
 
 Request:
 ```
@@ -77,29 +129,19 @@ HTTP Method:  GET
 Attributes:   machine - name of machine to get logs from
 ```
 
-### Build
+### Mimetypes
 
-*Description*: This endpoint is building Docker images on a machine.
+*Description*: This endpoint is for getting the mimetypes and installed namespaces on a Vent machine.
 
 Request:
 ```
-URL:          /commands/build/{machine}
+URL:          /commands/mimetypes/{machine}/{command}
 HTTP Method:  GET
-Attributes:   machine - name of machine to build images on
+Attributes:   machine - name of the machine to get the mimetypes from
+              command - the command to run: [mimetypes, namespaces] (currently only mimetypes supported)
 ```
 
-### Generic
-
-*Description*: This endpoint is for running an arbitrary command on a machine and getting the result back.
-
-Request:
-```
-URL:          /commands/generic/{machine}
-HTTP Method:  POST
-Attributes:   machine - name of machine to execute the command on
-```
-
-### Start Containers
+### Start (Containers)
 
 *Description*: This endpoint is for starting a specified category of containers on a specific machine.
 
@@ -111,7 +153,20 @@ Attributes:   machine - name of machine to start containers on
               category - name of category of containers to start
 ```
 
-### Stop Containers
+### Stats
+
+*Description*: This endpoint is for getting stats about a machine.
+
+Request:
+```
+URL:          /commands/stats/{machine}/{category}/{format}
+HTTP Method:  GET
+Attributes:   machine - name of machine to get stats for
+              category - status of containers to get stats of: [all, running]
+              format - how the output should be formatted: [regular, json]
+```
+
+### Stop (Containers)
 
 *Description*: This endpoint is for stopping a specified category of containers on a specific machine.
 
@@ -123,7 +178,91 @@ Attributes:   machine - name of machine to stop containers on
               category - name of category of containers to stop
 ```
 
+### Upload
+
+*Description*: This endpoint is for getting uploading a file to a Vent machine to be processed.
+
+Request:
+```
+URL:          /commands/upload/{machine}
+HTTP Method:  POST
+Attributes:   machine - name of the machine to upload the file to
+              body =
+              {
+                path - path to the file to upload
+              }
+```
+
+### Plugins APIs
+
+#### Add
+
+*Description*: This endpoint is for adding a new plugin repository on a Vent machine.
+
+Request:
+```
+URL:          /commands/plugin/add
+HTTP Method:  POST
+Attributes:   body =
+              {
+                machine - machine to add plugin repository to,
+                url - url to the repository the plugin is stored at
+              }
+```
+
+#### List
+
+*Description*: This endpoint is for listing plugins installed on a Vent machine.
+
+Request:
+```
+URL:          /commands/plugin/list/{machine}
+HTTP Method:  GET
+Attributes:   machine - the name of the machine to list the installed plugins on
+```
+
+#### Remove
+
+*Description*:  This endpoint is for removing a new plugin repository on a Vent machine.
+
+Request:
+```
+URL:          /commands/plugin/remove
+HTTP Method:  POST
+Attributes:   body =
+              {
+                machine - the name of the machine to remove the plugin repository from,
+                url - the url of the plugin repository to be removed
+              }
+```
+
+#### Update
+
+*Description*: This endpoint is for updating an existing plugin repository on a Vent machine.
+
+Request:
+```
+URL:          /commands/plugin/update
+HTTP Method:  POST
+Attributes:   body =
+              {
+                machine - name of the machine to update the plugin on,
+                url - the url of the plugin repository to be updated
+              }
+```
+
 ## Machines
+
+### Boot
+
+*Description*: This endpoint is for booting a shutdown machine.
+
+Request:
+```
+URL:          /machines/boot/{machine}
+HTTP Method:  GET
+Attributes:   machine - name of machine to boot
+```
 
 ### Create
 
@@ -131,16 +270,21 @@ Attributes:   machine - name of machine to stop containers on
 
 Request:
 ```
-URL:          /machines/create
+URL:          /machines/create/{output_type}
 HTTP Method:  POST
-Attributes:   body
-```
-
-Body Schema:
-
-The body should be formatted a specific way. For example:
-
-```
+Attributes:   output_type - a for html-friendly display of the output feed, b for a plain-text display of the output feed
+              body =
+              {
+                machine - name of machine to create,
+                provider - name of provider to host machine on,
+                cpus,
+                disk_size,
+                iso,
+                memory,
+                group,
+                labels
+              }
+Example:
 {
   "name": "vent1",
   "provider": "esxi1",
@@ -154,34 +298,17 @@ The body should be formatted a specific way. For example:
 
 ### Delete
 
-*Description*: This endpoint is for delete an existing machine of vent.
+*Description*: This endpoint is for deleting an existing machine of vent.
 
 Request:
 ```
 URL:          /machines/delete/{machine}
 HTTP Method:  GET
 Attributes:   machine - name of machine to remove
-```
-
-### Register
-
-*Description*: This endpoint is for registering an existing vent machine into vcontrol.
-
-Request:
-```
-URL:          /machines/register
-HTTP Method:  POST
-```
-
-### Unregister
-
-*Description*: This endpoint is for unregistering a machine from vcontrol.
-
-Request:
-```
-URL:          /machines/unregister/{machine}
-HTTP Method:  GET
-Attributes:   machine - name of machine to unregister
+              body =
+              {
+                force - force delete the machine or not
+              }
 ```
 
 ### Heartbeat
@@ -202,28 +329,10 @@ Request:
 ```
 URL:          /machines/list
 HTTP Method:  GET
-```
-
-### Boot
-
-*Description*: This endpoint is for booting a shutdown machine.
-
-Request:
-```
-URL:          /machines/boot/{machine}
-HTTP Method:  GET
-Attributes:   machine - name of machine to boot
-```
-
-### Shutdown
-
-*Description*: This endpoint is for shutting down a running machine.
-
-Request:
-```
-URL:          /machines/shutdown/{machine}
-HTTP Method:  GET
-Attributes:   machine - name of machine to shutdown
+Attributes:   body =
+              {
+                fast - whether to get the faster list or a list with more details
+              }
 ```
 
 ### Reboot
@@ -237,6 +346,33 @@ HTTP Method:  GET
 Attributes:   machine - name of machine to reboot
 ```
 
+### Register
+
+*Description*: This endpoint is for registering an existing vent machine into vcontrol.
+
+Request:
+```
+URL:          /machines/register
+HTTP Method:  POST
+Attributes:   body =
+              {
+                machine - name of the machine to register
+                ip - the ip of the machine to register
+                password - credentials for the operation
+              }
+```
+
+### Shutdown
+
+*Description*: This endpoint is for shutting down a running machine.
+
+Request:
+```
+URL:          /machines/shutdown/{machine}
+HTTP Method:  GET
+Attributes:   machine - name of machine to shutdown
+```
+
 ### SSH
 
 *Description*: This endpoint is not implemented yet. This endpoint is to SSH into a machine.
@@ -248,45 +384,37 @@ HTTP Method:  GET
 Attributes:   machine - name of machine to SSH into
 ```
 
-## Meta
+### Unregister
 
-### /
-
-*Description*: This endpoint is just a quick way to ensure that the vcontrol API is up and running properly.
+*Description*: This endpoint is for unregistering a machine from vcontrol.
 
 Request:
 ```
-URL:          /
+URL:          /machines/unregister/{machine}
 HTTP Method:  GET
-```
-
-### /version
-
-*Description*: This endpoint return the version of vcontrol that is currently running this API.
-
-Request:
-```
-URL:          /version
-HTTP Method:  GET
+Attributes:   machine - name of machine to unregister
 ```
 
 ## Providers
 
 ### Add
 
-*Description*: This endpoint allows for a new provider such as openstack or vmware to be added. A vent machine runs on a provider. Note that a provider can only be added from localhost of the machine running vcontrol unless the environment variable VCONTROL_OPEN=true is set on the server.
+*Description*: This endpoint allows for a new provider such as openstack or vmware to be added. A vent machine runs on a provider. Note that a provider can only be added from the localhost of the machine running vcontrol unless the environment variable VCONTROL_OPEN=true is set on the server.
 
 Request:
 ```
 URL:          /providers/add
 HTTP Method:  POST
-Attributes:   body
-```
-Body Schema:
-
-The body should be formatted a specific way. For example:
-
-```
+Attributes:   body =
+              {
+                name - name of the provider machine,
+                provider - name of the provider (vmware, openstack...),
+                args - associated arguments for the provider,
+                ram,
+                cpu,
+                disk
+              }
+Example:
 {
   "name": "esxi1",
   "provider": "openstack",
@@ -307,6 +435,17 @@ URL:          /providers/heartbeat
 HTTP Method:  GET
 ```
 
+### Info
+
+*Description*: This endpoint is not implemented yet. This endpoint is for getting info about a provider.
+
+Request:
+```
+URL:          /providers/info/{provider}
+HTTP Method:  GET
+Attributes:   provider - provider to get info of
+```
+
 ### List
 
 *Description*: This endpoint lists all of the providers that have been added.
@@ -325,5 +464,40 @@ Request:
 ```
 URL:          /providers/remove/{provider}
 HTTP Method:  GET
-Attributes:   provider - Name of provider to remove
+Attributes:   provider - name of provider to remove
+```
+
+### Stats
+
+*Description*: This endpoint is not implemented yet. This endpoint is for getting stats about a provider.
+
+Request:
+```
+URL:          /providers/stats/{provider}
+HTTP Method:  GET
+Attributes:   provider - name of provider to get stats of
+```
+
+# API Endpoints - rAPI Only
+
+## Meta
+
+### Index
+
+*Description*: This endpoint is just a quick way to ensure that the vcontrol API is up and running properly.
+
+Request:
+```
+URL:          /
+HTTP Method:  GET
+```
+
+### Version
+
+*Description*: This endpoint return the version of vcontrol that is currently running this API.
+
+Request:
+```
+URL:          /version
+HTTP Method:  GET
 ```
