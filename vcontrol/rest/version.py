@@ -20,16 +20,12 @@ class VersionR:
         # get version number
         try:
             import pkg_resources
-            file_path = pkg_resources.resource_filename('vcontrol', 'VERSION')
-            with open(file_path) as f: version = f.read().strip()
+            version = pkg_resources.get_distribution('vcontrol').version
         except:
-            try:
-                with open('VERSION', 'r') as f: version['version'] = f.read().strip()
-            except:
-                with open('../VERSION', 'r') as f: version['version'] = f.read().strip()
+            pass
 
         # only allowed if in the git directory
-        if not file_path:
+        if not version:
             # get commit id
             try:
                 cmd = 'git -C ../vcontrol rev-parse HEAD'
