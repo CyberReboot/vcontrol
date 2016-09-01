@@ -1,5 +1,5 @@
 #!/usr/bin/env python2.7
-from distutils.core import setup
+from setuptools import setup
 
 setup(
   name='vcontrol',
@@ -16,10 +16,11 @@ setup(
             'vcontrol.rest.commands', 'vcontrol.rest.commands.plugins', 'vcontrol.rest.helpers',
             'vcontrol.rest.machines', 'vcontrol.rest.providers'],
   scripts=['bin/vcontrol'],
-  data_files=[('api', ['api/Dockerfile', 'api/index.html', 'api/swagger-ui.js']),
-              ('docs', ['docs/README.md', 'AUTHORS', 'CHANGELOG.md', 'CONTRIBUTING.md', 'Dockerfile',
+  data_files=[('vcontrol/api', ['api/Dockerfile', 'api/index.html', 'api/swagger-ui.js']),
+              ('vcontrol/docs', ['docs/README.md']),
+              ('vcontrol', ['AUTHORS', 'CHANGELOG.md', 'CONTRIBUTING.md', 'Dockerfile',
                'LICENSE', 'Makefile', 'MAINTAINERS', 'README.md', 'VERSION']),
-              ('vcontrol', ['vcontrol/requirements.txt', 'vcontrol/swagger.yaml',
+              ('vcontrol/vcontrol', ['vcontrol/requirements.txt', 'vcontrol/swagger.yaml',
                'vcontrol/vmware-stats'])],
   license='LICENSE',
   classifiers=[
@@ -27,5 +28,9 @@ setup(
     'Operating System :: POSIX :: Linux :: Boot2Docker',
     'Topic :: Software Development :: Libraries :: Application Frameworks',
     'Environment :: Other Environment'
+  ],
+  install_requires=[
+    'requests',
+    'web.py'
   ]
 )
