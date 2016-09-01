@@ -20,7 +20,7 @@ setup(
   data_files=[('vcontrol/api', ['api/Dockerfile', 'api/index.html', 'api/swagger-ui.js']),
               ('vcontrol/docs', ['docs/README.md']),
               ('vcontrol', ['AUTHORS', 'CHANGELOG.md', 'CONTRIBUTING.md', 'Dockerfile',
-               'LICENSE', 'Makefile', 'MAINTAINERS', 'README.md', 'VERSION']),
+               'LICENSE', 'Makefile', 'MAINTAINERS', 'README.md']),
               ('vcontrol/vcontrol', ['vcontrol/requirements.txt', 'vcontrol/swagger.yaml',
                'vcontrol/vmware-stats'])],
   license='LICENSE',
