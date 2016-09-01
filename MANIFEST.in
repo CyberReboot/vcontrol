@@ -1,1 +1,14 @@
+include api/*
+include docs/*
+include AUTHORS
+include CHANGELOG.md
+include CONTRIBUTING.md
+include Dockerfile
+include LICENSE
+include Makefile
+include MAINTAINERS
+include README.md
 include VERSION
+include vcontrol/requirements.txt
+include vcontrol/swagger.yaml
+include vcontrol/vmware-stats
