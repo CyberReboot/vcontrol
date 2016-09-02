@@ -263,13 +263,9 @@ class VControl:
 
         try:
             import pkg_resources
-            file_path = pkg_resources.resource_filename(__name__, 'VERSION')
-            with open(file_path) as f: version = f.read().strip()
+            version = pkg_resources.get_distribution('vcontrol').version
         except:
-            try:
-                with open('VERSION', 'r') as f: version = f.read().strip()
-            except:
-                with open('../VERSION', 'r') as f: version = f.read().strip()
+            pass
 
         # generate cli and parse args
         parser = argparse.ArgumentParser(prog='vcontrol',

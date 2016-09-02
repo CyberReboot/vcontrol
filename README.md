@@ -12,15 +12,26 @@ vcontrol makes programmatically controlling vent possible. vcontrol lets users m
  * Docker-Machine
  * pip
  * Python
+ * requests
+ * web.py
 
 ### Build and run the vcontrol daemon
-```
-$ git clone https://github.com/CyberReboot/vcontrol.git
-$ cd vcontrol
-$ make
-```
 
-From here, it is possible to use the RESTful interface in a browser. To access it, follow the URL listed in the output when running `make`:
+1. As a general `User` we recommend:
+
+   ```
+   $ pip install vcontrol
+   ```
+2. For more advanced usage as a `Developer` or `User`:
+
+   ```
+   $ git clone https://github.com/CyberReboot/vcontrol.git
+   $ cd vcontrol
+   $ make api
+   # optional - "make install" to install vcontrol to your python path
+   ```
+
+If `vcontrol` was installed via option `2`: it is possible to use the RESTful interface in a browser. To access it, follow the URL listed in the output when running `make api`:
 
 e.g.: `The API can be accessed here: https://192.168.100.1:27209`
 
@@ -33,6 +44,10 @@ An alternative to using the RESTful interface is the CLI, found in the `bin` dir
 ```
 # get the daemon URL from the output of make
 $ export VCONTROL_DAEMON=http://<dockerhost>:<assignedport>
+
+# if you have installed via pip then run vcontrol -h from anywhere
+
+# if you have not installed or run make install to add vcontrol to your python path do:
 $ cd vcontrol/bin
 $ ./vcontrol -h
 ```

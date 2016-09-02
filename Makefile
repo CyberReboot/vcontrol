@@ -1,4 +1,4 @@
-run: install build clean ## builds and run the vcontrol daemon
+run: build clean ## builds and run the vcontrol daemon
 	@ if [ ! -z "${DOCKER_HOST}" ]; then \
 		docker_host=$$(env | grep DOCKER_HOST | cut -d':' -f2 | cut -c 3-); \
 		docker_url=http://$$docker_host; \
@@ -12,13 +12,7 @@ run: install build clean ## builds and run the vcontrol daemon
 	echo "The vcontrol daemon can be accessed here: $$vcontrol_url"; \
 	echo
 
-install: ## installs vcontrol as an executable
-	@echo
-	@echo "installing..."
-	@echo
-	python2.7 setup.py install
-
-api: install build-api clean ## builds and runs the vcontrol-api container
+api: build-api clean ## builds and runs the vcontrol-api container
 	@ if [ ! -z "${DOCKER_HOST}" ]; then \
 		docker_host=$$(env | grep DOCKER_HOST | cut -d':' -f2 | cut -c 3-); \
 		docker_url=http://$$docker_host; \
@@ -35,6 +29,12 @@ api: install build-api clean ## builds and runs the vcontrol-api container
 	echo "The API can be accessed here: $$api_url"; \
 	echo "The vcontrol daemon can be accessed here: $$vcontrol_url"; \
 	echo
+
+install: ## installs vcontrol as an executable
+	@echo
+	@echo "installing..."
+	@echo
+	python2.7 setup.py install
 
 test: ## runs tests
 	@echo
