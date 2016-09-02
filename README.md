@@ -8,12 +8,11 @@ vcontrol makes programmatically controlling vent possible. vcontrol lets users m
 ### Dependencies
 * Docker
 * Make
-* Additionally if running vcontrol locally:
- * Docker-Machine
- * pip
- * Python
- * requests
- * web.py
+* Docker-Machine
+* pip
+* Python
+* requests
+* web.py
 
 ### Build and run the vcontrol daemon
 
