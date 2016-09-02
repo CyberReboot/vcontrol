@@ -18,17 +18,18 @@ vcontrol makes programmatically controlling vent possible. vcontrol lets users m
 ### Build and run the vcontrol daemon
 
 1. As a general `User` we recommend:
-```
-$ pip install vcontrol
-```
 
+   ```
+   $ pip install vcontrol
+   ```
 2. For more advanced usage as a `Developer` or `User`:
-```
-$ git clone https://github.com/CyberReboot/vcontrol.git
-$ cd vcontrol
-$ make api
-# optional - "make install" to install vcontrol to your python path
-```
+
+   ```
+   $ git clone https://github.com/CyberReboot/vcontrol.git
+   $ cd vcontrol
+   $ make api
+   # optional - "make install" to install vcontrol to your python path
+   ```
 
 If `vcontrol` was installed via option `2`: it is possible to use the RESTful interface in a browser. To access it, follow the URL listed in the output when running `make api`:
 
