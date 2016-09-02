@@ -28,6 +28,7 @@ If you are using `vcontrol` as a daemon:
    $ pip install vcontrol
    $ export VCONTROL_DAEMON=<ip of vcontrol daemon>
    ```
+
 2. To install `vcontrol` as a daemon in a container:
 
    ```
