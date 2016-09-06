@@ -182,12 +182,7 @@ class VControlServer(object):
                 # check if call failed
                 if is_dockerhost != 0:
                     print "No DOCKER_HOST environment variable set."
-                    try:
-                        subprocess.check_output("export DOCKER_HOST=tcp://localhost:8080", shell=True).strip('\n')
-                        print "...assuming localhost."
-                    except:
-                        print "Error setting DOCKER_HOST to localhost"
-                        sys.exit(1)
+                    print "...assuming localhost."
                 else:
                     docker_host = subprocess.check_output("env | grep DOCKER_HOST", shell=True).strip('\n')
                     docker_urls = subprocess.check_output("docker-machine ls --filter State=Running | grep -v URL | awk \"{print \$5}\"", shell=True).rstrip('\n').split('\n')
@@ -200,14 +195,9 @@ class VControlServer(object):
                         print "A DOCKER_HOST is specified, but no docker-machine was found matching the host."
                         print "DOCKER_HOST=", docker_host
                         print "DOCKER-MACHINE URLs=", docker_urls
-                        try:
-                            subprocess.check_output("export DOCKER_HOST=tcp://localhost:8080", shell=True).strip('\n')
-                            print "...assuming localhost instead."
-                        except:
-                            print "Error setting DOCKER_HOST to localhost"
-                            sys.exit(1)
+                        print "...assuming localhost instead."
             except Exception:
-                print "Error finding DOCKER_HOST. Please set DOCKER_HOST manually."
+                print "Error finding DOCKER_HOST. Please set DOCKER_HOST."
                 sys.exit(1)
         # remove test results for runtime
         try:
