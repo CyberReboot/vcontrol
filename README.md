@@ -42,6 +42,7 @@ If you are using `vcontrol` as a daemon:
 
   ```
   $ git clone https://github.com/CyberReboot/vcontrol.git
+  $ make install
   $ cd vcontrol/bin
   $ ./vcontrol daemon
   # the daemon should be running on http://localhost:8080/
