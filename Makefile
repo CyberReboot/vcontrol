@@ -1,3 +1,33 @@
+update: ## developer tool for updating vcontrol-daemon container to reflect local changes
+	@ if [ ! -z "${DOCKER_HOST}" ]; then \
+		docker_host=$$(env | grep DOCKER_HOST | cut -d':' -f2 | cut -c 3-); \
+		docker_url=http://$$docker_host; \
+	else \
+		echo "No DOCKER_HOST environment variable set, using localhost"; \
+		docker_url=http://localhost; \
+	fi; \
+	docker exec -it vcontrol-daemon /bin/bash -c "cd .. && make install"; \
+	echo "Restarting vcontrol daemon..."; \
+	docker restart vcontrol-daemon >/dev/null; \
+	port=$$(docker port vcontrol-daemon 8080/tcp | sed 's/^.*://'); \
+	vcontrol_url=$$docker_url:$$port; \
+	echo "The vcontrol daemon can be accessed here: $$vcontrol_url"; \
+	echo
+
+dev: clean ## developer tool for creating linked vcontrol-daemon container
+	@ if [ ! -z "${DOCKER_HOST}" ]; then \
+		docker_host=$$(env | grep DOCKER_HOST | cut -d':' -f2 | cut -c 3-); \
+		docker_url=http://$$docker_host; \
+	else \
+		echo "No DOCKER_HOST environment variable set, using localhost"; \
+		docker_url=http://localhost; \
+	fi; \
+	docker run -dP --name vcontrol-daemon -v $$(pwd):/vcontrol vcontrol; \
+	port=$$(docker port vcontrol-daemon 8080/tcp | sed 's/^.*://'); \
+	vcontrol_url=$$docker_url:$$port; \
+	echo "The vcontrol daemon can be accessed here: $$vcontrol_url"; \
+	echo
+
 run: build clean ## builds and run the vcontrol daemon
 	@ if [ ! -z "${DOCKER_HOST}" ]; then \
 		docker_host=$$(env | grep DOCKER_HOST | cut -d':' -f2 | cut -c 3-); \
