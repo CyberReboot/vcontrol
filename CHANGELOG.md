@@ -1,3 +1,16 @@
+# v0.2.1 (2016-09-07)
+
+bug fixes:
+ - fixed the following issues: #22
+ - Dockerfile pip installs vcontrol when running daemon in container
+ - When running daemon as localhost on linux, does not force container to be on a docker-machine
+
+improvements:
+ - improved documentation for different vcontrol setups
+
+environment:
+ - vent: v0.2.1
+
 # v0.2.0 (2016-09-01)
 
 bug fixes:

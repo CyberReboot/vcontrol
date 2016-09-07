@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
   name='vcontrol',
-  version='0.2.0',
+  version='0.2.1',
   author='Chiraag Prafullchandra',
   author_email='cprafullchandra@iqt.org',
   maintainer='Charlie Lewis',
