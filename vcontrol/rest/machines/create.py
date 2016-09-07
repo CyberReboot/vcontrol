@@ -125,7 +125,7 @@ class CreateMachineOutputR:
                                 cmd = "/usr/local/bin/docker-machine create "+engine_labels+"-d "+line.split(":")[1]+" "+line.split(":")[5].strip()
                                 if line.split(":")[1] == 'vmwarevsphere':
                                     if payload['iso'] == '/tmp/vent/vent.iso':
-                                        cmd += ' --vmwarevsphere-boot2docker-url=https://github.com/CyberReboot/vent/releases/download/v0.2.0/vent.iso'
+                                        cmd += ' --vmwarevsphere-boot2docker-url=https://github.com/CyberReboot/vent/releases/download/v0.2.1/vent.iso'
                                     else:
                                         cmd += ' --vmwarevsphere-boot2docker-url='+payload['iso']
                             elif line.split(":")[1].strip() == "virtualbox":
