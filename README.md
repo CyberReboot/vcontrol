@@ -35,7 +35,6 @@ If you are using `vcontrol` as a daemon:
    $ git clone https://github.com/CyberReboot/vcontrol.git
    $ cd vcontrol
    $ make api
-   # optional - "make install" to install vcontrol to your python path
    # the daemon should be reachable at the URL given by make api
    ```
 
@@ -68,14 +67,14 @@ As a client:
 $ export VCONTROL_DAEMON=http://<url>:<port>
 $ vcontrol -h # from anywhere
 
-# if you have the client installed via git clone without make install:
+# if you have the client installed via git clone without make install (in a container):
 $ export VCONTROL_DAEMON=http://<url>:<port>
 $ cd vcontrol/bin
 $ ./vcontrol -h
 
 # if you have the client installed via git clone with make install:
 $ export VCONTROL_DAEMON=http://<url>:<port>
-$ vcontrol -h
+$ vcontrol -h # from anywhere
 ```
 
 ### Add a provider
