@@ -14,7 +14,7 @@ update: ## developer tool for updating vcontrol-daemon container to reflect loca
 	echo "The vcontrol daemon can be accessed here: $$vcontrol_url"; \
 	echo
 
-dev: clean ## developer tool for creating linked vcontrol-daemon container
+dev: clean ## developer tool for running the vcontrol daemon mounted on local filesystem
 	@ if [ ! -z "${DOCKER_HOST}" ]; then \
 		docker_host=$$(env | grep DOCKER_HOST | cut -d':' -f2 | cut -c 3-); \
 		docker_url=http://$$docker_host; \
@@ -42,7 +42,7 @@ run: build clean ## builds and run the vcontrol daemon
 	echo "The vcontrol daemon can be accessed here: $$vcontrol_url"; \
 	echo
 
-api: build-api clean ## builds and runs the vcontrol-api container
+api: build-api build clean ## builds and runs the vcontrol-api container
 	@ if [ ! -z "${DOCKER_HOST}" ]; then \
 		docker_host=$$(env | grep DOCKER_HOST | cut -d':' -f2 | cut -c 3-); \
 		docker_url=http://$$docker_host; \

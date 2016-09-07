@@ -36,6 +36,7 @@ If you are using `vcontrol` as a daemon:
    $ cd vcontrol
    $ make api
    # optional - "make install" to install vcontrol to your python path
+   # the daemon should be reachable at the URL given by make api
    ```
 
 3. To install `vcontrol` as a daemon locally:
@@ -43,8 +44,7 @@ If you are using `vcontrol` as a daemon:
   ```
   $ git clone https://github.com/CyberReboot/vcontrol.git
   $ make install
-  $ cd vcontrol/bin
-  $ ./vcontrol daemon
+  $ vcontrol daemon # b/c of make install, vcontrol commands can be issued from anywhere
   # the daemon should be running on http://localhost:8080/
   ```
 
