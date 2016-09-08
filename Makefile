@@ -1,4 +1,4 @@
-update: ## developer tool for updating vcontrol-daemon container to reflect local changes
+update: install ## developer tool for updating vcontrol-daemon container to reflect local changes
 	@ if [ ! -z "${DOCKER_HOST}" ]; then \
 		docker_host=$$(env | grep DOCKER_HOST | cut -d':' -f2 | cut -c 3-); \
 		docker_url=http://$$docker_host; \
@@ -6,15 +6,17 @@ update: ## developer tool for updating vcontrol-daemon container to reflect loca
 		echo "No DOCKER_HOST environment variable set, using localhost"; \
 		docker_url=http://localhost; \
 	fi; \
+	echo "installing to container..."; \
 	docker exec -it vcontrol-daemon /bin/bash -c "cd .. && make install"; \
 	echo "Restarting vcontrol daemon..."; \
 	docker restart vcontrol-daemon >/dev/null; \
 	port=$$(docker port vcontrol-daemon 8080/tcp | sed 's/^.*://'); \
 	vcontrol_url=$$docker_url:$$port; \
 	echo "The vcontrol daemon can be accessed here: $$vcontrol_url"; \
+	echo "run in shell: export VCONTROL_DAEMON=$$vcontrol_url"; \
 	echo
 
-dev: clean ## developer tool for running the vcontrol daemon mounted on local filesystem
+dev: build clean ## developer tool for running the vcontrol daemon mounted on local filesystem
 	@ if [ ! -z "${DOCKER_HOST}" ]; then \
 		docker_host=$$(env | grep DOCKER_HOST | cut -d':' -f2 | cut -c 3-); \
 		docker_url=http://$$docker_host; \
@@ -26,6 +28,7 @@ dev: clean ## developer tool for running the vcontrol daemon mounted on local fi
 	port=$$(docker port vcontrol-daemon 8080/tcp | sed 's/^.*://'); \
 	vcontrol_url=$$docker_url:$$port; \
 	echo "The vcontrol daemon can be accessed here: $$vcontrol_url"; \
+	echo "run in shell: export VCONTROL_DAEMON=$$vcontrol_url"; \
 	echo
 
 run: build clean ## builds and run the vcontrol daemon
@@ -40,6 +43,7 @@ run: build clean ## builds and run the vcontrol daemon
 	port=$$(docker port vcontrol-daemon 8080/tcp | sed 's/^.*://'); \
 	vcontrol_url=$$docker_url:$$port; \
 	echo "The vcontrol daemon can be accessed here: $$vcontrol_url"; \
+	echo "run in shell: export VCONTROL_DAEMON=$$vcontrol_url"; \
 	echo
 
 api: build-api build clean ## builds and runs the vcontrol-api container
@@ -58,6 +62,7 @@ api: build-api build clean ## builds and runs the vcontrol-api container
 	vcontrol_url=$$docker_url:$$port; \
 	echo "The API can be accessed here: $$api_url"; \
 	echo "The vcontrol daemon can be accessed here: $$vcontrol_url"; \
+	echo "run in shell: export VCONTROL_DAEMON=$$vcontrol_url"; \
 	echo
 
 install: ## installs vcontrol as an executable
