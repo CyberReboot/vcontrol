@@ -34,6 +34,7 @@ If you are using `vcontrol` as a daemon:
    ```
    $ git clone https://github.com/CyberReboot/vcontrol.git
    $ cd vcontrol
+   $ make install # to install vcontrol to your python path
    $ make api
    # the daemon should be reachable at the URL given by make api
    ```
@@ -61,19 +62,9 @@ Copy and paste the link into a browser, and a Swagger UI will pop up with a menu
 
 An alternative to using the RESTful interface is the CLI, found in the `bin` directory of the repo.
 
-As a client:
+To connect as the client:
 ```
-# if you have the client installed via pip:
-$ export VCONTROL_DAEMON=http://<url>:<port>
-$ vcontrol -h # from anywhere
-
-# if you have the client installed via git clone without make install (in a container):
-$ export VCONTROL_DAEMON=http://<url>:<port>
-$ cd vcontrol/bin
-$ ./vcontrol -h
-
-# if you have the client installed via git clone with make install:
-$ export VCONTROL_DAEMON=http://<url>:<port>
+$ export VCONTROL_DAEMON=http://<url>:<port> # URL/PORT given from make commands if make was used
 $ vcontrol -h # from anywhere
 ```
 
