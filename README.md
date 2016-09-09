@@ -1,4 +1,7 @@
 # vcontrol
+[![PyPI](https://img.shields.io/pypi/v/vcontrol.svg?maxAge=2592000)]()
+[![PyPI](https://img.shields.io/pypi/dm/vcontrol.svg?maxAge=2592000)]()
+
 Control layer for managing [vent](https://github.com/CyberReboot/vent) instances
 
 vcontrol makes programmatically controlling vent possible. vcontrol lets users manage and run multiple instances of vent, accessible through a RESTful Interface and/or a CLI.
