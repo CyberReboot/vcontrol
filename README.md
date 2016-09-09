@@ -1,6 +1,6 @@
 # vcontrol
-[![PyPI](https://img.shields.io/pypi/v/vcontrol.svg?maxAge=2592000)]()
-[![PyPI](https://img.shields.io/pypi/dm/vcontrol.svg?maxAge=2592000)]()
+[![PyPI](https://img.shields.io/pypi/v/vcontrol.svg?maxAge=2592000)](https://github.com/CyberReboot/vcontrol)
+[![PyPI](https://img.shields.io/pypi/dm/vcontrol.svg?maxAge=2592000)](https://github.com/CyberReboot/vcontrol)
 
 Control layer for managing [vent](https://github.com/CyberReboot/vent) instances
 
