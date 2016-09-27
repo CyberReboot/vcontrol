@@ -153,34 +153,36 @@ class VControlServer(object):
             print "Error loading environment."
             sys.exit(1)
 
-        if not env in ['docker']:
+        # VCONTROL_ENV is only 'docker' if vcontrol-daemon is run in a container
+        if env != 'docker':
             # check for docker
             try:
-                print "...found docker"
                 docker = subprocess.call("which docker", shell=True)
                 if docker != 0:
                     print "You must have docker to run vcontrol. Please install docker."
                     sys.exit(1)
+                print "...found docker"
             except Exception:
                 print "Error checking for docker. Do you have docker installed?"
                 sys.exit(1)
 
             # check for docker-machine
             try:
-                print "...found docker-machine"
                 docker_machine = subprocess.call("which docker-machine", shell=True)
                 if docker_machine != 0:
                     print "You must have docker-machine to run vcontrol. Please install docker."
                     sys.exit(1)
+                print "...found docker-machine"
             except Exception:
                 print "Error checking for docker-machine. Do you have docker-machine installed?"
+
             # check that docker env is configured
             try:
-                print "...found DOCKER_HOST"
-                docker_env = subprocess.call("env | grep DOCKER_HOST", shell=True)
-                if docker_env != 0:
-                    print "No DOCKER_HOST environment variable set. Please set DOCKER_HOST."
-                    sys.exit(1)
+                is_dockerhost = subprocess.call("env | grep DOCKER_HOST", shell=True)
+                # check if call failed
+                if is_dockerhost != 0:
+                    print "No DOCKER_HOST environment variable set."
+                    print "...assuming localhost."
                 else:
                     docker_host = subprocess.check_output("env | grep DOCKER_HOST", shell=True).strip('\n')
                     docker_urls = subprocess.check_output("docker-machine ls --filter State=Running | grep -v URL | awk \"{print \$5}\"", shell=True).rstrip('\n').split('\n')
@@ -188,13 +190,14 @@ class VControlServer(object):
                     for url in docker_urls:
                         if url in docker_host:
                             docker_machine = True
+                            print "...found DOCKER_HOST"
                     if not docker_machine:
                         print "A DOCKER_HOST is specified, but no docker-machine was found matching the host."
                         print "DOCKER_HOST=", docker_host
                         print "DOCKER-MACHINE URLs=", docker_urls
-                        sys.exit(1)
+                        print "...assuming localhost instead."
             except Exception:
-                print "Error comparing provided DOCKER_HOST against running hosts on localhost."
+                print "Error finding DOCKER_HOST. Please set DOCKER_HOST."
                 sys.exit(1)
         # remove test results for runtime
         try:

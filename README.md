@@ -9,30 +9,51 @@ vcontrol makes programmatically controlling vent possible. vcontrol lets users m
 ## Getting Started
 
 ### Dependencies
-* Docker
-* Make
-* Additionally if running vcontrol locally:
- * Docker-Machine
- * pip
- * Python
- * requests
- * web.py
+
+If you are using `vcontrol` as a client:
+  * pip
+
+If you are using `vcontrol` as a daemon:
+  - If `vcontrol` is running locally:
+    * docker-machine
+    * pip
+  - If `vcontrol` is running in a container:
+    * docker
+    * docker-machine
+    * make
+    * pip
 
 ### Build and run the vcontrol daemon
 
-1. As a general `User` we recommend:
+1. To install `vcontrol` as a client:
 
    ```
    $ pip install vcontrol
+   $ export VCONTROL_DAEMON=<ip of vcontrol daemon>
    ```
-2. For more advanced usage as a `Developer` or `User`:
+
+2. To install `vcontrol` as a daemon in a container:
 
    ```
    $ git clone https://github.com/CyberReboot/vcontrol.git
    $ cd vcontrol
+   $ make install # to install vcontrol to your python path
    $ make api
-   # optional - "make install" to install vcontrol to your python path
+   # the daemon should be reachable at the URL given by make api
    ```
+
+3. To install `vcontrol` as a daemon locally:
+
+  ```
+  $ git clone https://github.com/CyberReboot/vcontrol.git
+  $ make install
+  $ vcontrol daemon # b/c of make install, vcontrol commands can be issued from anywhere
+  # the daemon should be running on http://localhost:8080/
+  ```
+
+4. To install `vcontrol` client and daemon together:
+
+  Simply install it as a daemon (2 or 3), and perform step 1.
 
 If `vcontrol` was installed via option `2`: it is possible to use the RESTful interface in a browser. To access it, follow the URL listed in the output when running `make api`:
 
@@ -44,16 +65,12 @@ Copy and paste the link into a browser, and a Swagger UI will pop up with a menu
 
 An alternative to using the RESTful interface is the CLI, found in the `bin` directory of the repo.
 
+To connect as the client:
 ```
-# get the daemon URL from the output of make
-$ export VCONTROL_DAEMON=http://<dockerhost>:<assignedport>
-
-# if you have installed via pip then run vcontrol -h from anywhere
-
-# if you have not installed or run make install to add vcontrol to your python path do:
-$ cd vcontrol/bin
-$ ./vcontrol -h
+$ export VCONTROL_DAEMON=http://<url>:<port> # URL/PORT given from make commands if make was used
+$ vcontrol -h # from anywhere
 ```
+
 ### Add a provider
 
 First you'll want to add a new provider, for example a VMWare vSphere host (note you'll need to make sure you have licensing to be able to make API calls to it).  Since adding and removing providers are a protected command by default, we're going to execute the command from the container rather than the client (it can be done from the client if both the daemon and the client have the environment variable `VCONTROL_OPEN` set to `true`):
