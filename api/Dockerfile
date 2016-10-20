@@ -1,9 +1,14 @@
-FROM ubuntu:14.04.4
+FROM ubuntu:16.04
 MAINTAINER clewis@iqt.org
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-get update && apt-get install -y git npm nodejs openjdk-7-jre
+# hack for installing openjdk-7-jre refrenced from http://askubuntu.com/questions/759451/how-can-i-install-openjdk-on-ubuntu-16-04
+RUN apt-get update && \
+    apt-get install -y git npm nodejs software-properties-common && \
+    add-apt-repository ppa:openjdk-r/ppa && \
+    apt-get update && \
+    apt-get install -y openjdk-7-jre
 RUN ln -s /usr/bin/nodejs /usr/local/bin/node
 
 RUN git clone https://github.com/swagger-api/swagger-ui.git
