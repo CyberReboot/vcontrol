@@ -1,4 +1,4 @@
-FROM ubuntu:14.04.4
+FROM ubuntu:16.04
 MAINTAINER clewis@iqt.org
 
 ENV DEBIAN_FRONTEND noninteractive
