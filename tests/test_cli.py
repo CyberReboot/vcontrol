@@ -1,6 +1,7 @@
 from vcontrol.cli.commands import info
 
 class Args():
+    """ test class to create mock args object """
     def __init__(self):
         self.machine = "foo"
 

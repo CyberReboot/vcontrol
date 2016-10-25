@@ -16,7 +16,7 @@ def start_web_app():
 def test_index_r():
     """ tests the restful endpoint: index """
     # get web app
-    testApp = start_web_app()
+    test_app = start_web_app()
     host = "http://localhost:8080"
 
     # test index
@@ -30,7 +30,7 @@ def test_index_r():
 def test_version_r():
     """ tests the restful endpoint: version """
     # get web app
-    testApp = start_web_app()
+    test_app = start_web_app()
     host = "http://localhost:8080"
 
     # test version
