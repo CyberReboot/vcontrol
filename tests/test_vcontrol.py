@@ -1,10 +1,9 @@
-from paste.fixture import TestApp
-
-import vcontrol
+from vcontrol import vcontrol
 
 import ast
 import pkg_resources
 import pytest
+import requests
 import web
 
 def start_web_app():
@@ -12,29 +11,30 @@ def start_web_app():
     vc_inst = vcontrol.VControl()
     urls = vc_inst.urls()
     app = web.application(urls, globals())
-    testApp = TestApp(app.wsgifunc())
-    return testApp
+    return app
 
 def test_index_r():
     """ tests the restful endpoint: index """
     # get web app
     testApp = start_web_app()
+    host = "http://localhost:8080"
 
     # test index
-    r = testApp.get('/v1')
-    assert r.status == 200
-    assert r.normal_body == "vcontrol"
-    r = testApp.get('/v1/')
-    assert r.status == 200
-    assert r.normal_body == "vcontrol"
+    r = requests.get(host+'/v1')
+    assert r.status_code == 200
+    assert r.text == "vcontrol"
+    r = requests.get(host+'/v1/')
+    assert r.status_code == 200
+    assert r.text == "vcontrol"
 
 def test_version_r():
     """ tests the restful endpoint: version """
     # get web app
     testApp = start_web_app()
+    host = "http://localhost:8080"
 
     # test version
-    r = testApp.get('/v1/version')
-    assert r.status == 200
+    r = requests.get(host+'/v1/version')
+    assert r.status_code == 200
     v = pkg_resources.get_distribution('vcontrol').version
-    assert ast.literal_eval(r.normal_body)['version'] == v
+    assert ast.literal_eval(r.text)['version'] == v
