@@ -77,6 +77,14 @@ test: run ## runs tests
 	@echo
 	docker exec -it vcontrol-daemon py.test /vcontrol -v --cov=/vcontrol/vcontrol --cov-report term-missing
 
+test-ci: run ## runs tests on continuous integration
+	@echo
+	@echo "checking dependencies"
+	@echo
+	pip -V
+	pip install -r vcontrol/requirements.txt
+	py.test -v --cov=vcontrol --cov-report term-missing
+
 build: depends ## builds the daemon image
 	docker build -t vcontrol .
 

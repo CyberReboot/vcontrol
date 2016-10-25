@@ -3,7 +3,7 @@ machine:
     - docker
 test:
   override:
-    - PYTHONPATH="${PYTHONPATH}:/home/ubuntu/" make test
+    - PYTHONPATH="${PYTHONPATH}:/home/ubuntu/" make test-ci
     - make
   post:
     - bash <(curl -s https://codecov.io/bash)
