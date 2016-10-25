@@ -28,10 +28,10 @@ RUN curl -L https://github.com/CyberReboot/vent/releases/download/v0.2.1/vent.is
 RUN mkdir -p /root/.docker/machine/cache && ln -s /root/.docker/machine/boot2docker.iso /root/.docker/machine/cache/boot2docker.iso
 
 # install vcontrol
+ADD vcontrol/requirements.txt /vcontrol/requirements.txt
+RUN pip install -r /vcontrol/requirements.txt
 ADD . /vcontrol
-WORKDIR /vcontrol
-RUN pip install -r vcontrol/requirements.txt
-RUN pip install vcontrol
+RUN pip install -e /vcontrol
 
 VOLUME /var/lib/docker
 VOLUME /root/.docker
