@@ -4,6 +4,4 @@ machine:
 test:
   override:
     - PYTHONPATH="${PYTHONPATH}:/home/ubuntu/" make test
-    - make
-  post:
-    - cd vcontrol && bash <(curl -s https://codecov.io/bash)
+    - make run
