@@ -31,7 +31,7 @@ Then attach to the currently running container:
 
 Now you can edit your local checkout's tests in your IDE and run the tests quickly in the container using:
 
-```#> py.test vcontrol /vcontrol```
+```#> py.test /vcontrol```
 
 
 Writing Tests
