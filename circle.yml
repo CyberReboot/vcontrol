@@ -6,4 +6,4 @@ test:
     - PYTHONPATH="${PYTHONPATH}:/home/ubuntu/" make test
     - make
   post:
-    - bash <(curl -s https://codecov.io/bash)
+    - cd vcontrol && bash <(curl -s https://codecov.io/bash)
