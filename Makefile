@@ -76,7 +76,7 @@ test: run ## runs tests
 	@echo "checking dependencies"
 	@echo
 	#docker exec -it vcontrol-daemon py.test /vcontrol -v --cov=/vcontrol/vcontrol --cov-report term-missing
-	docker run --link vcontrol-daemon:localhost -it --entrypoint py.test vcontrol /vcontrol -v --cov=/vcontrol/vcontrol --cov-report term-missing
+	docker run --link vcontrol-daemon:localhost -it -v $$(pwd):/local-vent --entrypoint /bin/bash vcontrol /local-vent/tests/run.sh
 
 build: depends ## builds the daemon image
 	docker build -t vcontrol .
