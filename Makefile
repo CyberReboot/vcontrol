@@ -75,7 +75,6 @@ test: run ## runs tests
 	@echo
 	@echo "checking dependencies"
 	@echo
-	#docker exec -it vcontrol-daemon py.test /vcontrol -v --cov=/vcontrol/vcontrol --cov-report term-missing
 	@env > ci.env; \
 	docker run --link vcontrol-daemon:localhost --env-file=ci.env -it --entrypoint /bin/bash vcontrol /vcontrol/tests/run.sh
 
