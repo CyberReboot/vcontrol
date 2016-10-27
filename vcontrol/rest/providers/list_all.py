@@ -8,9 +8,13 @@ class ListProvidersR:
     This endpoint lists all of the providers that have been added.
     """
     allow_origin, rest_url = get_allowed.get_allowed()
+
     def GET(self):
         """ GET HTTP Request """
-        web.header('Access-Control-Allow-Origin', self.allow_origin)
+        try:
+            web.header('Access-Control-Allow-Origin', self.allow_origin)
+        except Exception as e:
+            print(e.message)
         try:
             providers = {}
             if os.path.isfile('providers.txt'):
