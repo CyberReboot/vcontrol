@@ -7,6 +7,13 @@ class InfoProviderR:
     This endpoint is for getting info about a provider.
     """
     def GET(self, machine):
-        web.header('Access-Control-Allow-Origin', self.allow_origin)
-        # TODO
-        return "not implemented yet"
+        """ GET HTTP Request """
+        try:       
+            web.header('Access-Control-Allow-Origin', self.allow_origin)
+        except Exception as e:
+            print(e.message)
+        try:
+            # TODO
+            return "not implemented yet"
+        except:
+            return "unable to get provider info"
