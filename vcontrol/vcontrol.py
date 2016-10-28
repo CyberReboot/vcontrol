@@ -13,30 +13,30 @@ import sys
 try:
     import requests
 except ImportError:
-    print "requests not found, installing..."
+    print("requests not found, installing...")
     try:
         subprocess.call("pip install requests", shell=True)
         import requests
-        print "requests is now installed."
-        print "\n------\n"
+        print("requests is now installed.")
+        print("\n------\n")
     except Exception as e:
-        print "requests failed to install", str(e)
-        print "Please try installing requests manually."
+        print("requests failed to install", str(e))
+        print("Please try installing requests manually.")
         sys.exit(1)
 
 # check for web.py module
 try:
     import web
 except ImportError:
-    print "web.py not found, installing..."
+    print("web.py not found, installing...")
     try:
         subprocess.call("pip install web.py", shell=True)
         import web
-        print "web.py is now installed."
-        print "\n------\n"
+        print("web.py is now installed.")
+        print("\n------\n")
     except Exception as e:
-        print "web.py failed to install", str(e)
-        print "Please try installing web.py manually."
+        print("web.py failed to install", str(e))
+        print("Please try installing web.py manually.")
         sys.exit(1)
 
 # cli classes
@@ -135,7 +135,7 @@ class VControlServer(object):
     # need __new__ for tests, but fails to call __init__ when actually running
     def __new__(*args, **kw):
         if hasattr(sys, '_called_from_test'):
-            print "don't call __init__"
+            print("don't call __init__")
         else: # pragma: no cover
             return object.__new__(*args, **kw)
 
@@ -150,7 +150,7 @@ class VControlServer(object):
             if '=' in env:
                 env = env.split('=')[1]
         except Exception:
-            print "Error loading environment."
+            print("Error loading environment.")
             sys.exit(1)
 
         # VCONTROL_ENV is only 'docker' if vcontrol-daemon is run in a container
@@ -159,30 +159,30 @@ class VControlServer(object):
             try:
                 docker = subprocess.call("which docker", shell=True)
                 if docker != 0:
-                    print "You must have docker to run vcontrol. Please install docker."
+                    print("You must have docker to run vcontrol. Please install docker.")
                     sys.exit(1)
-                print "...found docker"
+                print("...found docker")
             except Exception:
-                print "Error checking for docker. Do you have docker installed?"
+                print("Error checking for docker. Do you have docker installed?")
                 sys.exit(1)
 
             # check for docker-machine
             try:
                 docker_machine = subprocess.call("which docker-machine", shell=True)
                 if docker_machine != 0:
-                    print "You must have docker-machine to run vcontrol. Please install docker."
+                    print("You must have docker-machine to run vcontrol. Please install docker.")
                     sys.exit(1)
-                print "...found docker-machine"
+                print("...found docker-machine")
             except Exception:
-                print "Error checking for docker-machine. Do you have docker-machine installed?"
+                print("Error checking for docker-machine. Do you have docker-machine installed?")
 
             # check that docker env is configured
             try:
                 is_dockerhost = subprocess.call("env | grep DOCKER_HOST", shell=True)
                 # check if call failed
                 if is_dockerhost != 0:
-                    print "No DOCKER_HOST environment variable set."
-                    print "...assuming localhost."
+                    print("No DOCKER_HOST environment variable set.")
+                    print("...assuming localhost.")
                 else:
                     docker_host = subprocess.check_output("env | grep DOCKER_HOST", shell=True).strip('\n')
                     docker_urls = subprocess.check_output("docker-machine ls --filter State=Running | grep -v URL | awk \"{print \$5}\"", shell=True).rstrip('\n').split('\n')
@@ -190,14 +190,14 @@ class VControlServer(object):
                     for url in docker_urls:
                         if url in docker_host:
                             docker_machine = True
-                            print "...found DOCKER_HOST"
+                            print("...found DOCKER_HOST")
                     if not docker_machine:
-                        print "A DOCKER_HOST is specified, but no docker-machine was found matching the host."
-                        print "DOCKER_HOST=", docker_host
-                        print "DOCKER-MACHINE URLs=", docker_urls
-                        print "...assuming localhost instead."
+                        print("A DOCKER_HOST is specified, but no docker-machine was found matching the host.")
+                        print("DOCKER_HOST=", docker_host)
+                        print("DOCKER-MACHINE URLs=", docker_urls)
+                        print("...assuming localhost instead.")
             except Exception:
-                print "Error finding DOCKER_HOST. Please set DOCKER_HOST."
+                print("Error finding DOCKER_HOST. Please set DOCKER_HOST.")
                 sys.exit(1)
         # remove test results for runtime
         try:
@@ -636,7 +636,7 @@ class VControl:
         args = parser.parse_args()
         if args.which != "daemon_parser":
             if not daemon:
-                print "Environment variable VCONTROL_DAEMON not set, defaulting to http://localhost:8080"
+                print("Environment variable VCONTROL_DAEMON not set, defaulting to http://localhost:8080")
                 daemon = 'http://localhost:8080'
             try:
                 r = requests.get(daemon+api_v)
@@ -646,7 +646,7 @@ class VControl:
                 else:
                     sys.exit()
             except:
-                print "unable to reach the daemon, please start one and set VCONTROL_DAEMON in your environment"
+                print("unable to reach the daemon, please start one and set VCONTROL_DAEMON in your environment")
                 sys.exit()
 
         daemon = daemon+api_v
@@ -700,7 +700,7 @@ class VControl:
         elif args.which == "mimetypes_parser": output = MimetypesCommandC().retrieve(args, daemon)
         else: pass # should never get here
 
-        print output
+        print(output)
 
         return
 

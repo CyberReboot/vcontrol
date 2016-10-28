@@ -22,6 +22,6 @@ class MimetypesCommandR:
                 output = ast.literal_eval(out)
                 output = {'mimetypes': output}
         except:
-            print sys.exc_info()
+            print(sys.exc_info())
             output = "Invalid command: "+command+" for retrieving mimetypes on "+machine
         return str(output)

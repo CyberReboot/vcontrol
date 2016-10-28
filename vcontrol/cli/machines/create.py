@@ -18,7 +18,7 @@ class CreateMachineC:
         payload['group'] = args.group
         payload['labels'] = args.labels
 
-        print "Creating machine, please wait..."
+        print("Creating machine, please wait...")
         r = requests.post(daemon+"/machines/create/b", data=json.dumps(payload))
         key = ""
         for line in r.text.split("\n"):
@@ -34,8 +34,8 @@ class CreateMachineC:
                 if ast.literal_eval(output)['state'] == 'done':
                     partial = False
                 else:
-                    print ast.literal_eval(output)['content'],
+                    print(ast.literal_eval(output)['content'], end=' ')
             except Exception as e:
-                print("Error:",e)
+                print("Error:", e)
                 partial = False
         return ""

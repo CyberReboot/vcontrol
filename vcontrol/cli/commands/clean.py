@@ -3,7 +3,7 @@ import requests
 
 class CleanCommandC:
     def clean(self, args, daemon):
-        print "Cleaning, please wait..."
+        print("Cleaning, please wait...")
         r = requests.get(daemon+"/commands/clean/"+args.machine+"/"+args.namespace+"/b")
         key = ""
         for line in r.text.split("\n"):
@@ -19,8 +19,8 @@ class CleanCommandC:
                 if ast.literal_eval(output)['state'] == 'done':
                     partial = False
                 else:
-                    print ast.literal_eval(output)['content'],
+                    print(ast.literal_eval(output)['content'], end=' ')
             except Exception as e:
-                print e
+                print(e)
                 partial = False
         return ""

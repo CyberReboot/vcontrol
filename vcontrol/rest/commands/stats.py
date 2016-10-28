@@ -30,6 +30,6 @@ class StatsCommandR:
             else:
                 return "Invalid category. Categories are: 'all', 'running'."
         except Exception as e:
-            print sys.exc_info()
+            print(sys.exc_info())
             out = "unable to retrieve container stats on "+machine
         return str(out)
