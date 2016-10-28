@@ -3,3 +3,6 @@
 *.pyc
 DS_Store
 .coverage
+build/
+dist/
+vcontrol.egg-info/
