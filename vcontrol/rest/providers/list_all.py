@@ -17,10 +17,12 @@ class ListProvidersR:
             print(e.message)
         try:
             providers = {}
-            if os.path.isfile('providers.txt'):
-                with open('providers.txt', 'r') as f:
+            providers_file_path = os.path.join(os.path.abspath(__file__), '../providers.txt')
+            if os.path.isfile(providers_file_path):
+                with open(providers_file_path, 'r') as f:
                     for line in f:
                         providers[line.split(":")[0]] = line.split(":")[1].strip()
             return providers
         except:
             return "unable to get providers"
+
