@@ -34,5 +34,5 @@ class ListMachinesR:
                     i = machine.split(" ")
                     machine_array.append(i[0])
         except:
-            print sys.exc_info()
+            print(sys.exc_info())
         return str(machine_array)

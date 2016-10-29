@@ -18,7 +18,7 @@ class HeartbeatProvidersR:
                     for line in f:
                         try:
                             name, p_type, _, _, _, args = line.split(":", 5)
-                            print p_type
+                            print(p_type)
                             if p_type in ["vmwarevsphere", "openstack"]:
                                 if "--openstack-auth-url" in args:
                                     args = args.split("--openstack-auth-url ")[1]

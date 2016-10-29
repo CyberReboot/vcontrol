@@ -38,6 +38,6 @@ class StatusCommandR:
                 # should never get here
                 out = "Invalid category for plugin status"
         except:
-            print sys.exc_info()
+            print(sys.exc_info())
             out = "unable to retrieve plugin statuses on "+machine
         return str(out)
