@@ -17,7 +17,7 @@ class ListProvidersR:
             print(e.message)
         try:
             providers = {}
-            providers_file_path = os.path.join(os.path.abspath(__file__), '../providers.txt')
+            providers_file_path = os.path.join(os.path.dirname(__file__), 'providers.txt')
             if os.path.isfile(providers_file_path):
                 with open(providers_file_path, 'r') as f:
                     for line in f:
@@ -25,4 +25,5 @@ class ListProvidersR:
             return providers
         except:
             return "unable to get providers"
+
 
