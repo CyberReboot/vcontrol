@@ -13,7 +13,10 @@ class RemoveProviderR:
     """
     allow_origin, rest_url = get_allowed.get_allowed()
     def GET(self, provider):
-        web.header('Access-Control-Allow-Origin', self.allow_origin)
+        try:
+            web.header('Access-Control-Allow-Origin', self.allow_origin)
+        except Exception as e:
+            print(e.message)
         open_d = os.environ.get('VCONTROL_OPEN')
         providers_file_path = os.path.join(os.path.dirname(__file__), 'providers.txt')
         if web.ctx.env["HTTP_HOST"] == 'localhost:8080' or open_d == "true":
