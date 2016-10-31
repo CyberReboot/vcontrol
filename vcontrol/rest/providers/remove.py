@@ -17,10 +17,13 @@ class RemoveProviderR:
         open_d = os.environ.get('VCONTROL_OPEN')
         if web.ctx.env["HTTP_HOST"] == 'localhost:8080' or open_d == "true":
             f = open("providers.txt","r")
+        providers_file_path = os.path.join(os.path.dirname(__file__), 'providers.txt')
+            f = open(providers_file_path,"r")
             lines = f.readlines()
             f.close()
             flag = 0
             with open("providers.txt", 'w') as f:
+            with open(providers_file_path, 'w') as f:
                 for line in lines:
                     if not line.startswith(provider+":"):
                         f.write(line)
