@@ -1,18 +1,30 @@
 """ Test for the remove.py module in the vcontrol/rest/providers directory """
-from os import remove
+from os import remove as delete_file
+from web import threadeddict
 
-from vcontrol.rest.providers.remove import RemoveProviderR
+from vcontrol.rest.providers import remove
 
 PROVIDERS_FILE_PATH = "../vcontrol/rest/providers/providers.txt"
+
+
+class ContextDummy():
+    env = threadeddict()
+    env['HTTP_HOST'] = 'localhost:8080'
+
+
+class WebDummy():
+    # dummy class to emulate the web.ctx.env call in remove.py
+    ctx = ContextDummy()
 
 
 def test_successful_provider_removal():
     """ Here we give the module a text file with PROVIDER: written in it,
         it should remove that line in the file """
-    remove_provider = RemoveProviderR()
+    remove_provider = remove.RemoveProviderR()
+    remove.web = WebDummy()  # override the web variable in remove.py
+
     test_provider = "PROV"
     expected_providers_contents = ['What:\n', 'Test:']  # what we expect to see in providers.txt after we call GET
-
     # create the file
     with open(PROVIDERS_FILE_PATH, 'w') as f:
         f.writelines([
@@ -29,7 +41,7 @@ def test_successful_provider_removal():
     with open(PROVIDERS_FILE_PATH, 'r') as f:
         provider_contents = f.readlines()
 
-    remove(PROVIDERS_FILE_PATH) # delete the file
+    delete_file(PROVIDERS_FILE_PATH)  # delete the file
 
     assert provider_contents == expected_providers_contents
 
@@ -37,9 +49,11 @@ def test_successful_provider_removal():
 def test_unsuccessful_provider_removal():
     """ Here we give the module a text file without the provider written in it,
         it should tell us that it couldn't find the provider we gave it as an argument"""
-    remove_provider = RemoveProviderR()
+    remove_provider = remove.RemoveProviderR()
+    remove.web = WebDummy()  # override the web variable in remove.py
+
     test_provider = "PROV"
-    expected_providers_contents = ['What:\n', 'NOTPROV:\n','Test:']  # what we expect to see in providers.txt after GET
+    expected_providers_contents = ['What:\n', 'NOTPROV:\n', 'Test:']  # what we expect to see in providers.txt after GET
 
     # create the file
     with open(PROVIDERS_FILE_PATH, 'w') as f:
@@ -57,7 +71,8 @@ def test_unsuccessful_provider_removal():
     with open(PROVIDERS_FILE_PATH, 'r') as f:
         provider_contents = f.readlines()
 
-    remove(PROVIDERS_FILE_PATH)  # delete the file
+    delete_file(PROVIDERS_FILE_PATH)  # delete the file
 
     assert provider_contents == expected_providers_contents
+
 
