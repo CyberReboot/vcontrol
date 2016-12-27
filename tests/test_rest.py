@@ -13,5 +13,5 @@ def test_info_command_r():
 def test_plugin_add_command():
     """ tests rest/commands/plugin/add """
     data = {'broken': 'broken'}
-    r = requests.post('http://localhost:8080/v1/commands/plugin/add', data=data)
+    r = requests.post('http://localhost:8080/v1/commands/plugin/add', json=data)
     assert 'no machine specified' in r.text
