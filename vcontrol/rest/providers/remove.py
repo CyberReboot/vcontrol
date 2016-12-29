@@ -13,14 +13,18 @@ class RemoveProviderR:
     """
     allow_origin, rest_url = get_allowed.get_allowed()
     def GET(self, provider):
-        web.header('Access-Control-Allow-Origin', self.allow_origin)
+        try:
+            web.header('Access-Control-Allow-Origin', self.allow_origin)
+        except Exception as e:
+            print(e.message)
         open_d = os.environ.get('VCONTROL_OPEN')
+        providers_file_path = os.path.join(os.path.dirname(__file__), 'providers.txt')
         if web.ctx.env["HTTP_HOST"] == 'localhost:8080' or open_d == "true":
-            f = open("providers.txt","r")
+            f = open(providers_file_path,"r")
             lines = f.readlines()
             f.close()
             flag = 0
-            with open("providers.txt", 'w') as f:
+            with open(providers_file_path, 'w') as f:
                 for line in lines:
                     if not line.startswith(provider+":"):
                         f.write(line)

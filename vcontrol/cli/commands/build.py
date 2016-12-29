@@ -1,9 +1,11 @@
+from __future__ import print_function
+
 import ast
 import requests
 
 class BuildCommandC:
     def build(self, args, daemon):
-        print "Building, please wait..."
+        print("Building, please wait...")
         payload = {'no_cache':args.no_cache}
         r = requests.get(daemon+"/commands/build/"+args.machine+"/b", params=payload)
         key = ""
@@ -20,8 +22,8 @@ class BuildCommandC:
                 if ast.literal_eval(output)['state'] == 'done':
                     partial = False
                 else:
-                    print ast.literal_eval(output)['content'],
+                    print(ast.literal_eval(output)['content'], end=' ')
             except Exception as e:
-                print e
+                print(e)
                 partial = False
         return ""
