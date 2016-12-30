@@ -1,3 +1,11 @@
+# v0.3.1 (2016-12-29)
+
+improvements:
+ - improved tests
+
+environment:
+ - vent: v0.3.1
+
 # v0.2.1 (2016-09-07)
 
 bug fixes:
