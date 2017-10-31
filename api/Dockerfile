@@ -1,5 +1,5 @@
 FROM ubuntu:16.04
-MAINTAINER clewis@iqt.org
+LABEL clewis@iqt.org
 
 ENV DEBIAN_FRONTEND noninteractive
 
